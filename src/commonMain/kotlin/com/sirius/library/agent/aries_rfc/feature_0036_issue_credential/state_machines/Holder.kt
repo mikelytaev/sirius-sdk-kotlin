@@ -32,43 +32,45 @@ class Holder(context: Context, issuer: Pairwise, masterSecretId: String?, locale
 
     fun accept(offer: OfferCredentialMessage, comment: String?): Pair<Boolean, String> {
         try {
-            CoProtocolP2P(context, issuer, protocols(), timeToLiveSec).use { coprotocol ->
-                val docUri: String = Type.fromStr(offer.getType()).getDocUri()
+            CoProtocolP2P(context, issuer, protocols(), timeToLiveSec).also { coprotocol ->
+                val docUri: String = Type.fromStr(offer.getType()?:"").docUri
                 try {
                     try {
                         offer.validate()
                     } catch (e: SiriusValidationError) {
-                        throw StateMachineTerminatedWithError(REQUEST_NOT_ACCEPTED, e.message)
+                        throw StateMachineTerminatedWithError(REQUEST_NOT_ACCEPTED, e.message ?:"")
                     }
                     // Step-1: Process Issuer Offer
-                    val (credRequest, credMetadata) = context.getAnonCreds().proverCreateCredentialReq(
+                    val (credRequest, credMetadata) = context.getAnonCreds()?.proverCreateCredentialReq(
                         issuer.me.did, offer.offer(), offer.credDef(), masterSecretId
-                    )
+                    ) ?:Pair(null,null)
 
                     // Step-2: Send request to Issuer
                     val requestMsg: RequestCredentialMessage =
-                        RequestCredentialMessage.builder().setComment(comment).setLocale(locale)
+                        RequestCredentialMessage.builder().setComment(comment).setLocale(locale?:"en")
                             .setCredRequest(credRequest).build()
                     val (_, second) = coprotocol.sendAndWait(requestMsg)
                     if (second !is IssueCredentialMessage) {
                         throw StateMachineTerminatedWithError(
                             REQUEST_NOT_ACCEPTED,
-                            "Unexpected @type:" + second.getType()
+                            "Unexpected @type:" + second?.getType()
                         )
                     }
                     val issueMsg: IssueCredentialMessage = second as IssueCredentialMessage
                     try {
                         issueMsg.validate()
                     } catch (e: SiriusValidationError) {
-                        throw StateMachineTerminatedWithError(REQUEST_NOT_ACCEPTED, e.message)
+                        throw StateMachineTerminatedWithError(REQUEST_NOT_ACCEPTED, e.message?:"")
                     }
 
                     // Step-3: Store credential
                     val credId =
-                        storeCredential(credMetadata, issueMsg.cred(), offer.credDef(), null, issueMsg.credId())
+                        storeCredential(credMetadata?:JSONObject(),
+                            issueMsg.cred()?: JSONObject(), offer.credDef()?:JSONObject(),
+                            null, issueMsg.credId()?:"")
                     storeMimeTypes(credId, offer.credentialPreview)
-                    SchemasNonSecretStorage.storeCredSchemaNonSecret(context.nonSecrets, offer.schema())
-                    SchemasNonSecretStorage.storeCredDefNonSecret(context.nonSecrets, offer.credDef())
+                    SchemasNonSecretStorage.storeCredSchemaNonSecret(context.nonSecrets, offer.schema()?: JSONObject())
+                    SchemasNonSecretStorage.storeCredDefNonSecret(context.nonSecrets, offer.credDef()?: JSONObject())
                     val ack: Ack = Ack.builder().setStatus(Ack.Status.OK).setDocUri(docUri).build()
                     ack.setThreadId(issueMsg.getAckMessageId())
                     coprotocol.send(ack)
@@ -79,7 +81,7 @@ class Holder(context: Context, issuer: Pairwise, masterSecretId: String?, locale
                         IssueProblemReport.builder().setProblemCode(ex.problemCode).setExplain(ex.explain)
                             .setDocUri(docUri).build()
                     log.info("100% - Terminated with error. " + ex.problemCode.toString() + " " + ex.explain)
-                    if (ex.isNotify()) coprotocol.send(problemReport)
+                    if (ex.isNotify) coprotocol.send(problemReport!!)
                 }
             }
         } catch (e: Exception) {
@@ -110,7 +112,7 @@ class Holder(context: Context, issuer: Pairwise, masterSecretId: String?, locale
         if (credOrder != null) {
             context.getAnonCreds().proverDeleteCredential(credId)
         }
-        credId = context.getAnonCreds().proverStoreCredential(credId, credMetadata, cred, credDef, revRegDef)
+        credId = context.getAnonCreds()?.proverStoreCredential(credId, credMetadata, cred, credDef, revRegDef) ?: credId
         return credId
     }
 
@@ -119,15 +121,12 @@ class Holder(context: Context, issuer: Pairwise, masterSecretId: String?, locale
             val mimeTypes = JSONObject()
             for (attr in preview) {
                 if (attr.has("mime-type")) {
-                    mimeTypes.put(attr.optString("name"), attr.optString("mime-type"))
+                    mimeTypes.put(attr.optString("name")?:"", attr.optString("mime-type"))
                 }
             }
             context.nonSecrets.addWalletRecord(
                 "mime-types", credId,
-                String(
-                    Base64.getEncoder()
-                        .encode(mimeTypes.toString().toByteArray(java.nio.charset.StandardCharsets.UTF_8))
-                )
+                Base64.getEncoder().encode(mimeTypes.toString().encodeToByteArray()).decodeToString()
             )
         }
     }
@@ -139,9 +138,7 @@ class Holder(context: Context, issuer: Pairwise, masterSecretId: String?, locale
             if (record != null) {
                 val rec = JSONObject(record)
                 val b64: String = rec.optString("value") ?:""
-                val vals = String(
-                    Base64.getDecoder().decode(b64.toByteArray(java.nio.charset.StandardCharsets.UTF_8))
-                )
+                val vals = Base64.getDecoder().decode(b64.encodeToByteArray()).decodeToString()
                 return JSONObject(vals)
             }
             return JSONObject()

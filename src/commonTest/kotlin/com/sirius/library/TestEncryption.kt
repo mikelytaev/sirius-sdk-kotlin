@@ -6,6 +6,7 @@ import com.sirius.library.encryption.UnpackModel
 import com.sirius.library.errors.sirius_exceptions.SiriusCryptoError
 import com.sirius.library.errors.sirius_exceptions.SiriusInvalidType
 import com.sirius.library.utils.JSONObject
+import com.sirius.library.utils.StringCodec
 import com.sirius.library.utils.StringUtils
 import kotlin.test.*
 
@@ -25,11 +26,13 @@ class TestEncryption {
     @Throws(SiriusCryptoError::class, SodiumException::class, SiriusInvalidType::class)
     fun encrypt() {
         //CREATE KEYPAIR
+        val codec = StringCodec()
+
         val keyPairRecipient: KeyPair =
-            Custom.createKeypair(seed1.toByteArray(java.nio.charset.StandardCharsets.US_ASCII))
+            Custom.createKeypair(codec.fromASCIIStringToByteArray(seed1))
         val verkeyRecipient: String = Custom.bytesToB58(keyPairRecipient.getPublicKey().getAsBytes())
         val sigkeyRecipient: String = Custom.bytesToB58(keyPairRecipient.getSecretKey().getAsBytes())
-        val keyPairSender: KeyPair = Custom.createKeypair(seed2.toByteArray(java.nio.charset.StandardCharsets.US_ASCII))
+        val keyPairSender: KeyPair = Custom.createKeypair(codec.fromASCIIStringToByteArray(seed2))
         val verkeySender: String = Custom.bytesToB58(keyPairSender.getPublicKey().getAsBytes())
         val sigkeySender: String = Custom.bytesToB58(keyPairSender.getSecretKey().getAsBytes())
 
@@ -58,10 +61,11 @@ class TestEncryption {
     fun test_fixture() {
         var keyPairRecipient: KeyPair? = null
         //CREATE KEYPAIR
-        keyPairRecipient = Custom.createKeypair(seed1.toByteArray(java.nio.charset.StandardCharsets.US_ASCII))
+        val codec = StringCodec()
+        keyPairRecipient = Custom.createKeypair(codec.fromASCIIStringToByteArray(seed1))
         val verkey_recipient: String = Custom.bytesToB58(keyPairRecipient.getPublicKey().getAsBytes())
         val sigkey_recipient: String = Custom.bytesToB58(keyPairRecipient.getSecretKey().getAsBytes())
-        val keyPairSender: KeyPair = Custom.createKeypair(seed2.toByteArray(java.nio.charset.StandardCharsets.US_ASCII))
+        val keyPairSender: KeyPair = Custom.createKeypair(codec.fromASCIIStringToByteArray(seed2))
         val verkeySender: String = Custom.bytesToB58(keyPairSender.getPublicKey().getAsBytes())
         val sigkeySender: String = Custom.bytesToB58(keyPairSender.getSecretKey().getAsBytes())
         val packed =
@@ -80,11 +84,12 @@ class TestEncryption {
     @Test
     @Throws(SiriusCryptoError::class, SodiumException::class)
     fun test_CryptoSign() {
+        val codec = StringCodec()
         val kp: KeyPair =
-            Custom.createKeypair("0000000000000000000000000000SEED".toByteArray(java.nio.charset.StandardCharsets.UTF_8))
+            Custom.createKeypair("0000000000000000000000000000SEED".encodeToByteArray())
         val msg = "message"
         var signature: ByteArray =
-            Custom.signMessage(msg.toByteArray(java.nio.charset.StandardCharsets.UTF_8), kp.getSecretKey().getAsBytes())
+            Custom.signMessage(msg.encodeToByteArray(), kp.getSecretKey().getAsBytes())
         assertEquals(
             "3tfqJYZ8ME8gTFUSHcH4uVTUx5kV7S1qPJJ65k2VtSocMfXvnzR1sbbfq6F2RcXrFtaufjEr4KQVu7aeyirYrcRm",
             Custom.bytesToB58(signature)
@@ -92,20 +97,20 @@ class TestEncryption {
         assertTrue(
             Custom.verifySignedMessage(
                 kp.getPublicKey().getAsBytes(),
-                msg.toByteArray(java.nio.charset.StandardCharsets.UTF_8), signature
+                msg.encodeToByteArray(), signature
             )
         )
         val kp2: KeyPair =
-            Custom.createKeypair("000000000000000000000000000SEED2".toByteArray(java.nio.charset.StandardCharsets.UTF_8))
+            Custom.createKeypair("000000000000000000000000000SEED2".encodeToByteArray())
         assertNotEquals(kp2.getPublicKey().getAsBytes(), kp.getPublicKey().getAsBytes())
         signature = Custom.signMessage(
-            msg.toByteArray(java.nio.charset.StandardCharsets.UTF_8),
+            msg.encodeToByteArray(),
             kp2.getSecretKey().getAsBytes()
         )
         assertFalse(
             Custom.verifySignedMessage(
                 kp.getPublicKey().getAsBytes(),
-                msg.toByteArray(java.nio.charset.StandardCharsets.UTF_8), signature
+                msg.encodeToByteArray(), signature
             )
         )
     }
@@ -114,7 +119,7 @@ class TestEncryption {
     @Throws(SiriusCryptoError::class, SodiumException::class)
     fun test_didFromVerkey() {
         val kp: KeyPair =
-            Custom.createKeypair("0000000000000000000000000000SEED".toByteArray(java.nio.charset.StandardCharsets.UTF_8))
+            Custom.createKeypair("0000000000000000000000000000SEED".encodeToByteArray())
         assertEquals(
             "GXhjv2jGf2oT1sqMyvJtgJxNYPMHmTsdZ3c2ZYQLJExj",
             Custom.bytesToB58(kp.getPublicKey().getAsBytes())

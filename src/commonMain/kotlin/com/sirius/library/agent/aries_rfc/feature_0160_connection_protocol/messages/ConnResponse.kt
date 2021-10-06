@@ -44,27 +44,27 @@ class ConnResponse(msg: String) : ConnProtocolMessage(msg) {
         return false
     }
 
-    abstract class Builder<B : Builder<B>?> : ConnProtocolMessage.Builder<B>() {
+    abstract class Builder<B : Builder<B>> : ConnProtocolMessage.Builder<B>() {
         var did: String? = null
         var verkey: String? = null
         var endpoint: String? = null
         var didDocExtra: JSONObject? = null
-        fun setDid(did: String?): B? {
+        fun setDid(did: String?): B {
             this.did = did
             return self()
         }
 
-        fun setVerkey(verkey: String?): B? {
+        fun setVerkey(verkey: String?): B {
             this.verkey = verkey
             return self()
         }
 
-        fun setEndpoint(endpoint: String?): B? {
+        fun setEndpoint(endpoint: String?): B {
             this.endpoint = endpoint
             return self()
         }
 
-        fun setDidDocExtra(didDocExtra: JSONObject?): B? {
+        fun setDidDocExtra(didDocExtra: JSONObject?): B {
             this.didDocExtra = didDocExtra
             return self()
         }
@@ -87,7 +87,7 @@ class ConnResponse(msg: String) : ConnProtocolMessage(msg) {
         }
     }
 
-    private class ConnResponseBuilder : Builder<ConnResponseBuilder?>() {
+    private class ConnResponseBuilder : Builder<ConnResponseBuilder>() {
         override fun self(): ConnResponseBuilder {
             return this
         }

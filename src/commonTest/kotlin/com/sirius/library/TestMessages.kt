@@ -104,10 +104,10 @@ class TestMessages {
             com.sirius.library.agent.aries_rfc.feature_0095_basic_message.Message.builder().setContent("context")
                 .setLocale("en").build()
         val att: Attach = Attach().setId("id").setMimeType("image/png").setFileName("photo.png")
-            .setData("eW91ciB0ZXh0".toByteArray(java.nio.charset.StandardCharsets.UTF_8))
+            .setData("eW91ciB0ZXh0".encodeToByteArray())
         msg.addAttach(att)
         assertEquals(1, msg.attaches.size)
-        assertEquals(String(msg.attaches.get(0).getData()), "eW91ciB0ZXh0")
+        assertEquals(msg.attaches.get(0).data?.decodeToString(), "eW91ciB0ZXh0")
     }
 }
 

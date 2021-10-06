@@ -6,6 +6,7 @@ import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.errors.sirius_exceptions.*
 import com.sirius.library.messaging.Message
 import com.sirius.library.messaging.Type
+import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONObject
 
 /**
@@ -56,25 +57,25 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
         isStarted = true
     }
 
-    fun start(protocols: List<String?>) {
+    open fun start(protocols: List<String>) {
         dieTimestamp = null
-        protocols = protocols
+        this.protocols = protocols
         if (protocols.isEmpty()) checkProtocols = false
         isStarted = true
     }
 
     open fun start(timeToLiveSec: Int) {
         checkProtocols = false
-        timeToLiveSec = timeToLiveSec
-        dieTimestamp = java.util.Date(java.lang.System.currentTimeMillis() + timeToLiveSec * 1000L)
+        this.timeToLiveSec = timeToLiveSec
+        dieTimestamp = Date(Date().time + timeToLiveSec * 1000L)
         isStarted = true
     }
 
-    fun start(protocols: List<String?>, timeToLiveSec: Int) {
-        protocols = protocols
+    open fun start(protocols: List<String>, timeToLiveSec: Int) {
+        this.protocols = protocols
         if (protocols.isEmpty()) checkProtocols = false
-        timeToLiveSec = timeToLiveSec
-        dieTimestamp = java.util.Date(java.lang.System.currentTimeMillis() + timeToLiveSec * 1000L)
+        this.timeToLiveSec = timeToLiveSec
+        dieTimestamp = Date(Date().time + timeToLiveSec * 1000L)
         isStarted = true
     }
 
@@ -193,12 +194,12 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
                     } else {
                         message = Message(event.getMessageObj().getJSONObject("message"))
                     }
-                } catch (e: java.lang.Exception) {
+                } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
-            val senderVerkey: String = event.getMessageObj().optString("sender_verkey", null)
-            val recipientVerkey: String = event.getMessageObj().optString("recipient_verkey", null)
+            val senderVerkey: String? = event.getMessageObj().optString("sender_verkey", null)
+            val recipientVerkey: String? = event.getMessageObj().optString("recipient_verkey", null)
             return GetOneResult(message, senderVerkey, recipientVerkey)
         }
 
@@ -211,7 +212,7 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
         setupContext(message)
         try {
             rpc.sendMessage(message, listOf(theirVK), endpoint, myVerkey, routingKeys, false)
-        } catch (e: java.lang.Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
         } finally {
             cleanupContext(message)
@@ -224,7 +225,7 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
         for (p in to) {
             batches.add(
                 RoutingBatch(
-                    listOf(p.their.verkey),
+                    listOfNotNull(p.their.verkey),
                     p.their.endpointAddress,
                     p.me.verkey,
                     p.their.routingKeys
@@ -241,7 +242,7 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
         } catch (siriusConnectionClosed: SiriusConnectionClosed) {
             siriusConnectionClosed.printStackTrace()
         }
-        return null
+        return listOf()
     }
 
     companion object {

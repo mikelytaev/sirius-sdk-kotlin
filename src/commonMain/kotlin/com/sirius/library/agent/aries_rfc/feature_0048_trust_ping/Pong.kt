@@ -24,7 +24,7 @@ class Pong(message: String) : AriesProtocolMessage(message) {
     val comment: String?
         get() = getStringFromJSON("comment")
 
-    abstract class Builder<B : Builder<B>?> : AriesProtocolMessage.Builder<B>() {
+    abstract class Builder<B : Builder<B>> : AriesProtocolMessage.Builder<B>() {
         var comment: String? = null
         var pingId: String? = null
         fun setComment(comment: String?): B {
@@ -56,7 +56,7 @@ class Pong(message: String) : AriesProtocolMessage(message) {
         }
     }
 
-    private class PongBuilder : Builder<PongBuilder?>() {
+    private class PongBuilder : Builder<PongBuilder>() {
         protected override fun self(): PongBuilder {
             return this
         }

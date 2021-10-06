@@ -7,13 +7,13 @@ import com.sirius.library.messaging.Message
 class PairwiseCoProtocolTransport(pairwise: Pairwise, rpc: AgentRPC) :
     AbstractCloudCoProtocolTransport(rpc) {
     var pairwise: Pairwise
-    fun start(protocols: List<String?>?, timeToLiveSec: Int) {
-        super.start(protocols!!, timeToLiveSec)
+    override fun start(protocols: List<String>, timeToLiveSec: Int) {
+        super.start(protocols, timeToLiveSec)
         rpc.startProtocolForP2P(myVerkey, pairwise.their.verkey, protocols, timeToLiveSec)
     }
 
-    fun start(protocols: List<String?>?) {
-        super.start(protocols!!)
+    override fun start(protocols: List<String>) {
+        super.start(protocols)
         rpc.startProtocolForP2P(myVerkey, pairwise.their.verkey, protocols, timeToLiveSec)
     }
 

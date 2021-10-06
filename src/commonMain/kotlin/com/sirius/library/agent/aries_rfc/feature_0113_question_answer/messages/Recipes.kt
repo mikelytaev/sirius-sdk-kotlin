@@ -8,8 +8,8 @@ object Recipes {
     fun askAndWaitAnswer(context: Context, question: QuestionMessage, to: Pairwise): AnswerMessage? {
         var ttlSec = 60
         if (question.expiresTime != null) {
-            ttlSec =
-                java.time.temporal.ChronoUnit.SECONDS.between(java.time.ZonedDateTime.now(), question.expiresTime)
+            ttlSec = -1
+                //TODO java.time.temporal.ChronoUnit.SECONDS.between(java.time.ZonedDateTime.now(), question.expiresTime)
                     .toInt()
             if (ttlSec < 0) ttlSec = 60
         }

@@ -2,11 +2,12 @@ package com.sirius.library.base
 
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.Logger
+import com.sirius.library.utils.StringCodec
 
 class ListenerConnector : BaseConnector {
     var log: Logger = Logger.getLogger(ListenerConnector::class.simpleName)
     var defTimeout = 30
-    var encoding: String = "UTF_8"
+    var encoding: String = StringCodec.UTF_8
     var serverAddress: String
     var path: String
     var credentials: ByteArray
@@ -114,7 +115,7 @@ class ListenerConnector : BaseConnector {
         val httpclient: CloseableHttpClient = HttpClients.createDefault()
         val httpPost = HttpPost(serverAddress)
         val nvps: MutableList<NameValuePair> = ArrayList<NameValuePair>()
-        nvps.add(BasicNameValuePair("name", String(data, java.nio.charset.StandardCharsets.UTF_8)))
+        nvps.add(BasicNameValuePair("name", data.decodeToString()))
         //nvps.add(new BasicNameValuePair("password", "secret"));
         try {
             httpPost.setEntity(UrlEncodedFormEntity(nvps))

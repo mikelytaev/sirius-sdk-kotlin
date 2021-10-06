@@ -38,11 +38,11 @@ class TestLocks {
             var resources = generateRandomResources(100)
             var okBusy: Pair<Boolean?, List<String?>?> = session1.acquire(resources, 5)
             try {
-                assertTrue(okBusy.first)
+                assertTrue(okBusy.first == true)
                 okBusy = session2.acquire(resources, 1)
                 assertFalse(okBusy.first)
                 assertEquals(
-                    HashSet<Any>(okBusy.second),
+                    HashSet<String>(okBusy.second),
                     HashSet<String>(resources)
                 )
             } finally {
@@ -54,7 +54,7 @@ class TestLocks {
             assertTrue(okBusy.first)
             // Check after timeout
             resources = generateRandomResources(100)
-            val timeoutSec = 5.0
+            val timeoutSec = 5
             okBusy = session1.acquire(resources, timeoutSec)
             assertTrue(okBusy.first)
             okBusy = session2.acquire(resources, timeoutSec)
@@ -88,10 +88,10 @@ class TestLocks {
         session2.open()
         try {
             // check locking OK
-            val timeout = 5.0
+            val timeout = 5
             val resources1 = generateRandomResources(100)
             var okBusy: Pair<Boolean?, List<String?>?> = session1.acquire(resources1, timeout)
-            assertTrue(okBusy.first)
+            assertTrue(okBusy.first==true)
             val resources2 = generateRandomResources(100)
             okBusy = session1.acquire(resources2, timeout)
             assertTrue(okBusy.first)

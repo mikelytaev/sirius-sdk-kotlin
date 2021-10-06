@@ -132,7 +132,7 @@ open class Message : JsonSerializable<Message> {
         return UUID.randomUUID.toString()
     }
 
-    override fun serialize(): String? {
+    override fun serialize(): String {
         return messageObj.toString()
     }
 

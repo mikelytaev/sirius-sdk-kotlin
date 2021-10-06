@@ -10,25 +10,22 @@ import com.sirius.library.errors.sirius_exceptions.SiriusCryptoError
 import com.sirius.library.models.AgentParams
 import com.sirius.library.models.P2PModel
 import com.sirius.library.rpc.AddressedTunnel
-import com.sirius.library.utils.JSONArray
-import com.sirius.library.utils.JSONObject
-import com.sirius.library.utils.StringUtils
-import com.sirius.library.utils.UUID
+import com.sirius.library.utils.*
 
 class ConfTest {
-    var test_suite_baseurl: String? = null
+    var test_suite_baseurl: String? =null
     var test_suite_overlay_address: String? = null
     var old_agent_address: String? = null
     var old_agent_overlay_address: String? = null
     var old_agent_root: String? = null
     var custom: Custom = Custom
     fun configureTestEnv() {
-        test_suite_baseurl = java.lang.System.getenv("TEST_SUITE_BASE_URL")
+        test_suite_baseurl = System.getenv("TEST_SUITE_BASE_URL")
         if (test_suite_baseurl == null || test_suite_baseurl!!.isEmpty()) {
             test_suite_baseurl = "http://localhost"
         }
         test_suite_overlay_address = "http://10.0.0.90"
-        old_agent_address = java.lang.System.getenv("INDY_AGENT_BASE_URL")
+        old_agent_address = System.getenv("INDY_AGENT_BASE_URL")
         if (old_agent_address == null || old_agent_address!!.isEmpty()) {
             old_agent_address = "http://127.0.0.1:88"
         }
@@ -41,10 +38,11 @@ class ConfTest {
 
     fun createP2P(): Pair<P2PModel, P2PModel>? {
         try {
+            val codec = StringCodec()
             val keysAgent: KeyPair =
-                custom.createKeypair("000000000000000000000000000AGENT".toByteArray(java.nio.charset.StandardCharsets.US_ASCII))
+                custom.createKeypair(codec.fromASCIIStringToByteArray("000000000000000000000000000AGENT"))
             val keysSdk: KeyPair =
-                custom.createKeypair("00000000000000000000000000000SDK".toByteArray(java.nio.charset.StandardCharsets.US_ASCII))
+                custom.createKeypair(codec.fromASCIIStringToByteArray("00000000000000000000000000000SDK"))
             val agent = P2PConnection(
                 StringUtils.bytesToBase58String(keysAgent.getPublicKey().getAsBytes()),
                 StringUtils.bytesToBase58String(keysAgent.getSecretKey().getAsBytes()),
@@ -79,10 +77,11 @@ class ConfTest {
     val indyAgentSingleton: IndyAgent
         get() = IndyAgent()
 
-    fun getAgent(name: String?): CloudAgent {
+    fun getAgent(name: String): CloudAgent {
         val params: AgentParams = suiteSingleton.getAgentParams(name)
+        val codec = StringCodec()
         return CloudAgent(
-            params.serverAddress, params.credentials.getBytes(java.nio.charset.StandardCharsets.US_ASCII),
+            params.serverAddress, codec.fromASCIIStringToByteArray(params.credentials),
             params.getConnection(), 60, null, name
         )
     }
@@ -128,8 +127,9 @@ class ConfTest {
     }
 
     fun ledgerName(): String {
+        val codec = StringCodec()
         return "Ledger-" + LazySodium.toHex(
-            UUID.randomUUID.toString().toByteArray(java.nio.charset.StandardCharsets.US_ASCII)
+            codec.fromASCIIStringToByteArray(UUID.randomUUID.toString())
         )
     }
 
@@ -139,8 +139,8 @@ class ConfTest {
 
     fun getPairwise(me: CloudAgent, their: CloudAgent): Pairwise {
         val suite: ServerTestSuite = suiteSingleton
-        val myParams: AgentParams = suite.getAgentParams(me.name)
-        val theirParams: AgentParams = suite.getAgentParams(their.name)
+        val myParams: AgentParams = suite.getAgentParams(me.name?:"")
+        val theirParams: AgentParams = suite.getAgentParams(their.name?:"")
         val myEntity: Entity = myParams.getEntitiesList().get(0)
         val theirEntity: Entity = theirParams.getEntitiesList().get(0)
         val myEndpointAddress: String = ServerTestSuite.getFirstEndpointAddressWIthEmptyRoutingKeys(me)
@@ -217,12 +217,12 @@ class ConfTest {
         }
 
         var proverMasterSecretName = "prover_master_secret_name"
-        val singletonInstance: ConfTest?
+        val singletonInstance: ConfTest
             get() {
                 if (instance == null) {
                     instance = newInstance()
                 }
-                return instance
+                return instance!!
             }
 
         fun getState(ledger: AbstractMicroledger): JSONObject {

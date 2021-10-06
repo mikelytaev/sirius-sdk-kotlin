@@ -14,7 +14,7 @@ class KeylistUpdateResponse(message: String) : CoordinateMediationMessage(messag
         }
     }
 
-    abstract class Builder<B : Builder<B>?> :
+    abstract class Builder<B : Builder<B>> :
         CoordinateMediationMessage.Builder<B>() {
         override fun generateJSON(): JSONObject {
             return super.generateJSON()
@@ -26,7 +26,7 @@ class KeylistUpdateResponse(message: String) : CoordinateMediationMessage(messag
     }
 
     private class KeylistResponseMessageBuilder :
-        Builder<KeylistResponseMessageBuilder?>() {
+        Builder<KeylistResponseMessageBuilder>() {
         protected override fun self(): KeylistResponseMessageBuilder {
             return this
         }

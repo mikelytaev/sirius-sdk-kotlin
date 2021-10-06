@@ -2,6 +2,9 @@ package com.sirius.library
 
 import com.sirius.library.agent.CloudAgent
 import com.sirius.library.agent.consensus.simple.messages.*
+import com.sirius.library.agent.consensus.simple.state_machines.MicroLedgerSimpleConsensus
+import com.sirius.library.agent.listener.Event
+import com.sirius.library.agent.listener.Listener
 import com.sirius.library.agent.microledgers.AbstractMicroledger
 import com.sirius.library.agent.microledgers.Transaction
 import com.sirius.library.agent.pairwise.Pairwise
@@ -9,6 +12,9 @@ import com.sirius.library.encryption.P2PConnection
 import com.sirius.library.errors.sirius_exceptions.SiriusContextError
 import com.sirius.library.errors.sirius_exceptions.SiriusValidationError
 import com.sirius.library.helpers.ConfTest
+import com.sirius.library.helpers.ServerTestSuite
+import com.sirius.library.hub.CloudContext
+import com.sirius.library.models.AgentParams
 import com.sirius.library.utils.JSONObject
 import kotlin.test.*
 
@@ -40,7 +46,7 @@ class TestSimpleConsensus {
                 )
             )
             val request: InitRequestLedgerMessage = InitRequestLedgerMessage.builder()
-                .setParticipants(listOf(a2b.me.did, b2a.me.did))
+                .setParticipants(listOfNotNull(a2b.me.did, b2a.me.did))
                 .setLedgerName(ledgerName).setGenesis(genesisTxns).setRootHash("xxx").build()
             request.addSignature(agentA.getWallet().crypto, a2b.me)
             request.addSignature(agentB.getWallet().crypto, b2a.me)
@@ -184,17 +190,12 @@ class TestSimpleConsensus {
     }
 
     @Test
-    @Throws(
-        java.lang.InterruptedException::class,
-        java.util.concurrent.ExecutionException::class,
-        java.util.concurrent.TimeoutException::class
-    )
     fun testSimpleConsensusInitLedger() {
         val agentA: CloudAgent = confTest.getAgent("agent1")
         val agentB: CloudAgent = confTest.getAgent("agent2")
         val agentC: CloudAgent = confTest.getAgent("agent3")
         val ledgerName: String = confTest.ledgerName()
-        val testSuite: ServerTestSuite = confTest.getSuiteSingleton()
+        val testSuite = confTest.suiteSingleton
         val aParams: AgentParams = testSuite.getAgentParams("agent1")
         val bParams: AgentParams = testSuite.getAgentParams("agent2")
         val cParams: AgentParams = testSuite.getAgentParams("agent3")
@@ -204,16 +205,16 @@ class TestSimpleConsensus {
         try {
             val a2b: Pairwise = confTest.getPairwise(agentA, agentB)
             val a2c: Pairwise = confTest.getPairwise(agentA, agentC)
-            assertEquals(a2b.getMe(), a2c.getMe())
+            assertEquals(a2b.me, a2c.me)
             val b2a: Pairwise = confTest.getPairwise(agentB, agentA)
             val b2c: Pairwise = confTest.getPairwise(agentB, agentC)
-            assertEquals(b2a.getMe(), b2c.getMe())
+            assertEquals(b2a.me, b2c.me)
             val c2a: Pairwise = confTest.getPairwise(agentC, agentA)
             val c2b: Pairwise = confTest.getPairwise(agentC, agentB)
-            assertEquals(c2a.getMe(), c2b.getMe())
+            assertEquals(c2a.me, c2b.me)
             val participants: List<String> =
-                java.util.Arrays.asList(a2b.me.did, a2b.getTheir().getDid(), a2c.getTheir().getDid())
-            val genesis: List<Transaction> = java.util.Arrays.asList<Transaction>(
+               listOfNotNull(a2b.me.did, a2b.their.did, a2c.their.did)
+            val genesis: List<Transaction> = listOf(
                 Transaction(
                     JSONObject().put("reqId", 1)
                         .put("identifier", "5rArie7XKukPCaEwq5XGQJnM9Fc5aZE3M9HAPVfMU2xC").put("op", "op1")
@@ -225,23 +226,23 @@ class TestSimpleConsensus {
             )
             val creatorRoutine: java.util.function.Function<java.lang.Void, Pair<Boolean, AbstractMicroledger>> =
                 routineOfLedgerCreator(
-                    aParams.getServerAddress(),
-                    aParams.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                    aParams.serverAddress,
+                    aParams.credentials.encodeToByteArray(),
                     aParams.getConnection(),
-                    a2b.getMe(),
+                    a2b.me,
                     participants,
                     ledgerName,
                     genesis
                 )
             val acceptorRoutine1: java.util.function.Function<java.lang.Void, Pair<Boolean, AbstractMicroledger>> =
                 routineOfLedgerCreationAcceptor(
-                    bParams.getServerAddress(),
-                    bParams.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8), bParams.getConnection()
+                    bParams.serverAddress,
+                    bParams.credentials.encodeToByteArray(), bParams.getConnection()
                 )
             val acceptorRoutine2: java.util.function.Function<java.lang.Void, Pair<Boolean, AbstractMicroledger>> =
                 routineOfLedgerCreationAcceptor(
-                    cParams.getServerAddress(),
-                    cParams.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8), cParams.getConnection()
+                    cParams.serverAddress,
+                    cParams.credentials.encodeToByteArray(), cParams.getConnection()
                 )
             val stamp1: Long = java.lang.System.currentTimeMillis()
             println("> begin")
@@ -266,9 +267,9 @@ class TestSimpleConsensus {
             assertTrue(agentA.getMicroledgers().isExists(ledgerName))
             assertTrue(agentB.getMicroledgers().isExists(ledgerName))
             assertTrue(agentC.getMicroledgers().isExists(ledgerName))
-            for (agent in java.util.Arrays.asList<Any>(agentA, agentB, agentC)) {
+            for (agent in listOf(agentA, agentB, agentC)) {
                 val ledger: AbstractMicroledger = agent.getMicroledgers().getLedger(ledgerName)
-                val txns: List<Transaction> = ledger.getAllTransactions()
+                val txns: List<Transaction> = ledger.allTransactions
                 assertEquals(2, txns.size.toLong())
             }
         } finally {
@@ -280,7 +281,7 @@ class TestSimpleConsensus {
 
     private fun routineOfTxnCommitter(
         uri: String, credentials: ByteArray, p2p: P2PConnection,
-        me: Me, participants: List<String>,
+        me: Pairwise.Me, participants: List<String>,
         ledger: AbstractMicroledger, txns: List<Transaction>
     ): java.util.function.Function<java.lang.Void, Pair<Boolean, List<Transaction>>> {
         return label@ java.util.function.Function<java.lang.Void, Pair<Boolean, List<Transaction>>> { unused: java.lang.Void? ->
@@ -311,7 +312,7 @@ class TestSimpleConsensus {
                         )
                     }
                 }
-            } catch (ex: java.lang.Exception) {
+            } catch (ex: Exception) {
                 ex.printStackTrace()
                 fail()
             }
@@ -320,17 +321,12 @@ class TestSimpleConsensus {
     }
 
     @Test
-    @Throws(
-        java.lang.InterruptedException::class,
-        java.util.concurrent.ExecutionException::class,
-        java.util.concurrent.TimeoutException::class
-    )
     fun testSimpleConsensusCommit() {
         val agentA: CloudAgent = confTest.getAgent("agent1")
         val agentB: CloudAgent = confTest.getAgent("agent2")
         val agentC: CloudAgent = confTest.getAgent("agent3")
         val ledgerName: String = confTest.ledgerName()
-        val testSuite: ServerTestSuite = confTest.getSuiteSingleton()
+        val testSuite: ServerTestSuite = confTest.suiteSingleton
         val aParams: AgentParams = testSuite.getAgentParams("agent1")
         val bParams: AgentParams = testSuite.getAgentParams("agent2")
         val cParams: AgentParams = testSuite.getAgentParams("agent3")
@@ -340,16 +336,16 @@ class TestSimpleConsensus {
         try {
             val a2b: Pairwise = confTest.getPairwise(agentA, agentB)
             val a2c: Pairwise = confTest.getPairwise(agentA, agentC)
-            assertEquals(a2b.getMe(), a2c.getMe())
+            assertEquals(a2b.me, a2c.me)
             val b2a: Pairwise = confTest.getPairwise(agentB, agentA)
             val b2c: Pairwise = confTest.getPairwise(agentB, agentC)
-            assertEquals(b2a.getMe(), b2c.getMe())
+            assertEquals(b2a.me, b2c.me)
             val c2a: Pairwise = confTest.getPairwise(agentC, agentA)
             val c2b: Pairwise = confTest.getPairwise(agentC, agentB)
-            assertEquals(c2a.getMe(), c2b.getMe())
+            assertEquals(c2a.me, c2b.me)
             val participants: List<String> =
-                java.util.Arrays.asList(a2b.me.did, a2b.getTheir().getDid(), a2c.getTheir().getDid())
-            val genesis: List<Transaction> = java.util.Arrays.asList<Transaction>(
+                listOfNotNull(a2b.me.did, a2b.their.did, a2c.their.did)
+            val genesis: List<Transaction> = listOf(
                 Transaction(
                     JSONObject().put("reqId", 1)
                         .put("identifier", "5rArie7XKukPCaEwq5XGQJnM9Fc5aZE3M9HAPVfMU2xC").put("op", "op1")
@@ -363,7 +359,7 @@ class TestSimpleConsensus {
             var ledgerForA: AbstractMicroledger = t1.first
             agentB.getMicroledgers().create(ledgerName, genesis)
             agentC.getMicroledgers().create(ledgerName, genesis)
-            val txns: List<Transaction> = java.util.Arrays.asList<Transaction>(
+            val txns: List<Transaction> = listOf(
                 Transaction(
                     JSONObject().put("reqId", 3)
                         .put("identifier", "5rArie7XKukPCaEwq5XGQJnM9Fc5aZE3M9HAPVfMU2xC").put("op", "op3")
@@ -379,21 +375,21 @@ class TestSimpleConsensus {
             )
             val committer: java.util.function.Function<java.lang.Void, Pair<Boolean, List<Transaction>>> =
                 routineOfTxnCommitter(
-                    aParams.getServerAddress(),
-                    aParams.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                    aParams.serverAddress,
+                    aParams.credentials.encodeToByteArray(),
                     aParams.getConnection(),
-                    a2b.getMe(),
+                    a2b.me,
                     participants,
                     ledgerForA,
                     txns
                 )
             val acceptor1: java.util.function.Function<java.lang.Void, Boolean> = routineOfTxnAcceptor(
-                bParams.getServerAddress(),
-                bParams.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8), bParams.getConnection()
+                bParams.serverAddress,
+                bParams.credentials.encodeToByteArray(), bParams.getConnection()
             )
             val acceptor2: java.util.function.Function<java.lang.Void, Boolean> = routineOfTxnAcceptor(
-                cParams.getServerAddress(),
-                cParams.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8), cParams.getConnection()
+                cParams.serverAddress,
+                cParams.credentials.encodeToByteArray(), cParams.getConnection()
             )
             val stamp1: Long = java.lang.System.currentTimeMillis()
             println("> begin")
@@ -425,7 +421,7 @@ class TestSimpleConsensus {
             val ledgers: List<AbstractMicroledger> =
                 java.util.Arrays.asList<AbstractMicroledger>(ledgerForA, ledgerForB, ledgerForC)
             for (ledger in ledgers) {
-                val allTxns: List<Transaction> = ledger.getAllTransactions()
+                val allTxns: List<Transaction> = ledger.allTransactions
                 assertEquals(5, allTxns.size.toLong())
                 assertTrue(allTxns.toString().contains("op3"))
                 assertTrue(allTxns.toString().contains("op4"))

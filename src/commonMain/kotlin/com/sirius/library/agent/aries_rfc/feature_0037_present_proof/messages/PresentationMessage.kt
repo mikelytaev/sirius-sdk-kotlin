@@ -28,7 +28,7 @@ class PresentationMessage(msg: String) : BasePresentProofMessage(msg) {
         }
         if (attach != null && attach.has("data") && attach.getJSONObject("data")?.has("base64") ==true) {
             val rawBase64: String = attach.getJSONObject("data")?.getString("base64") ?:""
-            return JSONObject(String(Base64.getDecoder().decode(rawBase64)))
+            return JSONObject(Base64.getDecoder().decode(rawBase64).decodeToString())
         }
         return JSONObject()
     }
@@ -56,8 +56,8 @@ class PresentationMessage(msg: String) : BasePresentProofMessage(msg) {
                 attach.put("mime-type", "application/json")
                 val data = JSONObject()
                 val base64: ByteArray = Base64.getEncoder()
-                    .encode(proof.toString().toByteArray(java.nio.charset.StandardCharsets.UTF_8))
-                data.put("base64", String(base64))
+                    .encode(proof.toString().encodeToByteArray())
+                data.put("base64", base64.decodeToString())
                 attach.put("data", data)
                 val arr = JSONArray()
                 arr.put(attach)

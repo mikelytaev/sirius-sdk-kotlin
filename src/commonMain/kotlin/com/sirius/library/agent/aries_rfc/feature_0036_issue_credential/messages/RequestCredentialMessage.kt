@@ -27,7 +27,7 @@ class RequestCredentialMessage(message: String) : BaseIssueCredentialMessage(mes
         if (request != null) {
             val base64: String = request.getJSONObject("data")?.getString("base64") ?:""
             val decoded: ByteArray = Base64.getDecoder().decode(base64)
-            return JSONObject(String(decoded))
+            return JSONObject(decoded.decodeToString())
         }
         return null
     }
@@ -49,8 +49,8 @@ class RequestCredentialMessage(message: String) : BaseIssueCredentialMessage(mes
                 requestAttach.put("mime-type", "application/json")
                 val data = JSONObject()
                 val base64: ByteArray = Base64.getEncoder()
-                    .encode(credRequest.toString().toByteArray(java.nio.charset.StandardCharsets.UTF_8))
-                data.put("base64", String(base64))
+                    .encode(credRequest.toString().encodeToByteArray())
+                data.put("base64", base64.decodeToString())
                 requestAttach.put("data", data)
                 val arr = JSONArray()
                 arr.put(requestAttach)

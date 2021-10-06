@@ -13,10 +13,7 @@ import com.sirius.library.helpers.ServerTestSuite
 import com.sirius.library.hub.CloudContext
 import com.sirius.library.hub.Context
 import com.sirius.library.models.AgentParams
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertNotEquals
-import kotlin.test.fail
+import kotlin.test.*
 
 class TestAriesFeature0160 {
     lateinit var confTest: ConfTest
@@ -26,11 +23,6 @@ class TestAriesFeature0160 {
     }
 
     @Test
-    @Throws(
-        java.lang.InterruptedException::class,
-        java.util.concurrent.ExecutionException::class,
-        java.util.concurrent.TimeoutException::class
-    )
     fun testEstablishConnection() {
         val testSuite: ServerTestSuite = confTest.suiteSingleton
         val inviter: AgentParams = testSuite.getAgentParams("agent1")
@@ -39,38 +31,40 @@ class TestAriesFeature0160 {
         // Get endpoints
         var connectionKey: String? = null
         var invitation: Invitation? = null
-        CloudContext.builder().setServerUri(inviter.getServerAddress())
-            .setCredentials(inviter.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8))
-            .setP2p(inviter.getConnection()).build().use { context ->
-                val inviterEndpointAddress: String = context.getEndpointAddressWithEmptyRoutingKeys()
+        CloudContext.builder().setServerUri(inviter.serverAddress)
+            .setCredentials(inviter.credentials.encodeToByteArray())
+            .setP2p(inviter.getConnection()).build().also { context ->
+                val inviterEndpointAddress: String = context.endpointAddressWithEmptyRoutingKeys
                 connectionKey = context.crypto.createKey()
                 invitation = Invitation.builder().setLabel("Inviter").setEndpoint(inviterEndpointAddress)
-                    .setRecipientKeys(listOf(connectionKey)).build()
+                    .setRecipientKeys(listOfNotNull(connectionKey)).build()
             }
 
         // Init Me
         var inviterMe: Pairwise.Me? = null
-        CloudContext.builder().setServerUri(inviter.getServerAddress())
-            .setCredentials(inviter.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8))
-            .setP2p(inviter.getConnection()).build().use { context ->
+        CloudContext.builder().setServerUri(inviter.serverAddress)
+            .setCredentials(inviter.credentials.encodeToByteArray())
+            .setP2p(inviter.getConnection()).build().also { context ->
                 val (first, second) = context.getDid().createAndStoreMyDid()
                 inviterMe = Pairwise.Me(first, second)
             }
         var inviteeMe: Pairwise.Me? = null
-        CloudContext.builder().setServerUri(invitee.getServerAddress())
-            .setCredentials(invitee.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8))
-            .setP2p(invitee.getConnection()).build().use { context ->
+        CloudContext.builder().setServerUri(invitee.serverAddress)
+            .setCredentials(invitee.credentials.encodeToByteArray())
+            .setP2p(invitee.getConnection()).build().also { context ->
                 val (first, second) = context.getDid().createAndStoreMyDid()
                 inviteeMe = Pairwise.Me(first, second)
             }
         val finalConnectionKey = connectionKey
         val finalInviterMe: Pairwise.Me? = inviterMe
+        assertNotNull(finalConnectionKey)
+        assertNotNull(finalInviterMe)
         val runInviterFeature: java.util.concurrent.CompletableFuture<Boolean> =
             java.util.concurrent.CompletableFuture.supplyAsync<Boolean>(
                 java.util.function.Supplier<Boolean> {
-                    CloudContext.builder().setServerUri(inviter.getServerAddress())
-                        .setCredentials(inviter.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8))
-                        .setP2p(inviter.getConnection()).build().use { context ->
+                    CloudContext.builder().setServerUri(inviter.serverAddress)
+                        .setCredentials(inviter.credentials.encodeToByteArray())
+                        .setP2p(inviter.getConnection()).build().also { context ->
                             runInviter(
                                 context,
                                 finalConnectionKey,
@@ -91,9 +85,9 @@ class TestAriesFeature0160 {
                         e.printStackTrace()
                         fail()
                     }
-                    CloudContext.builder().setServerUri(invitee.getServerAddress())
-                        .setCredentials(invitee.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8))
-                        .setP2p(invitee.getConnection()).build().use { context ->
+                    CloudContext.builder().setServerUri(invitee.serverAddress)
+                        .setCredentials(invitee.credentials.encodeToByteArray())
+                        .setP2p(invitee.getConnection()).build().also { context ->
                             runInvitee(
                                 context,
                                 finalInvitation,
@@ -110,31 +104,26 @@ class TestAriesFeature0160 {
 
     companion object {
         fun runInviter(
-            context: Context, expectedConnectionKey: String?,
-            me: Pairwise.Me?
+            context: Context, expectedConnectionKey: String,
+            me: Pairwise.Me
         ) {
             try {
-                val myEndpoint: Endpoint = context.getEndpointWithEmptyRoutingKeys()
-                val listener: Listener = context.subscribe()
-                val event: Event = listener.getOne().get(30, java.util.concurrent.TimeUnit.SECONDS)
-                if (expectedConnectionKey == event.getRecipientVerkey()) {
+                val myEndpoint: Endpoint? = context.endpointWithEmptyRoutingKeys
+                val listener: Listener? = context.subscribe()
+                val event: Event = listener?.one.get(30, java.util.concurrent.TimeUnit.SECONDS)
+                if (expectedConnectionKey == event.recipientVerkey) {
                     if (event.message() is ConnRequest) {
                         val request: ConnRequest = event.message() as ConnRequest
+                        assertNotNull( myEndpoint)
                         val machine = Inviter(context, me, expectedConnectionKey, myEndpoint)
-                        val pairwise: Pairwise = machine.createConnection(request)
-                        assertNotEquals(null, pairwise)
+                        val pairwise: Pairwise? = machine.createConnection(request)
+                        assertNotNull( pairwise)
                         context.getPairwiseList().ensureExists(pairwise)
                     } else {
                         fail("Wrong request message type")
                     }
                 }
-            } catch (e: java.lang.InterruptedException) {
-                e.printStackTrace()
-                fail()
-            } catch (e: java.util.concurrent.ExecutionException) {
-                e.printStackTrace()
-                fail()
-            } catch (e: java.util.concurrent.TimeoutException) {
+            } catch (e: Exception) {
                 e.printStackTrace()
                 fail()
             }

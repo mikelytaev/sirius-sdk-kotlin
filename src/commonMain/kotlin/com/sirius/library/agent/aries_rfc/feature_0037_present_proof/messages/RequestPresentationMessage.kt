@@ -2,10 +2,7 @@ package com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages
 
 import com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.messages.AttribTranslation
 import com.sirius.library.messaging.Message
-import com.sirius.library.utils.Base64
-import com.sirius.library.utils.JSONArray
-import com.sirius.library.utils.JSONObject
-import com.sirius.library.utils.UUID
+import com.sirius.library.utils.*
 
 class RequestPresentationMessage(msg: String) : BasePresentProofMessage(msg) {
     companion object {
@@ -30,21 +27,17 @@ class RequestPresentationMessage(msg: String) : BasePresentProofMessage(msg) {
         }
         if (attach != null && attach.has("data") && attach.getJSONObject("data")?.has("base64") ==true) {
             val rawBase64: String = attach.getJSONObject("data")?.getString("base64") ?:""
-            return JSONObject(String(Base64.getDecoder().decode(rawBase64)))
+            return JSONObject(Base64.getDecoder().decode(rawBase64).decodeToString())
         }
         return null
     }
 
-    fun expiresTime(): java.util.Date? {
-        val timing: JSONObject = getMessageObj().optJSONObject("~timing")
+    fun expiresTime(): Date? {
+        val timing: JSONObject? = getMessageObj().optJSONObject("~timing")
         if (timing != null) {
-            val dateTimeStr: String = timing.optString("expires_time", "")
+            val dateTimeStr: String = timing.optString("expires_time", "") ?:""
             if (!dateTimeStr.isEmpty()) {
-                val df: java.text.DateFormat = java.text.SimpleDateFormat(TIME_FORMAT)
-                try {
-                    return df.parse(dateTimeStr)
-                } catch (ignored: java.text.ParseException) {
-                }
+                return  Date.paresDate(dateTimeStr,TIME_FORMAT)
             }
         }
         return null
@@ -54,7 +47,7 @@ class RequestPresentationMessage(msg: String) : BasePresentProofMessage(msg) {
         BasePresentProofMessage.Builder<B>() {
         var proofRequest: JSONObject? = null
         var translation: List<AttribTranslation>? = null
-        var expiresTime: java.util.Date? = null
+        var expiresTime: Date? = null
         fun setProofRequest(proofRequest: JSONObject?): B {
             this.proofRequest = proofRequest
             return self()
@@ -65,7 +58,7 @@ class RequestPresentationMessage(msg: String) : BasePresentProofMessage(msg) {
             return self()
         }
 
-        fun setExpiresTime(expiresTime: java.util.Date?): B {
+        fun setExpiresTime(expiresTime: Date?): B {
             this.expiresTime = expiresTime
             return self()
         }
@@ -74,14 +67,14 @@ class RequestPresentationMessage(msg: String) : BasePresentProofMessage(msg) {
             val jsonObject: JSONObject = super.generateJSON()
             val id: String? = jsonObject.optString("id")
             if (proofRequest != null) {
-                val base64: ByteArray = java.util.Base64.getEncoder()
-                    .encode(proofRequest.toString().toByteArray(java.nio.charset.StandardCharsets.UTF_8))
+                val base64: ByteArray = Base64.getEncoder()
+                    .encode(proofRequest.toString().encodeToByteArray())
                 jsonObject.put(
                     "request_presentations~attach", JSONArray().put(
                         JSONObject().put("@id", "libindy-request-presentation-" + UUID.randomUUID)
                             .put("mime-type", "application/json").put(
                                 "data",
-                                JSONObject().put("base64", String(base64))
+                                JSONObject().put("base64", base64.decodeToString())
                             )
                     )
                 )
@@ -106,8 +99,7 @@ class RequestPresentationMessage(msg: String) : BasePresentProofMessage(msg) {
             }
             if (expiresTime != null) {
                 val timing = JSONObject()
-                val df: java.text.DateFormat = java.text.SimpleDateFormat(TIME_FORMAT)
-                timing.put("expires_time", df.format(expiresTime))
+                timing.put("expires_time", expiresTime?.formatTo(TIME_FORMAT))
                 jsonObject.put("~timing", timing)
             }
             return jsonObject

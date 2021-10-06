@@ -106,11 +106,11 @@ class CloudAgent : AbstractAgent {
             for (network in rpc!!.networks) {
                 ledgers.put(
                     network,
-                    Ledger(network, wallet!!.ledger, wallet!!.anoncreds, wallet!!.cache, storage)
+                    Ledger(network, wallet!!.ledger, wallet!!.anoncreds, wallet!!.cache, storage!!)
                 )
             }
             pairwiseList = WalletPairwiseList(wallet!!.pairwise, wallet!!.did)
-            microledgers = MicroledgerList(rpc)
+            microledgers = MicroledgerList(rpc!!)
         } catch (siriusFieldValueError: SiriusFieldValueError) {
             siriusFieldValueError.printStackTrace()
         }
@@ -205,6 +205,8 @@ class CloudAgent : AbstractAgent {
         return null
     }
 
+
+
     override fun spawn(myVerkey: String, endpoint: TheirEndpoint): AbstractCoProtocolTransport? {
         val new_rpc = AgentRPC(serverAddress, credentials, p2p, timeout)
         try {
@@ -280,8 +282,8 @@ class CloudAgent : AbstractAgent {
      */
     override fun acquire(
         resources: List<String?>?,
-        lockTimeoutSec: Double?,
-        enterTimeoutSec: Double?
+        lockTimeoutSec: Int?,
+        enterTimeoutSec: Int?
     ): Pair<Boolean, List<String>> {
         checkIsOpen()
         return object : RemoteCallWrapper<Pair<Boolean, List<String>>?>(rpc!!) {}.remoteCall(

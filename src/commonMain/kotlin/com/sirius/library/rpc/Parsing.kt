@@ -4,6 +4,7 @@ import com.sirius.library.agent.RemoteParams
 import com.sirius.library.agent.wallet.KeyDerivationMethod
 import com.sirius.library.agent.wallet.abstract_wallet.model.*
 import com.sirius.library.base.JsonSerializable
+import com.sirius.library.encryption.Custom
 import com.sirius.library.errors.sirius_exceptions.SiriusInvalidType
 import com.sirius.library.messaging.Message
 import com.sirius.library.messaging.Type
@@ -13,25 +14,23 @@ import com.sirius.library.utils.UUID
 import kotlin.reflect.KClass
 
 object Parsing {
-    val CLS_MAP: Map<String, KClass<Any>> =  HashMap<String?, KClass<Any>>() {
-        init {
-            put("application/cache-options", CacheOptions::class)
-            put("application/purge-options", PurgeOptions::class)
-            put("application/retrieve-record-options", RetrieveRecordOptions::class)
-            put("application/nym-role", NYMRole::class)
-            put("application/pool-action", PoolAction::class)
-            put("application/key-derivation-method", KeyDerivationMethod::class)
-        }
-    }
-    val CLS_MAP_REVERT: Map<KClass<Any>, String> = HashMap<KClass<Any>, String?>() {
-        init {
-            put(CacheOptions::class, "application/cache-options")
-            put(PurgeOptions::class, "application/purge-options")
-            put(RetrieveRecordOptions::class, "application/retrieve-record-options")
-            put(NYMRole::class, "application/nym-role")
-            put(PoolAction::class, "application/pool-action")
-            put(KeyDerivationMethod::class, "application/key-derivation-method")
-        }
+    val CLS_MAP: MutableMap<String, KClass<*>> = HashMap<String, KClass<*>>()
+    val CLS_MAP_REVERT: MutableMap<KClass<*>, String> = HashMap<KClass<*>, String>()
+    init {
+        CLS_MAP.put("application/cache-options", CacheOptions::class)
+        CLS_MAP. put("application/purge-options", PurgeOptions::class)
+        CLS_MAP. put("application/retrieve-record-options", RetrieveRecordOptions::class)
+        CLS_MAP.put("application/nym-role", NYMRole::class)
+        CLS_MAP. put("application/pool-action", PoolAction::class)
+        CLS_MAP. put("application/key-derivation-method", KeyDerivationMethod::class)
+
+
+        CLS_MAP_REVERT.put(CacheOptions::class, "application/cache-options")
+        CLS_MAP_REVERT. put(PurgeOptions::class, "application/purge-options")
+        CLS_MAP_REVERT.put(RetrieveRecordOptions::class, "application/retrieve-record-options")
+        CLS_MAP_REVERT.put(NYMRole::class, "application/nym-role")
+        CLS_MAP_REVERT.put(PoolAction::class, "application/pool-action")
+        CLS_MAP_REVERT. put(KeyDerivationMethod::class, "application/key-derivation-method")
     }
 
     /**
@@ -41,7 +40,7 @@ object Parsing {
      * @param params  RPC call params
      * @return RPC service packet
      */
-    fun buildRequest(msgType: String?, future: Future, params: RemoteParams?): Message {
+    fun buildRequest(msgType: String, future: Future, params: RemoteParams?): Message {
         try {
             val type: Type = Type.fromStr(msgType)
             if (!listOf("sirius_rpc", "admin", "microledgers", "microledgers-batched")
@@ -89,21 +88,23 @@ object Parsing {
 
     fun serializeObject(param: Any): Any? {
         var varParam: Any? = null
-        val mimeType = CLS_MAP_REVERT[param.javaClass]
-        varParam = if (mimeType != null && param is JsonSerializable) {
-            (param as JsonSerializable).serialize()
+        val mimeType = CLS_MAP_REVERT[param::class]
+        varParam = if (mimeType != null && param is JsonSerializable<*>) {
+            (param as JsonSerializable<*>).serialize()
         } else if (param is Collection<*>) {
             val jsonArray = JSONArray()
             for (oneParam in param) {
-                val oneParamObject = serializeObject(oneParam)
-                jsonArray.put(oneParamObject)
+                oneParam?.let {
+                    val oneParamObject = serializeObject(oneParam)
+                    jsonArray.put(oneParamObject)
+                }
             }
             jsonArray
         } else if (param is ByteArray) {
-            val custom = com.sirius.library.encryption.Custom()
+            val custom = Custom
             custom.bytesToB64(param, false)
-        } else if (param is JsonSerializable) {
-            (param as JsonSerializable).serializeToJSONObject()
+        } else if (param is JsonSerializable<*>) {
+            (param as JsonSerializable<*>).serializeToJSONObject()
         } else param as? JSONObject
             ?: (param as? Number ?: ((param as? String)?.toString() ?: param.toString()))
         return varParam
@@ -115,11 +116,11 @@ object Parsing {
      * @param param input variable
      * @return tuple (type, variable serialized dump)
      */
-    fun serializeVariable(param: Any?): Pair<String, Any> {
+    fun serializeVariable(param: Any?): Pair<String?, Any?> {
         if (param == null) {
             return Pair(null, null)
         }
-        var mimeType = CLS_MAP_REVERT[param.javaClass]
+        var mimeType = CLS_MAP_REVERT[param::class]
         if (param is ByteArray) {
             mimeType = "application/base64"
         }

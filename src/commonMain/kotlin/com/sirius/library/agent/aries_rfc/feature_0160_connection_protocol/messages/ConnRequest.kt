@@ -17,7 +17,7 @@ class ConnRequest(msg: String) : ConnProtocolMessage(msg) {
     val label: String?
         get() = getMessageObj()?.optString("label")
 
-    abstract class Builder<B : Builder<B>?> : ConnProtocolMessage.Builder<B>() {
+    abstract class Builder<B : Builder<B>> : ConnProtocolMessage.Builder<B>() {
         var label: String? = null
         var did: String? = null
         var verkey: String? = null
@@ -80,7 +80,7 @@ class ConnRequest(msg: String) : ConnProtocolMessage(msg) {
         }
     }
 
-    private class ConnRequestBuilder : Builder<ConnRequestBuilder?>() {
+    private class ConnRequestBuilder : Builder<ConnRequestBuilder>() {
         protected override fun self(): ConnRequestBuilder {
             return this
         }

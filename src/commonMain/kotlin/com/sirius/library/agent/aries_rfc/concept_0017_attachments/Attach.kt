@@ -53,7 +53,7 @@ class Attach : JSONObject {
 
     fun setData(data: ByteArray): Attach {
         //TODO String from bytes
-        put("data", JSONObject().put("base64", Base64.getEncoder().encode(data)))
+        put("data", JSONObject().put("base64", Base64.getEncoder().encode(data).decodeToString()))
         return this
     }
 }

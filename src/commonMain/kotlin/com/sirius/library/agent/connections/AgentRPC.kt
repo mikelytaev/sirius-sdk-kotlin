@@ -11,6 +11,7 @@ import com.sirius.library.messaging.Type
 import com.sirius.library.rpc.AddressedTunnel
 import com.sirius.library.rpc.Future
 import com.sirius.library.rpc.Parsing
+import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 import kotlin.jvm.JvmOverloads
@@ -21,14 +22,14 @@ import kotlin.jvm.JvmOverloads
  *
  * Proactive form of Smart-Contract design
  */
-class AgentRPC(serverAddress: String?, credentials: ByteArray?, p2p: P2PConnection?, timeout: Int) :
+class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnection?, timeout: Int) :
     BaseAgentConnection(serverAddress, credentials, p2p, timeout) {
     var endpoints: List<Endpoint>
     var networks: List<String>
     var websockets: Map<String, WebSocket>
     var preferAgentSide: Boolean
-    var tunnelRpc: AddressedTunnel?
-    var tunnelCoprotocols: AddressedTunnel?
+    lateinit var tunnelRpc: AddressedTunnel
+    lateinit var tunnelCoprotocols: AddressedTunnel
     override fun path(): String {
         return "rpc"
     }
@@ -42,20 +43,20 @@ class AgentRPC(serverAddress: String?, credentials: ByteArray?, p2p: P2PConnecti
      * @return
      */
     @Throws(Exception::class)
-    fun remoteCall(msgType: String?, params: RemoteParams?, waitResponse: Boolean): Any? {
-        if (!connector.isOpen()) {
+    fun remoteCall(msgType: String, params: RemoteParams?, waitResponse: Boolean): Any? {
+        if (!connector!!.isOpen) {
             throw SiriusConnectionClosed("Open agent connection at first")
         }
         var expirationTime: Long = 0
         if (timeout !== 0) {
-            expirationTime = (java.lang.System.currentTimeMillis() + timeout * 1000) / 1000
+            expirationTime = (Date().time+ timeout * 1000) / 1000
         }
         val future = Future(tunnelRpc, expirationTime)
         val request: Message = Parsing.buildRequest(msgType, future, params)
         val payload: String = request.serialize()
         val msgTyp: Type = Type.fromStr(msgType)
-        val isEncryptes: Boolean = !java.util.Arrays.asList<String>("admin", "microledgers", "microledgers-batched")
-            .contains(msgTyp.getProtocol())
+        val isEncryptes: Boolean = !listOf("admin", "microledgers", "microledgers-batched")
+            .contains(msgTyp.protocol)
         val isPosted: Boolean = tunnelRpc.post(request, isEncryptes)
         if (!isPosted) {
             throw SiriusRPCError()
@@ -77,7 +78,7 @@ class AgentRPC(serverAddress: String?, credentials: ByteArray?, p2p: P2PConnecti
 
     @JvmOverloads
     @Throws(Exception::class)
-    fun remoteCall(msgType: String?, params: RemoteParams? = null): Any? {
+    fun remoteCall(msgType: String, params: RemoteParams? = null): Any? {
         return remoteCall(msgType, params, true)
     }
 
@@ -85,66 +86,74 @@ class AgentRPC(serverAddress: String?, credentials: ByteArray?, p2p: P2PConnecti
         super.setup(context)
         //Extract proxy info
         val proxies: MutableList<JSONObject> = ArrayList<JSONObject>()
-        val proxiesArray: JSONArray = context.getJSONArrayFromJSON("~proxy", null)
+        val proxiesArray: JSONArray? = context.getJSONArrayFromJSON("~proxy", null)
         if (proxiesArray != null) {
             for (i in 0 until proxiesArray.length()) {
-                proxies.add(proxiesArray.getJSONObject(i))
+                proxiesArray.getJSONObject(i)?.let {
+                    proxies.add(it)
+                }
+
             }
         }
         var channel_rpc: String? = null
         var channel_sub_protocol: String? = null
         for (proxy in proxies) {
             if ("reverse" == proxy.getString("id")) {
-                channel_rpc = proxy.getJSONObject("data").getJSONObject("json").getString("address")
+                channel_rpc = proxy.getJSONObject("data")?.getJSONObject("json")?.getString("address")
             } else if ("sub-protocol" == proxy.getString("id")) {
-                channel_sub_protocol = proxy.getJSONObject("data").getJSONObject("json").getString("address")
+                channel_sub_protocol = proxy.getJSONObject("data")?.getJSONObject("json")?.getString("address")
             }
         }
         if (channel_rpc == null) {
-            throw java.lang.RuntimeException("rpc channel is empty")
+            throw RuntimeException("rpc channel is empty")
         }
         if (channel_sub_protocol == null) {
-            throw java.lang.RuntimeException("sub-protocol channel is empty")
+            throw RuntimeException("sub-protocol channel is empty")
         }
         tunnelRpc = AddressedTunnel(channel_rpc, connector, connector, p2p)
         tunnelCoprotocols = AddressedTunnel(channel_sub_protocol, connector, connector, p2p)
         //Extract active endpoints
-        val endpointsArray: JSONArray = context.getJSONArrayFromJSON("~endpoints", null)
+        val endpointsArray: JSONArray? = context.getJSONArrayFromJSON("~endpoints", null)
         val endpointsCollection: MutableList<Endpoint> = ArrayList<Endpoint>()
         if (endpointsArray != null) {
             for (i in 0 until endpointsArray.length()) {
-                val endpointObj: JSONObject = endpointsArray.getJSONObject(i)
-                val bodyObj: JSONObject = endpointObj.getJSONObject("data").getJSONObject("json")
-                val address: String = bodyObj.getString("address")
-                val frontendKey: String = bodyObj.optString("frontend_routing_key")
+                val endpointObj: JSONObject? = endpointsArray.getJSONObject(i)
+                val bodyObj: JSONObject? = endpointObj?.getJSONObject("data")?.getJSONObject("json")
+                val address: String = bodyObj?.getString("address")?:""
+                val frontendKey: String = bodyObj?.optString("frontend_routing_key") ?:""
                 if (!frontendKey.isEmpty()) {
-                    val routingKeys: JSONArray = bodyObj.getJSONArray("routing_keys")
+                    val routingKeys: JSONArray? = bodyObj?.getJSONArray("routing_keys")
                     if (routingKeys != null) {
                         for (z in 0 until routingKeys.length()) {
-                            val routingKey: JSONObject = routingKeys.getJSONObject(z)
-                            val isDefault: Boolean = routingKey.getBoolean("is_default")
-                            val key: String = routingKey.getString("routing_key")
+                            val routingKey: JSONObject? = routingKeys?.getJSONObject(z)
+                            val isDefault: Boolean = routingKey?.getBoolean("is_default") ?: false
+                            val key: String? = routingKey?.getString("routing_key")
                             val routingKeysList: MutableList<String> = ArrayList<String>()
-                            routingKeysList.add(key)
+                            key?.let {
+                                routingKeysList.add(it)
+                            }
                             routingKeysList.add(frontendKey)
                             endpointsCollection.add(Endpoint(address, routingKeysList, isDefault))
                         }
                     }
                 } else {
-                    endpointsCollection.add(Endpoint(address, ArrayList<E>(), false))
+                    endpointsCollection.add(Endpoint(address, listOf(), false))
                 }
             }
         }
         if (endpointsCollection.isEmpty()) {
-            throw java.lang.RuntimeException("Endpoints are empty")
+            throw RuntimeException("Endpoints are empty")
         }
         endpoints = endpointsCollection
         //Extract Networks
         val networkList: MutableList<String> = ArrayList<String>()
-        val networksArray: JSONArray = context.getJSONArrayFromJSON("~networks", JSONArray())
+        val networksArray: JSONArray = context.getJSONArrayFromJSON("~networks", JSONArray()) ?:JSONArray()
         for (i in 0 until networksArray.length()) {
-            val network: String = networksArray.getString(i)
-            networkList.add(network)
+            val network: String? = networksArray?.getString(i)
+            network?.let {
+                networkList.add(network)
+            }
+
         }
         networks = networkList
     }
@@ -173,7 +182,7 @@ class AgentRPC(serverAddress: String?, credentials: ByteArray?, p2p: P2PConnecti
         coprotocol: Boolean
     ): Message? {
         var routingKeys = routingKeys
-        if (!connector.isOpen()) {
+        if (!connector.isOpen) {
             throw SiriusConnectionClosed("Open agent connection at first")
         }
         val paramsBuilder: RemoteParams.RemoteParamsBuilder = RemoteParams.RemoteParamsBuilder.create()
@@ -219,8 +228,8 @@ class AgentRPC(serverAddress: String?, credentials: ByteArray?, p2p: P2PConnecti
     }
 
     @Throws(SiriusConnectionClosed::class)
-    fun sendMessageBatched(message: Message?, batches: List<RoutingBatch?>?): List<Pair<Boolean, String>>? {
-        if (!connector.isOpen()) {
+    fun sendMessageBatched(message: Message?, batches: List<RoutingBatch>?): List<Pair<Boolean, String?>> {
+        if (!connector.isOpen) {
             throw SiriusConnectionClosed("Open agent connection at first")
         }
         val params: RemoteParams = RemoteParams.RemoteParamsBuilder.create().add("message", message).add(
@@ -239,7 +248,7 @@ class AgentRPC(serverAddress: String?, credentials: ByteArray?, p2p: P2PConnecti
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        return null
+        return listOf()
     }
 
     fun startProtocolWithThreads(threads: List<String?>?, timeToLiveSec: Int) {
@@ -342,15 +351,13 @@ class AgentRPC(serverAddress: String?, credentials: ByteArray?, p2p: P2PConnecti
     }
 
     @Throws(SiriusInvalidPayloadStructure::class)
-    fun readProtocolMessage(): Message {
+    fun readProtocolMessage(): Message? {
         return tunnelCoprotocols.receive(timeout)
     }
 
     init {
         endpoints = ArrayList<Endpoint>()
         networks = ArrayList<String>()
-        tunnelRpc = null
-        tunnelCoprotocols = null
         websockets = HashMap<String, WebSocket>()
         preferAgentSide = true
 

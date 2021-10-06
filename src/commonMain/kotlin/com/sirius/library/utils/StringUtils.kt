@@ -1,13 +1,27 @@
 package com.sirius.library.utils
 
 object StringUtils {
-    val encodeCharset: java.nio.charset.Charset = java.nio.charset.StandardCharsets.US_ASCII
+
+    val encodeCharset: String = StringCodec.US_ASCII
+
     fun stringToBytes(string: String): ByteArray {
-        return string.toByteArray(encodeCharset)
+        if (encodeCharset == StringCodec.US_ASCII) {
+            val codec = StringCodec()
+            return codec.fromASCIIStringToByteArray(string)
+        } else if (encodeCharset == StringCodec.UTF_8) {
+            return string.encodeToByteArray()
+        }
+        return ByteArray(0)
     }
 
-    fun bytesToString(bytes: ByteArray?): String {
-        return String(bytes, encodeCharset)
+    fun bytesToString(bytes: ByteArray): String {
+        if (encodeCharset == StringCodec.US_ASCII) {
+            val codec = StringCodec()
+            return codec.fromByteArrayToASCIIString(bytes)
+        } else if (encodeCharset == StringCodec.UTF_8) {
+            return bytes.decodeToString()
+        }
+        return ""
     }
 
     fun stringToBase58String(string: String): String {
@@ -22,14 +36,15 @@ object StringUtils {
     fun escapeStringLikePython(string: String): String {
         val chars = string.toCharArray()
         val escapedString: StringBuilder = StringBuilder()
-        for (charOne in chars) {
+        //TODO CharUtils.isAscii(charOne)
+        /*for (charOne in chars) {
             if (CharUtils.isAscii(charOne)) {
                 escapedString.append(charOne)
             } else {
                 val escapedStr: String = CharUtils.unicodeEscaped(charOne)
                 escapedString.append(escapedStr)
             }
-        }
+        }*/
         return escapedString.toString()
     }
 }

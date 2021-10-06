@@ -5,10 +5,15 @@ import kotlinx.serialization.json.*
 open class JSONArray : Iterable<Any> {
 
     var jsonArray : JsonArray = buildJsonArray {  }
-    constructor(list: List<String>) : this(){
-        list.forEach {
-            val element = Json.parseToJsonElement(it)
+    constructor(list: List<String>?) : this(){
+        if(list==null){
+            jsonArray  = buildJsonArray {  }
+        }else{
+            list?.forEach {
+                val element = Json.parseToJsonElement(it)
+            }
         }
+
     }
 
     constructor(){
@@ -25,6 +30,7 @@ open class JSONArray : Iterable<Any> {
         }
 
     }
+
 
     fun length(): Int {
         return 0
@@ -58,5 +64,14 @@ open class JSONArray : Iterable<Any> {
 
     fun put(credAttach: String): JSONArray {
         return this
+    }
+
+    fun isEmpty(): Boolean {
+        return false
+    }
+
+    fun put(oneParamObject: Any?) {
+
+
     }
 }

@@ -9,6 +9,7 @@ import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.errors.StateMachineTerminatedWithError
 import com.sirius.library.hub.Context
 import com.sirius.library.hub.coprotocols.CoProtocolP2P
+import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
 
@@ -72,29 +73,28 @@ class Issuer(context: Context, holder: Pairwise, timeToLiveSec: Int) : BaseIssui
     }
 
     fun issue(params: IssueParams): Boolean {
-        if (params.values == null || params.schema == null || params.credDef == null || params.credId == null) throw java.lang.RuntimeException(
+        if (params.values == null || params.schema == null || params.credDef == null || params.credId == null) throw RuntimeException(
             "Bad params"
         )
         try {
-            CoProtocolP2P(context, holder, protocols(), timeToLiveSec).use { coprotocol ->
+            CoProtocolP2P(context, holder, protocols(), timeToLiveSec).also { coprotocol ->
                 try {
                     // Step-1: Send offer to holder
-                    val expiresTime: java.util.Date =
-                        java.util.Date(java.lang.System.currentTimeMillis() + timeToLiveSec * 1000L)
-                    val offer: JSONObject? = context.getAnonCreds().issuerCreateCredentialOffer(params.credDef.getId())
+                    val expiresTime: Date =
+                        Date(Date().time + timeToLiveSec * 1000L)
+                    val offer: JSONObject? = context.getAnonCreds().issuerCreateCredentialOffer(params.credDef?.id)
                     val offerMsg: OfferCredentialMessage =
                         OfferCredentialMessage.builder().setComment(params.comment).setLocale(params.locale)
-                            .setOffer(offer).setCredDef(JSONObject(params.credDef.getBody().toString()))
-                            .setPreview(params.preview).setIssuerSchema(params.schema.getBody())
-                            .setTranslation(params.translation).build //setExpiresTime(expiresTime).
-                    ()
+                            .setOffer(offer).setCredDef(JSONObject(params.credDef?.getBody().toString()))
+                            .setPreview(params.preview).setIssuerSchema(params.schema?.body)
+                            .setTranslation(params.translation).build() //setExpiresTime(expiresTime).
                     log.log(Logger.Level.INFO, "20% - Send offer")
                     // Switch to await participant action
                     val (_, second) = coprotocol.sendAndWait(offerMsg)
                     if (second !is RequestCredentialMessage) {
                         throw StateMachineTerminatedWithError(
                             OFFER_PROCESSING_ERROR,
-                            "Unexpected @type: " + second.getType()
+                            "Unexpected @type: " + second?.getType()
                         )
                     }
 
@@ -102,10 +102,10 @@ class Issuer(context: Context, holder: Pairwise, timeToLiveSec: Int) : BaseIssui
                     val requestMsg: RequestCredentialMessage = second as RequestCredentialMessage
                     log.log(Logger.Level.INFO, "40% - Received credential request")
                     val encodedCredValues = JSONObject()
-                    for (key in params.values.keySet()) {
+                    for (key in params.values?.keySet() ?: setOf()) {
                         val encCredVal = JSONObject()
-                        encCredVal.put("raw", params.values.get(key).toString())
-                        encCredVal.put("encoded", Codec.encode(params.values.get(key)))
+                        encCredVal.put("raw", params.values?.get(key).toString())
+                        encCredVal.put("encoded", Codec.encode(params.values?.get(key)))
                         encodedCredValues.put(key, encCredVal)
                     }
                     log.log(Logger.Level.INFO, "70% - Build credential with values")
@@ -122,7 +122,7 @@ class Issuer(context: Context, holder: Pairwise, timeToLiveSec: Int) : BaseIssui
                     if (second1 !is Ack) {
                         throw StateMachineTerminatedWithError(
                             ISSUE_PROCESSING_ERROR,
-                            "Unexpected @type: " + second1.getType()
+                            "Unexpected @type: " + second1?.getType()
                         )
                     }
                     log.log(Logger.Level.INFO, "100% - Issuing was terminated successfully")
@@ -132,7 +132,7 @@ class Issuer(context: Context, holder: Pairwise, timeToLiveSec: Int) : BaseIssui
                         IssueProblemReport.builder().setProblemCode(ex.problemCode).setExplain(ex.explain)
                             .build()
                     log.info("100% - Terminated with error. " + ex.problemCode.toString() + " " + ex.explain)
-                    if (ex.isNotify()) coprotocol.send(problemReport)
+                    if (ex.isNotify) coprotocol.send(problemReport!!)
                 }
             }
         } catch (ex: Exception) {

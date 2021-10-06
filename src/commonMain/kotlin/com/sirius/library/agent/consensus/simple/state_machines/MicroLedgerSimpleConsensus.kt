@@ -26,14 +26,12 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
     var problemReport: SimpleConsensusProblemReport? = null
     var cachedP2P: MutableMap<String, Pairwise> = HashMap<String, Pairwise>()
 
-    constructor(context: Context, me: Pairwise.Me, timeToLiveSec: Int) {
-        context = context
+    constructor(context: Context, me: Pairwise.Me, timeToLiveSec: Int) : super(context) {
         this.me = me
-        timeToLiveSec = timeToLiveSec
+        this.timeToLiveSec = timeToLiveSec
     }
 
-    constructor(context: Context, me: Pairwise.Me) {
-        context = context
+    constructor(context: Context, me: Pairwise.Me) : super(context){
         this.me = me
         this.timeToLiveSec = 60
     }
@@ -69,27 +67,27 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
         ledgerName: String,
         participants: List<String>,
         genesis: List<Transaction>
-    ): Pair<Boolean, AbstractMicroledger> {
+    ): Pair<Boolean, AbstractMicroledger?> {
         try {
             bootstrap(participants)
             val relationships: List<Pairwise> = ArrayList(cachedP2P.values)
-            acceptors(relationships, "simple-consensus-init-" + UUID.randomUUID.also { co ->
+            acceptors(relationships, "simple-consensus-init-" + UUID.randomUUID).also { co ->
                 log.info("0% - Create ledger $ledgerName")
-                val (ledger) = context.getMicrolegders().create(ledgerName, genesis)
+                val ledger :  Pair<AbstractMicroledger?, List<Transaction?>?>? = context.getMicrolegders()?.create(ledgerName, genesis)
                 log.info("Ledger creation terminated successfully")
                 try {
-                    initMicroledgerInternal(co, ledger, participants, genesis)
+                    initMicroledgerInternal(co, ledger?.first, participants, genesis)
                     log.info("100% - All participants accepted ledger creation")
                     return Pair(true, ledger)
                 } catch (ex: StateMachineTerminatedWithError) {
                     log.info(
-                        "100% - Terminated with error. Problem code: " + ex.getProblemCode()
-                            .toString() + " Explain: " + ex.getExplain()
+                        "100% - Terminated with error. Problem code: " + ex.problemCode
+                            .toString() + " Explain: " + ex.explain
                     )
-                    problemReport = SimpleConsensusProblemReport.builder().setProblemCode(ex.getProblemCode())
-                        .setExplain(ex.getExplain()).build()
-                    if (ex.isNotify()) {
-                        co.send(problemReport)
+                    problemReport = SimpleConsensusProblemReport.builder().setProblemCode(ex.problemCode)
+                        .setExplain(ex.explain).build()
+                    if (ex.isNotify) {
+                        co.send(problemReport!!)
                     }
                     context.getMicrolegders().reset(ledgerName)
                     return Pair(false, null)
@@ -206,7 +204,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
         co: CoProtocolThreadedTheirs, ledger: AbstractMicroledger, transactions: List<Transaction>,
         participants: List<String>
     ): List<Transaction> {
-        val (first) = acquire(listOf(ledger.name()), this.timeToLiveSec as Double)
+        val (first) = acquire(listOfNotNull(ledger.name()), this.timeToLiveSec)
         if (!first) {
             throw StateMachineTerminatedWithError(
                 REQUEST_NOT_ACCEPTED,
@@ -393,7 +391,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
         leader: Pairwise,
         propose: ProposeTransactionsMessage
     ) {
-        val (first) = acquire(listOf(ledger.name()), this.timeToLiveSec as Double)
+        val (first) = acquire(listOfNotNull(ledger?.name()), this.timeToLiveSec)
         if (!first) {
             throw StateMachineTerminatedWithError(
                 REQUEST_NOT_ACCEPTED,
@@ -493,7 +491,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
         }
     }
 
-    private fun acquire(names: MutableList<String>, lockTimeoutSec: Double): Pair<Boolean, List<String>> {
+    private fun acquire(names: List<String>, lockTimeoutSec: Int): Pair<Boolean, List<String>> {
         var names = names
         val NAMESPACE = "ledgers"
         names = ArrayList<String>(HashSet<String>(names))
@@ -519,7 +517,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
         participants: List<String>,
         genesis: List<Transaction>
     ) {
-        val (success, busy) = acquire(listOf(ledger.name()), this.timeToLiveSec as Double)
+        val (success, busy) = acquire(listOfNotNull(ledger.name()), this.timeToLiveSec)
         if (!success) {
             throw StateMachineTerminatedWithError(
                 REQUEST_NOT_ACCEPTED,
@@ -540,7 +538,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
             // Switch to await transaction acceptors action
             var results: List<CoProtocolThreadedTheirs.SendAndWaitResult> = co.sendAndWait(propose)
             log.info("30% - Received responses from all acceptors")
-            var erroredAcceptorsDid: MutableList<String?> = ArrayList<String>()
+            var erroredAcceptorsDid: MutableList<String> = ArrayList<String>()
             for (r in results) {
                 if (!r.success) erroredAcceptorsDid.add(r.pairwise.their.did)
             }
@@ -601,8 +599,8 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
         timeout: Int
     ): AbstractMicroledger? {
         val (first) = acquire(
-            listOf(propose.ledger.getString("name")),
-            this.timeToLiveSec as Double
+            listOfNotNull(propose.ledger.getString("name")),
+            this.timeToLiveSec
         )
         if (!first) {
             throw StateMachineTerminatedWithError(

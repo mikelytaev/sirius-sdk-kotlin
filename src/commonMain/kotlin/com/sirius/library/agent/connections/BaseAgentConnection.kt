@@ -5,10 +5,12 @@ import com.sirius.library.encryption.P2PConnection
 import com.sirius.library.errors.sirius_exceptions.SiriusFieldValueError
 import com.sirius.library.messaging.Message
 import com.sirius.library.rpc.AddressedTunnel
+import com.sirius.library.utils.Logger
+import com.sirius.library.utils.StringCodec
 
 
 abstract class BaseAgentConnection {
-    var log: java.util.logging.Logger = java.util.logging.Logger.getLogger(AddressedTunnel::class.java.getName())
+    open var log: Logger = Logger.getLogger(AddressedTunnel::class.simpleName)
 
     companion object {
         val IO_TIMEOUT = 30
@@ -25,20 +27,20 @@ abstract class BaseAgentConnection {
 
     open fun setTimeout(timeout: Int) {
         if (timeout <= 0) {
-            throw java.lang.RuntimeException("Timeout must be > 0")
+            throw RuntimeException("Timeout must be > 0")
         }
         this.timeout = timeout
     }
 
 
-    constructor(serverAddress: String?, credentials: ByteArray?, p2p: P2PConnection?, timeout: Int) {
+    constructor(serverAddress: String, credentials: ByteArray?, p2p: P2PConnection?, timeout: Int) {
         this.serverAddress = serverAddress
         this.credentials = credentials
         this.p2p = p2p
         this.timeout = timeout
         connector = WebSocketConnector(
             this.timeout,
-            java.nio.charset.StandardCharsets.UTF_8,
+            StringCodec.UTF_8,
             serverAddress,
             path(),
             credentials
@@ -47,7 +49,7 @@ abstract class BaseAgentConnection {
 
     abstract fun path(): String?
 
-    open fun setup(context: Message?) {}
+    open fun setup(context: Message) {}
 
     open fun getTimeout(): Int {
         return timeout
@@ -76,7 +78,7 @@ abstract class BaseAgentConnection {
         } catch (e: java.util.concurrent.TimeoutException) {
             e.printStackTrace()
         }
-        val msgString = String(payload, java.nio.charset.StandardCharsets.UTF_8)
+        val msgString = payload.decodeToString()
         //log.log(Level.INFO, "Received message: " + msgString);
         val context = Message(msgString)
         if (context.getType() == null) {

@@ -117,8 +117,8 @@ class Airport(
         if (ok) {
             println(machine.getRequestedProof().toString())
             val hasCovid: Boolean =
-                machine.getRequestedProof().getJSONObject("revealed_attrs").getJSONObject("attr1_referent")
-                    .optString("raw").equalsIgnoreCase("true")
+                machine.getRequestedProof()?.getJSONObject("revealed_attrs")?.getJSONObject("attr1_referent")
+                    ?.optString("raw").equals("true")
             if (hasCovid) {
                 val hello: Message = Message.builder()
                     .setContent("Sorry, but we can't let your go to the terminal. Please, get rid of covid first!")

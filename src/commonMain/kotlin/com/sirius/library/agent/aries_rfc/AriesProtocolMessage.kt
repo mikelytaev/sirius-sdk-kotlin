@@ -5,6 +5,7 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.messaging.Type
 import com.sirius.library.utils.JSONObject
 import kotlinx.serialization.json.JsonObject
+import kotlin.reflect.KClass
 
 abstract class AriesProtocolMessage : Message {
 
@@ -82,8 +83,8 @@ abstract class AriesProtocolMessage : Message {
         protected abstract fun self(): B
         open fun generateJSON(): JSONObject {
             val jsonObject = JSONObject()
-            val (first, second) = Message.getProtocolAndName(this.javaClass.getDeclaringClass() as java.lang.Class<out Message?>)
-            jsonObject.put("@type", Type(docUri, first, version, second))
+            val (first, second) = Message.getProtocolAndName(this::class as KClass<out Message>)
+            jsonObject.put("@type", Type(docUri, first?:"", version, second?:""))
             jsonObject.put("@id", if (id == null) generateId() else id)
             return jsonObject
         }

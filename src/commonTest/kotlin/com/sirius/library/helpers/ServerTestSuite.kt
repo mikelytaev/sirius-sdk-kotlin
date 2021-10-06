@@ -6,6 +6,7 @@ import com.sirius.library.base.JsonMessage
 import com.sirius.library.encryption.P2PConnection
 import com.sirius.library.models.AgentParams
 import com.sirius.library.utils.JSONObject
+import com.sirius.library.utils.System
 
 class ServerTestSuite {
     var SETUP_TIMEOUT = 60
@@ -14,36 +15,39 @@ class ServerTestSuite {
     var metadata: String?
     var testSuitePath: String?
     var testSuiteExistsLocally = false
-    fun getAgentParams(name: String?): AgentParams {
+    fun getAgentParams(name: String): AgentParams {
         if (metadata == null || metadata!!.isEmpty()) {
             throw RuntimeException("TestSuite is not running...")
         }
-        val agentObject = JsonMessage(metadata)
-        val agent: JSONObject = agentObject.getJSONOBJECTFromJSON(name)
+        val agentObject = JsonMessage(metadata!!)
+        val agent: JSONObject? = agentObject.getJSONOBJECTFromJSON(name)
         if (agent == null || agent.isEmpty()) {
-            throw RuntimeException(String.format("TestSuite does not have agent with name %s", name))
+            throw RuntimeException("TestSuite does not have agent with name $name")
         }
-        val p2pObject: JSONObject = agent.getJSONObject("p2p")
-        val credentials: String = agent.getString("credentials")
-        val entitiesObject: JSONObject = agent.getJSONObject("entities")
+        val p2pObject: JSONObject? = agent.getJSONObject("p2p")
+        val credentials: String? = agent.getString("credentials")
+        val entitiesObject: JSONObject? = agent.getJSONObject("entities")
         val entityList: MutableList<Entity> = ArrayList<Entity>()
         if (entitiesObject != null) {
             val keys: Set<String> = entitiesObject.keySet()
             for (key in keys) {
-                val entityObject: JSONObject = entitiesObject.getJSONObject(key)
-                val seed: String = entityObject.getString("seed")
-                val verkey: String = entityObject.getString("verkey")
-                val did: String = entityObject.getString("did")
-                entityList.add(Entity(key, seed, verkey, did))
+                val entityObject: JSONObject? = entitiesObject.getJSONObject(key)
+                val seed: String? = entityObject?.getString("seed")
+                val verkey: String? = entityObject?.getString("verkey")
+                val did: String? = entityObject?.getString("did")
+                if(seed!=null &&verkey!=null &&did!=null) {
+                    entityList.add(Entity(key, seed, verkey, did))
+                }
             }
         }
-        val smartContractObject: JSONObject = p2pObject.getJSONObject("smart_contract")
-        val agentP2pObject: JSONObject = p2pObject.getJSONObject("agent")
-        val myVerKey: String = smartContractObject.getString("verkey")
-        val mySecretKey: String = smartContractObject.getString("secret_key")
-        val theirVerkey: String = agentP2pObject.getString("verkey")
-        val connection = P2PConnection(myVerKey, mySecretKey, theirVerkey)
-        return AgentParams(serverAddress, credentials, connection, entityList)
+        val smartContractObject: JSONObject? = p2pObject?.getJSONObject("smart_contract")
+        val agentP2pObject: JSONObject? = p2pObject?.getJSONObject("agent")
+        val myVerKey: String? = smartContractObject?.getString("verkey")
+        val mySecretKey: String? = smartContractObject?.getString("secret_key")
+        val theirVerkey: String? = agentP2pObject?.getString("verkey")
+        val connection = P2PConnection(myVerKey ?:"", mySecretKey?:"", theirVerkey?:"")
+        return AgentParams(serverAddress, credentials?:"", connection, entityList)
+
     }
 
     fun ensureIsAlive() {
@@ -107,10 +111,10 @@ class ServerTestSuite {
     }
 
     init {
-        serverAddress = ConfTest.singletonInstance.test_suite_baseurl
+        serverAddress = ConfTest.singletonInstance.test_suite_baseurl ?:""
         url = "$serverAddress/test_suite"
         metadata = null
-        testSuitePath = java.lang.System.getenv("TEST_SUITE")
+        testSuitePath = System.getenv("TEST_SUITE")
         if (testSuitePath == null) {
             testSuiteExistsLocally = false
         } else {

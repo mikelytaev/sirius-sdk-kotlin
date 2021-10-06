@@ -61,7 +61,8 @@ object Base58 {
             temp[--j] = ALPHABET[0].toByte()
         }
         val output = copyOfRange(temp, j, temp.size)
-        var string = String(output, US_ASCII)
+        val codec = StringCodec()
+        var string = codec.fromByteArrayToASCIIString(output)
         if (string.length > 22 && string.startsWith("1")) {
             string = string.substring(1)
         }

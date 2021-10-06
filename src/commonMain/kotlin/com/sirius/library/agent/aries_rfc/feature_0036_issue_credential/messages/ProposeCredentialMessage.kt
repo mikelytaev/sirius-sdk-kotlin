@@ -44,7 +44,7 @@ class ProposeCredentialMessage(message: String) : BaseIssueCredentialMessage(mes
             return res
         }
 
-    abstract class Builder<B : Builder<B>?> :
+    abstract class Builder<B : Builder<B>> :
         BaseIssueCredentialMessage.Builder<B>() {
         var credentialProposal: List<ProposedAttrib>? = null
         var schemaIssuerDid: String? = null
@@ -53,37 +53,37 @@ class ProposeCredentialMessage(message: String) : BaseIssueCredentialMessage(mes
         var schemaVersion: String? = null
         var credDefId: String? = null
         var issuerDid: String? = null
-        fun setCredentialProposal(credentialProposal: List<ProposedAttrib>?): B? {
+        fun setCredentialProposal(credentialProposal: List<ProposedAttrib>?): B {
             this.credentialProposal = credentialProposal
             return self()
         }
 
-        fun setSchemaIssuerDid(schemaIssuerDid: String?): B? {
+        fun setSchemaIssuerDid(schemaIssuerDid: String?): B {
             this.schemaIssuerDid = schemaIssuerDid
             return self()
         }
 
-        fun setSchemaId(schemaId: String?): B? {
+        fun setSchemaId(schemaId: String?): B {
             this.schemaId = schemaId
             return self()
         }
 
-        fun setSchemaName(schemaName: String?): B? {
+        fun setSchemaName(schemaName: String?): B {
             this.schemaName = schemaName
             return self()
         }
 
-        fun setSchemaVersion(schemaVersion: String?): B? {
+        fun setSchemaVersion(schemaVersion: String?): B {
             this.schemaVersion = schemaVersion
             return self()
         }
 
-        fun setCredDefId(credDefId: String?): B? {
+        fun setCredDefId(credDefId: String?): B {
             this.credDefId = credDefId
             return self()
         }
 
-        fun setIssuerDid(issuerDid: String?): B? {
+        fun setIssuerDid(issuerDid: String?): B {
             this.issuerDid = issuerDid
             return self()
         }
@@ -124,7 +124,7 @@ class ProposeCredentialMessage(message: String) : BaseIssueCredentialMessage(mes
     }
 
     private class ProposeCredentialMessageBuilder :
-        Builder<ProposeCredentialMessageBuilder?>() {
+        Builder<ProposeCredentialMessageBuilder>() {
         override fun self(): ProposeCredentialMessageBuilder {
             return this
         }

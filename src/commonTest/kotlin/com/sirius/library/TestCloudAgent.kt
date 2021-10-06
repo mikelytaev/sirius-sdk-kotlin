@@ -1,14 +1,18 @@
 package com.sirius.library
 
 import com.sirius.library.agent.CloudAgent
+import com.sirius.library.agent.listener.Event
+import com.sirius.library.agent.listener.Listener
 import com.sirius.library.agent.model.Entity
 import com.sirius.library.helpers.ConfTest
 import com.sirius.library.helpers.ServerTestSuite
+import com.sirius.library.messaging.Message
 import com.sirius.library.models.AgentParams
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import com.sirius.library.models.TrustPingMessageUnderTest
+import com.sirius.library.utils.JSONObject
+import com.sirius.library.utils.StringCodec
+import com.sirius.library.utils.UUID
+import kotlin.test.*
 
 class TestCloudAgent {
     lateinit var confTest: ConfTest
@@ -26,11 +30,12 @@ class TestCloudAgent {
         allAgentsList.add("agent2")
         allAgentsList.add("agent3")
         allAgentsList.add("agent4")
+        val codec = StringCodec()
         for (i in allAgentsList.indices) {
             val agentName = allAgentsList[i]
             val params: AgentParams = testSuite.getAgentParams(agentName)
             val agent = CloudAgent(
-                params.getServerAddress(), params.getCredentials().getBytes(java.nio.charset.StandardCharsets.US_ASCII),
+                params.serverAddress, codec.fromASCIIStringToByteArray(params.credentials),
                 params.getConnection(), 10
             )
             agent.open()
@@ -44,13 +49,14 @@ class TestCloudAgent {
     fun testAgentsWallet() {
         val testSuite: ServerTestSuite = confTest.suiteSingleton
         val params: AgentParams = testSuite.getAgentParams("agent1")
+        val codec = StringCodec()
         val agent = CloudAgent(
-            params.serverAddress, params.credentials.getBytes(java.nio.charset.StandardCharsets.US_ASCII),
+            params.serverAddress, codec.fromASCIIStringToByteArray(params.credentials),
             params.getConnection(), 10
         )
         agent.open()
         //Check wallet calls is ok
-        val didVerkey: Pair<String, String> = agent.getWallet().did.createAndStoreMyDid()
+        val didVerkey: Pair<String, String> = agent.getWallet()?.did?.createAndStoreMyDid() ?:Pair("","")
         assertNotNull(didVerkey)
         assertNotNull(didVerkey.first)
         assertNotNull(didVerkey.second)
@@ -58,12 +64,7 @@ class TestCloudAgent {
     }
 
     @Test
-    @Throws(
-        java.lang.InterruptedException::class,
-        java.util.concurrent.ExecutionException::class,
-        java.util.concurrent.TimeoutException::class,
-        SiriusRPCError::class
-    )
+
     fun testAgentsCommunications() {
         val testSuite: ServerTestSuite = confTest.suiteSingleton
         val agent1params: AgentParams = testSuite.getAgentParams("agent1")
@@ -72,15 +73,16 @@ class TestCloudAgent {
         val entityList2: List<Entity> = agent2params.getEntitiesList()
         val entity1: Entity = entityList1[0]
         val entity2: Entity = entityList2[0]
+        val codec = StringCodec()
         val agent1 = CloudAgent(
             agent1params.serverAddress,
-            agent1params.credentials.getBytes(java.nio.charset.StandardCharsets.US_ASCII),
+            codec.fromASCIIStringToByteArray(agent1params.credentials),
             agent1params.getConnection(),
             10
         )
         val agent2 = CloudAgent(
             agent2params.serverAddress,
-            agent2params.credentials.getBytes(java.nio.charset.StandardCharsets.US_ASCII),
+            codec.fromASCIIStringToByteArray(agent2params.credentials),
             agent2params.getConnection(),
             10
         )
@@ -94,15 +96,17 @@ class TestCloudAgent {
                 break
             }
         }
-        agent1.getWallet().getDid().storeTheirDid(entity2.getDid(), entity2.getVerkey())
-        if (!agent1.getWallet().getPairwise().isPairwiseExist(entity2.getDid())) {
+        agent1.getWallet()?.did?.storeTheirDid(entity2.did, entity2.verkey)
+        val exist1=agent1.getWallet()?.pairwise?.isPairwiseExist(entity2.did)?:false
+        if (!exist1) {
             println("#1")
-            agent1.getWallet().getPairwise().createPairwise(entity2.getDid(), entity1.getDid())
+            agent1.getWallet()?.pairwise?.createPairwise(entity2.did, entity1.did)
         }
-        agent2.getWallet().getDid().storeTheirDid(entity1.getDid(), entity1.getVerkey())
-        if (!agent2.getWallet().getPairwise().isPairwiseExist(entity1.getDid())) {
+        agent2.getWallet()?.did?.storeTheirDid(entity1.did, entity1.verkey)
+        val exist = agent2.getWallet()?.pairwise?.isPairwiseExist(entity1.did)?:false
+        if (!exist) {
             println("#2")
-            agent2.getWallet().getPairwise().createPairwise(entity1.getDid(), entity2.getDid())
+            agent2.getWallet()?.pairwise?.createPairwise(entity1.did, entity2.did)
         }
         //Prepare Message
         val trustPing = Message(
@@ -111,47 +115,43 @@ class TestCloudAgent {
                 .put("comment", "Hi. Are you listening?").put("response_requested", true)
         )
         val thierVerkeys: MutableList<String> = ArrayList<String>()
-        thierVerkeys.add(entity2.getVerkey())
+        thierVerkeys.add(entity2.verkey)
         val finalAgent2Endpoint = agent2Endpoint
         val agent2Listener: Listener = agent2.subscribe()
-        val eventFeat: java.util.concurrent.CompletableFuture<Event> = agent2Listener.getOne()
+        val eventFeat: java.util.concurrent.CompletableFuture<Event> = agent2Listener.one
         println("sendMess1=")
-        agent1.sendMessage(trustPing, thierVerkeys, finalAgent2Endpoint, entity1.getVerkey(), ArrayList<E>())
+        agent1.sendMessage(trustPing, thierVerkeys, finalAgent2Endpoint, entity1.verkey, listOf())
         val event: Event = eventFeat.get(10, java.util.concurrent.TimeUnit.SECONDS)
         println("event=" + event.getMessageObj())
-        val message: JSONObject = event.getJSONOBJECTFromJSON("message")
+        val message: JSONObject? = event.getJSONOBJECTFromJSON("message")
         assertNotNull(message)
-        val type: String = message.getString("@type")
+        val type: String? = message.getString("@type")
         assertEquals("did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/trust_ping/1.0/ping", type)
-        val id: String = message.getString("@id")
+        val id: String? = message.getString("@id")
         assertEquals(trustPing.getId(), id)
         agent1.close()
         agent2.close()
     }
 
     @Test
-    @Throws(
-        java.lang.InterruptedException::class,
-        java.util.concurrent.ExecutionException::class,
-        java.util.concurrent.TimeoutException::class,
-        SiriusRPCError::class
-    )
+
     fun testListenerRestoreMessage() {
         val agent1Params: AgentParams = confTest.suiteSingleton.getAgentParams("agent1")
-        val agent2Params: AgentParams = confTest.getSuiteSingleton().getAgentParams("agent2")
+        val agent2Params: AgentParams = confTest.suiteSingleton.getAgentParams("agent2")
         val agent1ParamsEntitiesList: List<Entity> = agent1Params.getEntitiesList()
         val agent2ParamsEntitiesList: List<Entity> = agent2Params.getEntitiesList()
         val entity1: Entity = agent1ParamsEntitiesList[0]
         val entity2: Entity = agent2ParamsEntitiesList[0]
+        val codec = StringCodec()
         val agent1 = CloudAgent(
-            agent1Params.getServerAddress(),
-            agent1Params.getCredentials().getBytes(java.nio.charset.StandardCharsets.US_ASCII),
+            agent1Params.serverAddress,
+            codec.fromASCIIStringToByteArray(agent1Params.credentials),
             agent1Params.getConnection(),
             10
         )
         val agent2 = CloudAgent(
-            agent2Params.getServerAddress(),
-            agent2Params.getCredentials().getBytes(java.nio.charset.StandardCharsets.US_ASCII),
+            agent2Params.serverAddress,
+            codec.fromASCIIStringToByteArray(agent2Params.credentials),
             agent2Params.getConnection(),
             10
         )
@@ -160,29 +160,29 @@ class TestCloudAgent {
 
         //GET endpoints
         var agent2Endpoint: String? = null
-        for (i in 0 until agent2.getEndpoints().size()) {
-            if (agent2.getEndpoints().get(i).getRoutingKeys().isEmpty()) {
-                agent2Endpoint = agent2.getEndpoints().get(i).getAddress()
+        for (i in 0 until agent2.getEndpoints().size) {
+            if (agent2.getEndpoints().get(i).routingKeys.isEmpty()) {
+                agent2Endpoint = agent2.getEndpoints().get(i).address
             }
         }
         val agent2Listener: Listener = agent2.subscribe()
 
         //# Exchange Pairwise
-        agent1.getWallet().getDid().storeTheirDid(entity2.getDid(), entity2.getVerkey())
-        val isExist1: Boolean = agent1.getWallet().getPairwise().isPairwiseExist(entity2.getDid())
+        agent1.getWallet()?.did?.storeTheirDid(entity2.did, entity2.verkey)
+        val isExist1: Boolean = agent1.getWallet()?.pairwise?.isPairwiseExist(entity2.did) ?:false
         if (!isExist1) {
             println("#1")
-            agent1.getWallet().getPairwise().createPairwise(entity2.getDid(), entity1.getDid())
+            agent1.getWallet()?.pairwise?.createPairwise(entity2.did, entity1.did)
         }
-        agent2.getWallet().getDid().storeTheirDid(entity1.getDid(), entity1.getVerkey())
-        val isExist2: Boolean = agent2.getWallet().getPairwise().isPairwiseExist(entity1.getDid())
+        agent2.getWallet()?.did?.storeTheirDid(entity1.did, entity1.verkey)
+        val isExist2: Boolean = agent2.getWallet()?.pairwise?.isPairwiseExist(entity1.did)?:false
         if (!isExist2) {
             println("#2")
-            agent2.getWallet().getPairwise().createPairwise(entity1.getDid(), entity2.getDid())
+            agent2.getWallet()?.pairwise?.createPairwise(entity1.did, entity2.did)
         }
 
         //Bind Message class to protocol
-        Message.registerMessageClass(TrustPingMessageUnderTest::class.java, "trust_ping_test")
+        Message.registerMessageClass(TrustPingMessageUnderTest::class, "trust_ping_test")
         //Prepare message
         val trust_ping = Message(
             JSONObject().put("@type", "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/trust_ping_test/1.0/ping")
@@ -190,11 +190,11 @@ class TestCloudAgent {
                 .put("comment", "Hi. Are you listening?").put("response_requested", true)
         )
         val verkeyList: MutableList<String> = ArrayList<String>()
-        verkeyList.add(entity2.getVerkey())
-        val eventFeat: java.util.concurrent.CompletableFuture<Event> = agent2Listener.getOne()
-        agent1.sendMessage(trust_ping, verkeyList, agent2Endpoint, entity1.getVerkey(), ArrayList<E>())
+        verkeyList.add(entity2.verkey)
+        val eventFeat: java.util.concurrent.CompletableFuture<Event> = agent2Listener.one
+        agent1.sendMessage(trust_ping, verkeyList, agent2Endpoint, entity1.verkey, listOf())
         val event: Event = eventFeat.get(10, java.util.concurrent.TimeUnit.SECONDS)
-        val message: JSONObject = event.getJSONOBJECTFromJSON("message")
+        val message: JSONObject? = event.getJSONOBJECTFromJSON("message")
         println("message=$message")
         // assert isinstance(msg, TrustPingMessageUnderTest), 'Unexpected msg type: ' + str(type(msg))
         agent1.close()

@@ -2,10 +2,12 @@ package com.sirius.library
 
 import com.sirius.library.agent.CloudAgent
 import com.sirius.library.agent.aries_rfc.feature_0048_trust_ping.Ping
+import com.sirius.library.agent.aries_rfc.feature_0048_trust_ping.Pong
 import com.sirius.library.agent.coprotocols.AbstractCloudCoProtocolTransport
 import com.sirius.library.agent.coprotocols.PairwiseCoProtocolTransport
 import com.sirius.library.agent.coprotocols.TheirEndpointCoProtocolTransport
 import com.sirius.library.agent.coprotocols.ThreadBasedCoProtocolTransport
+import com.sirius.library.agent.listener.Event
 import com.sirius.library.agent.model.Entity
 import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.agent.pairwise.TheirEndpoint
@@ -19,10 +21,7 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.models.AgentParams
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.UUID
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class TestCopropocols {
     lateinit  var confTest: ConfTest
@@ -41,10 +40,12 @@ class TestCopropocols {
             msgLog!!.add(firstReq)
             val (first, second) = protocol.sendAndWait(firstReq)
             assertTrue(first)
+            assertNotNull(second)
             msgLog!!.add(second)
             val secondReq = Message(JSONObject().put("@type", TEST_MSG_TYPES[2]).put("content", "Request2"))
             val (first1, second1) = protocol.sendAndWait(secondReq)
             assertTrue(first1)
+            assertNotNull(second1)
             msgLog!!.add(second1)
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -58,10 +59,12 @@ class TestCopropocols {
             msgLog!!.add(firstReq)
             val (first, second) = protocol.sendAndWait(firstReq)
             assertTrue(first)
+            assertNotNull(second)
             msgLog!!.add(second)
             val secondReq = Message(JSONObject().put("@type", TEST_MSG_TYPES[2]).put("content", "Request2"))
             val (first1, second1) = protocol.sendAndWait(secondReq)
             assertTrue(first1)
+            assertNotNull(second1)
             msgLog!!.add(second1)
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -79,7 +82,7 @@ class TestCopropocols {
             val endMsg = Message(JSONObject().put("@type", TEST_MSG_TYPES[3]).put("content", "End"))
             protocol.send(endMsg)
         } catch (ex:Exception) {
-            assertTrue(ex.message, false)
+            assertTrue(false)
         }
     }
 
@@ -89,11 +92,12 @@ class TestCopropocols {
             val firstResp = Message(JSONObject().put("@type", TEST_MSG_TYPES[1]).put("content", "Response1"))
             val (first, second) = protocol.sendAndWait(firstResp)
             assertTrue(first)
+            assertNotNull(second)
             msgLog!!.add(second)
             val endMsg = Message(JSONObject().put("@type", TEST_MSG_TYPES[3]).put("content", "End"))
             protocol.send(endMsg)
         } catch (ex: Exception) {
-            assertTrue(ex.message, false)
+            assertTrue(false)
         }
     }
 
@@ -152,12 +156,12 @@ class TestCopropocols {
         agent2.open()
         val agent1Endpoint: String = ServerTestSuite.getFirstEndpointAddressWIthEmptyRoutingKeys(agent1)
         val agent2Endpoint: String = ServerTestSuite.getFirstEndpointAddressWIthEmptyRoutingKeys(agent2)
-        val (first, second) = agent1.getWallet().did.createAndStoreMyDid()
-        val (first1, second1) = agent2.getWallet().did.createAndStoreMyDid()
-        agent1.getWallet().did.storeTheirDid(first1, second1)
-        agent1.getWallet().pairwise.createPairwise(first1, first)
-        agent2.getWallet().did.storeTheirDid(first, second)
-        agent2.getWallet().pairwise.createPairwise(first, first1)
+        val (first, second) = agent1.getWallet()?.did?.createAndStoreMyDid() ?:Pair("","")
+        val (first1, second1) = agent2.getWallet()?.did?.createAndStoreMyDid() ?:Pair("","")
+        agent1.getWallet()?.did?.storeTheirDid(first1, second1)
+        agent1.getWallet()?.pairwise?.createPairwise(first1, first)
+        agent2.getWallet()?.did?.storeTheirDid(first, second)
+        agent2.getWallet()?.pairwise?.createPairwise(first, first1)
         val pairwise1 = Pairwise(
             Pairwise.Me(first, second),
             Pairwise.Their(first1, "Label-2", agent2Endpoint, second1)
@@ -166,10 +170,10 @@ class TestCopropocols {
             Pairwise.Me(first1, second1),
             Pairwise.Their(first, "Label-1", agent1Endpoint, second)
         )
-        val agent1Protocol: PairwiseCoProtocolTransport = agent1.spawn(pairwise1)
-        val agent2Protocol: PairwiseCoProtocolTransport = agent2.spawn(pairwise2)
-        agent1Protocol.start(listOf("test_protocol"))
-        agent2Protocol.start(listOf("test_protocol"))
+        val agent1Protocol: PairwiseCoProtocolTransport? = agent1.spawn(pairwise1)
+        val agent2Protocol: PairwiseCoProtocolTransport?= agent2.spawn(pairwise2)
+        agent1Protocol?.start(listOf("test_protocol"))
+        agent2Protocol?.start(listOf("test_protocol"))
         msgLog!!.clear()
         val cf1: java.util.concurrent.CompletableFuture<java.lang.Void> =
             java.util.concurrent.CompletableFuture.runAsync(
@@ -180,8 +184,8 @@ class TestCopropocols {
         cf1.join()
         cf2.join()
         checkMsgLog()
-        agent1Protocol.stop()
-        agent2Protocol.stop()
+        agent1Protocol?.stop()
+        agent2Protocol?.stop()
         agent1.close()
         agent2.close()
     }
@@ -194,12 +198,12 @@ class TestCopropocols {
         agent2.open()
         val agent1Endpoint: String = ServerTestSuite.getFirstEndpointAddressWIthEmptyRoutingKeys(agent1)
         val agent2Endpoint: String = ServerTestSuite.getFirstEndpointAddressWIthEmptyRoutingKeys(agent2)
-        val (first, second) = agent1.getWallet().did.createAndStoreMyDid()
-        val (first1, second1) = agent2.getWallet().did.createAndStoreMyDid()
-        agent1.getWallet().did.storeTheirDid(first1, second1)
-        agent1.getWallet().pairwise.createPairwise(first1, first)
-        agent2.getWallet().did.storeTheirDid(first, second)
-        agent2.getWallet().pairwise.createPairwise(first, first1)
+        val (first, second) = agent1.getWallet()?.did?.createAndStoreMyDid() ?:Pair("","")
+        val (first1, second1) = agent2.getWallet()?.did?.createAndStoreMyDid() ?:Pair("","")
+        agent1.getWallet()?.did?.storeTheirDid(first1, second1)
+        agent1.getWallet()?.pairwise?.createPairwise(first1, first)
+        agent2.getWallet()?.did?.storeTheirDid(first, second)
+        agent2.getWallet()?.pairwise?.createPairwise(first, first1)
         val pairwise1 = Pairwise(
             Pairwise.Me(first, second),
             Pairwise.Their(first1, "Label-2", agent2Endpoint, second1)
@@ -209,10 +213,10 @@ class TestCopropocols {
             Pairwise.Their(first, "Label-1", agent1Endpoint, second)
         )
         val threadUi: String = UUID.randomUUID.toString()
-        val agent1Protocol: ThreadBasedCoProtocolTransport = agent1.spawn(threadUi, pairwise1)
-        val agent2Protocol: ThreadBasedCoProtocolTransport = agent2.spawn(threadUi, pairwise2)
-        agent1Protocol.start(listOf("test_protocol"))
-        agent2Protocol.start(listOf("test_protocol"))
+        val agent1Protocol: ThreadBasedCoProtocolTransport? = agent1.spawn(threadUi, pairwise1)
+        val agent2Protocol: ThreadBasedCoProtocolTransport? = agent2.spawn(threadUi, pairwise2)
+        agent1Protocol?.start(listOf("test_protocol"))
+        agent2Protocol?.start(listOf("test_protocol"))
         msgLog!!.clear()
         val cf1: java.util.concurrent.CompletableFuture<java.lang.Void> =
             java.util.concurrent.CompletableFuture.runAsync(
@@ -223,8 +227,8 @@ class TestCopropocols {
         cf1.join()
         cf2.join()
         checkMsgLog()
-        agent1Protocol.stop()
-        agent2Protocol.stop()
+        agent1Protocol?.stop()
+        agent2Protocol?.stop()
         agent1.close()
         agent2.close()
     }
@@ -245,12 +249,12 @@ class TestCopropocols {
             val agent2Endpoint: String = ServerTestSuite.getFirstEndpointAddressWIthEmptyRoutingKeys(agent2)
 
             // Init pairwise list #1
-            val (first, second) = agent1.getWallet().did.createAndStoreMyDid()
-            val (first1, second1) = agent2.getWallet().did.createAndStoreMyDid()
-            agent1.getWallet().did.storeTheirDid(first1, second1)
-            agent1.getWallet().pairwise.createPairwise(first1, first)
-            agent2.getWallet().did.storeTheirDid(first, second)
-            agent2.getWallet().pairwise.createPairwise(first, first1)
+            val (first, second) = agent1.getWallet()?.did?.createAndStoreMyDid() ?:Pair("","")
+            val (first1, second1) = agent2.getWallet()?.did?.createAndStoreMyDid() ?:Pair("","")
+            agent1.getWallet()?.did?.storeTheirDid(first1, second1)
+            agent1.getWallet()?.pairwise?.createPairwise(first1, first)
+            agent2.getWallet()?.did?.storeTheirDid(first, second)
+            agent2.getWallet()?.pairwise?.createPairwise(first, first1)
 
             // Init pairwise list #2
             pairwise1 = Pairwise(
@@ -267,25 +271,27 @@ class TestCopropocols {
         }
         val threadUi: String = UUID.randomUUID.toString()
         val finalPairwise: Pairwise? = pairwise1
+        assertNotNull(finalPairwise)
         val cf1: java.util.concurrent.CompletableFuture<java.lang.Void> =
             java.util.concurrent.CompletableFuture.runAsync(
                 java.lang.Runnable {
-                    CloudContext.builder().setServerUri(agent1params.getServerAddress())
+                    CloudContext.builder().setServerUri(agent1params.serverAddress)
                         .setP2p(agent1params.getConnection())
-                        .setCredentials(agent1params.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8))
-                        .build().use { context ->
+                        .setCredentials(agent1params.credentials.encodeToByteArray())
+                        .build().also { context ->
                             val co1 = CoProtocolThreadedP2P(context, threadUi, finalPairwise)
                             routine1OnHub(co1)
                         }
                 })
         val finalPairwise2: Pairwise? = pairwise2
+        assertNotNull(finalPairwise2)
         val cf2: java.util.concurrent.CompletableFuture<java.lang.Void> =
             java.util.concurrent.CompletableFuture.runAsync(
                 java.lang.Runnable {
-                    CloudContext.builder().setServerUri(agent2params.getServerAddress())
+                    CloudContext.builder().setServerUri(agent2params.serverAddress)
                         .setP2p(agent2params.getConnection())
-                        .setCredentials(agent2params.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8))
-                        .build().use { context ->
+                        .setCredentials(agent2params.credentials.encodeToByteArray())
+                        .build().also { context ->
                             val co2 = CoProtocolThreadedP2P(context, threadUi, finalPairwise2)
                             routine2OnHub(co2)
                         }
@@ -297,11 +303,7 @@ class TestCopropocols {
     }
 
     @Test
-    @Throws(
-        java.lang.InterruptedException::class,
-        java.util.concurrent.ExecutionException::class,
-        java.util.concurrent.TimeoutException::class
-    )
+
     fun testCoprotocolThreadedTheirsSend() {
         val agent1: CloudAgent = confTest.getAgent("agent1")
         val agent2: CloudAgent = confTest.getAgent("agent2")
@@ -320,12 +322,12 @@ class TestCopropocols {
         val sender: java.util.concurrent.CompletableFuture<java.lang.Void> =
             java.util.concurrent.CompletableFuture.supplyAsync<java.lang.Void>(
                 java.util.function.Supplier<java.lang.Void> {
-                    CloudContext.builder().setServerUri(agent1params.getServerAddress())
-                        .setCredentials(agent1params.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8))
-                        .setP2p(agent1params.getConnection()).build().use { context ->
+                    CloudContext.builder().setServerUri(agent1params.serverAddress)
+                        .setCredentials(agent1params.credentials.encodeToByteArray())
+                        .setP2p(agent1params.getConnection()).build().also { context ->
                             val msg: Ping = Ping.builder().setComment("Test Ping").build()
                             val co =
-                                CoProtocolThreadedTheirs(context, threadId, java.util.Arrays.asList(pw1, pw2), null, 60)
+                                CoProtocolThreadedTheirs(context, threadId, listOf(pw1, pw2), null, 60)
                             co.send(msg)
                         }
                     null
@@ -335,15 +337,15 @@ class TestCopropocols {
             java.util.concurrent.CompletableFuture.supplyAsync<java.lang.Void>(
                 java.util.function.Supplier<java.lang.Void> {
                     try {
-                        CloudContext.builder().setServerUri(agent2params.getServerAddress()).setCredentials(
-                            agent2params.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8)
+                        CloudContext.builder().setServerUri(agent2params.serverAddress).setCredentials(
+                            agent2params.credentials.encodeToByteArray()
                         )
-                            .setP2p(agent2params.getConnection()).build().use { context ->
+                            .setP2p(agent2params.getConnection()).build().also { context ->
                                 rcvMessages.add(
-                                    context.subscribe().getOne().get(30, java.util.concurrent.TimeUnit.SECONDS)
+                                    context.subscribe()?.one.get(30, java.util.concurrent.TimeUnit.SECONDS)
                                 )
                             }
-                    } catch (e: java.lang.Exception) {
+                    } catch (e:Exception) {
                         e.printStackTrace()
                     }
                     null
@@ -353,15 +355,15 @@ class TestCopropocols {
             java.util.concurrent.CompletableFuture.supplyAsync<java.lang.Void>(
                 java.util.function.Supplier<java.lang.Void> {
                     try {
-                        CloudContext.builder().setServerUri(agent3params.getServerAddress()).setCredentials(
-                            agent3params.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8)
+                        CloudContext.builder().setServerUri(agent3params.serverAddress).setCredentials(
+                            agent3params.credentials.encodeToByteArray()
                         )
-                            .setP2p(agent3params.getConnection()).build().use { context ->
+                            .setP2p(agent3params.getConnection()).build().also { context ->
                                 rcvMessages.add(
-                                    context.subscribe().getOne().get(30, java.util.concurrent.TimeUnit.SECONDS)
+                                    context.subscribe()?.one.get(30, java.util.concurrent.TimeUnit.SECONDS)
                                 )
                             }
-                    } catch (e: java.lang.Exception) {
+                    } catch (e: Exception) {
                         e.printStackTrace()
                     }
                     null
@@ -374,11 +376,7 @@ class TestCopropocols {
     }
 
     @Test
-    @Throws(
-        java.lang.InterruptedException::class,
-        java.util.concurrent.ExecutionException::class,
-        java.util.concurrent.TimeoutException::class
-    )
+
     fun testCoprotocolThreadedTheirsSwitch() {
         val agent1: CloudAgent = confTest.getAgent("agent1")
         val agent2: CloudAgent = confTest.getAgent("agent2")
@@ -396,12 +394,12 @@ class TestCopropocols {
         val actor: java.util.concurrent.CompletableFuture<java.lang.Void> =
             java.util.concurrent.CompletableFuture.supplyAsync<java.lang.Void>(
                 java.util.function.Supplier<java.lang.Void> {
-                    CloudContext.builder().setServerUri(agent1params.getServerAddress())
-                        .setCredentials(agent1params.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8))
-                        .setP2p(agent1params.getConnection()).build().use { context ->
+                    CloudContext.builder().setServerUri(agent1params.serverAddress)
+                        .setCredentials(agent1params.credentials.encodeToByteArray())
+                        .setP2p(agent1params.getConnection()).build().also { context ->
                             val msg: Ping = Ping.builder().setComment("Test Ping").build()
                             val co =
-                                CoProtocolThreadedTheirs(context, threadId, java.util.Arrays.asList(pw1, pw2), null, 60)
+                                CoProtocolThreadedTheirs(context, threadId, listOf(pw1, pw2), null, 60)
                             statuses.addAll(co.sendAndWait(msg))
                         }
                     null
@@ -411,18 +409,19 @@ class TestCopropocols {
             java.util.concurrent.CompletableFuture.supplyAsync<java.lang.Void>(
                 java.util.function.Supplier<java.lang.Void> {
                     try {
-                        CloudContext.builder().setServerUri(agent2params.getServerAddress()).setCredentials(
-                            agent2params.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8)
+                        CloudContext.builder().setServerUri(agent2params.serverAddress).setCredentials(
+                            agent2params.credentials.encodeToByteArray()
                         )
-                            .setP2p(agent2params.getConnection()).build().use { context ->
+                            .setP2p(agent2params.getConnection()).build().also { context ->
                                 val event: Event =
-                                    context.subscribe().getOne().get(30, java.util.concurrent.TimeUnit.SECONDS)
-                                val threadId_: String =
-                                    event.message().getJSONOBJECTFromJSON("~thread").optString("thid")
+                                    context.subscribe()?.one.get(30, java.util.concurrent.TimeUnit.SECONDS)
+                                val threadId_: String? =
+                                    event.message()?.getJSONOBJECTFromJSON("~thread")?.optString("thid")
                                 val pong: Pong = Pong.builder().setPingId(threadId_).setComment("PONG").build()
-                                context.sendTo(pong, event.getPairwise())
+                                assertNotNull(event.getPairwise())
+                                context.sendTo(pong, event.getPairwise()!!)
                             }
-                    } catch (e: java.lang.Exception) {
+                    } catch (e: Exception) {
                         e.printStackTrace()
                     }
                     null
@@ -432,18 +431,20 @@ class TestCopropocols {
             java.util.concurrent.CompletableFuture.supplyAsync<java.lang.Void>(
                 java.util.function.Supplier<java.lang.Void> {
                     try {
-                        CloudContext.builder().setServerUri(agent3params.getServerAddress()).setCredentials(
-                            agent3params.getCredentials().getBytes(java.nio.charset.StandardCharsets.UTF_8)
+                        CloudContext.builder().setServerUri(agent3params.serverAddress).setCredentials(
+                            agent3params.credentials.encodeToByteArray()
                         )
-                            .setP2p(agent3params.getConnection()).build().use { context ->
+                            .setP2p(agent3params.getConnection()).build().also { context ->
                                 val event: Event =
-                                    context.subscribe().getOne().get(30, java.util.concurrent.TimeUnit.SECONDS)
-                                val threadId_: String =
-                                    event.message().getJSONOBJECTFromJSON("~thread").optString("thid")
+                                    context.subscribe()?.one.get(30, java.util.concurrent.TimeUnit.SECONDS)
+                                val threadId_: String? =
+                                    event.message()?.getJSONOBJECTFromJSON("~thread")?.optString("thid")
                                 val pong: Pong = Pong.builder().setPingId(threadId_).setComment("PONG").build()
-                                context.sendTo(pong, event.getPairwise())
+                                val pairwise = event.getPairwise()
+                                assertNotNull(pairwise)
+                                context.sendTo(pong, pairwise)
                             }
-                    } catch (e: java.lang.Exception) {
+                    } catch (e: Exception) {
                         e.printStackTrace()
                     }
                     null
@@ -455,7 +456,7 @@ class TestCopropocols {
         assertFalse(statuses.isEmpty())
         for (s in statuses) {
             assertTrue(s.success)
-            assertEquals("PONG", s.message.getMessageObj().optString("comment"))
+            assertEquals("PONG", s.message?.getMessageObj()?.optString("comment"))
         }
     }
 

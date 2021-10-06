@@ -1,11 +1,13 @@
 package com.sirius.library.base
 
+import com.sirius.library.messaging.Message
 import com.sirius.library.utils.Logger
+import com.sirius.library.utils.StringCodec
 
 class WebSocketConnector : BaseConnector {
     var log: Logger = Logger.getLogger(WebSocketConnector::class.simpleName)
     var defTimeout = 30
-    var encoding: java.nio.charset.Charset = java.nio.charset.StandardCharsets.UTF_8
+    var encoding: String = StringCodec.UTF_8
     var serverAddress: String
     var path: String
     var credentials: ByteArray? = null
@@ -14,7 +16,7 @@ class WebSocketConnector : BaseConnector {
 
     constructor(
         defTimeout: Int,
-        encoding: java.nio.charset.Charset,
+        encoding: String,
         serverAddress: String,
         path: String,
         credentials: ByteArray?
@@ -35,7 +37,7 @@ class WebSocketConnector : BaseConnector {
     }
 
     var webSocketListener: WebSocketListener = object : WebSocketListener() {
-        @Throws(java.lang.Exception::class)
+        @Throws(Exception::class)
         fun onStateChanged(webSocket: WebSocket?, webSocketState: WebSocketState?) {
         }
 
@@ -219,14 +221,14 @@ class WebSocketConnector : BaseConnector {
         return null
     }
 
-    fun write(data: ByteArray?): Boolean {
+    override fun write(data: ByteArray?): Boolean {
         //log.log(Level.INFO, "Sending binary data");
         webSocket.sendBinary(data)
         return true
     }
 
     fun write(message: Message): Boolean {
-        val payload: String = message.serialize()
+        val payload: String = message.serialize() ?:""
         //log.log(Level.INFO, "Sending message");
         webSocket.sendText(payload)
         return true

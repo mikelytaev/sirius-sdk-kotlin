@@ -50,7 +50,7 @@ open class InitRequestLedgerMessage(msg: String) : BaseInitLedgerMessage(msg) {
         if (this.ledger != null) throw SiriusContextError("Ledger body is empty")
     }
 
-    val timeoutSec: Int
+    val timeoutSec: Int?
         get() = getMessageObj().optInt("timeout_sec")
 
     @Throws(SiriusValidationError::class)

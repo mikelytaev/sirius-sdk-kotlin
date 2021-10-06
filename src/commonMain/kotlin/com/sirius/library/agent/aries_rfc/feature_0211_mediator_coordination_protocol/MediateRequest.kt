@@ -14,7 +14,7 @@ class MediateRequest(message: String) : CoordinateMediationMessage(message) {
         }
     }
 
-    abstract class Builder<B : Builder<B>?> : CoordinateMediationMessage.Builder<B>() {
+    abstract class Builder<B : Builder<B>> : CoordinateMediationMessage.Builder<B>() {
         override fun generateJSON(): JSONObject {
             return super.generateJSON()
         }
@@ -24,7 +24,7 @@ class MediateRequest(message: String) : CoordinateMediationMessage(message) {
         }
     }
 
-    private class MediateRequestMessageBuilder : Builder<MediateRequestMessageBuilder?>() {
+    private class MediateRequestMessageBuilder : Builder<MediateRequestMessageBuilder>() {
         protected override fun self(): MediateRequestMessageBuilder {
             return this
         }

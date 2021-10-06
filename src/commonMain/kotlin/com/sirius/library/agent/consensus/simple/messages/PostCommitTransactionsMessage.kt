@@ -11,7 +11,7 @@ import com.sirius.library.utils.JSONObject
 /**
  * Message to commit transactions list
  */
-class PostCommitTransactionsMessage(msg: String?) : BaseTransactionsMessage(msg) {
+class PostCommitTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) {
     companion object {
         fun builder(): Builder<*> {
             return PostCommitTransactionsMessageBuilder()
@@ -29,22 +29,26 @@ class PostCommitTransactionsMessage(msg: String?) : BaseTransactionsMessage(msg)
     val commits: JSONArray
         get() {
             if (!getMessageObj().has("commits")) getMessageObj().put("commits", JSONArray())
-            return getMessageObj().optJSONArray("commits")
+            return getMessageObj().optJSONArray("commits") ?: JSONArray()
         }
 
-    fun addCommitSign(api: AbstractCrypto?, commit: CommitTransactionsMessage, me: Pairwise.Me) {
+    fun addCommitSign(api: AbstractCrypto, commit: CommitTransactionsMessage, me: Pairwise.Me) {
         val signed: JSONObject = Utils.sign(api, commit.getMessageObj(), me.verkey)
         val commits: JSONArray = commits
         commits.put(signed)
         getMessageObj().put("commits", commits)
     }
 
-    fun verifyCommits(api: AbstractCrypto?, expected: CommitTransactionsMessage, verkeys: List<String?>?): Boolean {
+    fun verifyCommits(api: AbstractCrypto, expected: CommitTransactionsMessage, verkeys: List<String>?): Boolean {
         val actualVerkeys: MutableList<String> = ArrayList<String>()
         for (o in commits) {
-            actualVerkeys.add((o as JSONObject).getString("signer"))
+           val signer =  (o as JSONObject).getString("signer")
+            signer?.let {
+                actualVerkeys.add(signer)
+            }
+
         }
-        if (!HashSet<String>(actualVerkeys).containsAll(verkeys)) {
+        if (!HashSet<String>(actualVerkeys).containsAll(verkeys?: listOf())) {
             return false
         }
         for (signed in commits) {

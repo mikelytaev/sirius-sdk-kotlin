@@ -96,12 +96,12 @@ abstract class AbstractAgent : TransportLayer() {
      */
     abstract fun acquire(
         resources: List<String?>?,
-        lockTimeoutSec: Double?,
-        enterTimeoutSec: Double?
+        lockTimeoutSec: Int?,
+        enterTimeoutSec: Int?
     ): Pair<Boolean, List<String>>
 
-    fun acquire(resources: List<String?>?, lockTimeoutSec: Double): Pair<Boolean, List<String>> {
-        return acquire(resources, lockTimeoutSec, 3.0)
+    fun acquire(resources: List<String?>?, lockTimeoutSec: Int): Pair<Boolean, List<String>> {
+        return acquire(resources, lockTimeoutSec, 3)
     }
 
     abstract fun release()

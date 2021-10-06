@@ -20,18 +20,19 @@ class TestLedgers {
         val agent1: CloudAgent = confTest.agent1()
         agent1.open()
         val seed = "000000000000000000000000Steward1"
-        val (first) = agent1.getWallet().did.createAndStoreMyDid(null, seed)
+        val (first) = agent1.getWallet()?.did?.createAndStoreMyDid(null, seed)?:Pair("","")
         val schemaName = "schema_" + UUID.randomUUID.getLeastSignificantBits()
-        val (_, second) = agent1.getWallet().anoncreds.issuerCreateSchema(
+        val (_, second) = agent1.getWallet()?.anoncreds?.issuerCreateSchema(
             first, schemaName, "1.0", "attr1", "attr2", "attr3"
-        )
+        ) ?:Pair(null,null)
         val ledger: Ledger? = agent1.getLedgers().get("default")
-        val (first1, second1) = ledger.registerSchema(second, first)
+        val (first1, second1) = ledger?.registerSchema(second, first) ?:Pair(false, null)
         assertTrue(first1)
-        assertTrue(second1.seqNo > 0)
-        val (first2) = ledger.registerSchema(second, first)
+        assertTrue((second1?.seqNo ?: 0) > 0)
+        val (first2) = ledger?.registerSchema(second, first) ?:Pair(false, null)
         assertFalse(first2)
-        val restoredSchema: Schema? = ledger.ensureSchemaExists(second, first)
+        assertNotNull(second)
+        val restoredSchema: Schema? = ledger?.ensureSchemaExists(second, first)
         assertNotNull(restoredSchema)
         assertEquals(second1, restoredSchema)
         agent1.close()
@@ -44,20 +45,20 @@ class TestLedgers {
         agent1.open()
         agent2.open()
         val seed1 = "000000000000000000000000Steward1"
-        val (first) = agent1.getWallet().did.createAndStoreMyDid(null, seed1)
+        val (first) = agent1.getWallet()?.did?.createAndStoreMyDid(null, seed1)?:Pair("","")
         val schemaName = "schema_" + UUID.randomUUID.getMostSignificantBits()
-        val (_, second) = agent1.getWallet().anoncreds.issuerCreateSchema(
+        val (_, second) = agent1.getWallet()?.anoncreds?.issuerCreateSchema(
             first, schemaName, "1.0", "attr1", "attr2", "attr3"
-        )
-        val ledger1: Ledger = agent1.getLedgers().get("default")
-        val (first1, second1) = ledger1.registerSchema(second, first)
+        )?:Pair(null,null)
+        val ledger1: Ledger? = agent1.getLedgers()?.get("default")
+        val (first1, second1) = ledger1?.registerSchema(second, first) ?:Pair(false, null)
         assertTrue(first1)
-        assertTrue(second1.seqNo > 0)
+        assertTrue((second1?.seqNo ?: 0) > 0)
         val seed2 = "000000000000000000000000Trustee0"
-        val (first2) = agent2.getWallet().did.createAndStoreMyDid(null, seed2)
-        val ledger2: Ledger = agent2.getLedgers().get("default")
+        val (first2) = agent2.getWallet()?.did?.createAndStoreMyDid(null, seed2)?:Pair("","")
+        val ledger2: Ledger? = agent2?.getLedgers()?.get("default")
         for (i in 0..4) {
-            val laodedSchema: Schema = ledger2.loadSchema(second1.id, first2)
+            val laodedSchema: Schema? = ledger2?.loadSchema(second1?.id, first2)
             assertNotNull(laodedSchema)
             assertEquals(second1, laodedSchema)
         }
@@ -70,15 +71,15 @@ class TestLedgers {
         val agent1: CloudAgent = confTest.agent1()
         agent1.open()
         val seed = "000000000000000000000000Steward1"
-        val (first) = agent1.getWallet().did.createAndStoreMyDid(null, seed)
+        val (first) = agent1.getWallet()?.did?.createAndStoreMyDid(null, seed)?:Pair("","")
         val schemaName = "schema_" + UUID.randomUUID.getMostSignificantBits()
-        val (_, second) = agent1.getWallet().anoncreds.issuerCreateSchema(
+        val (_, second) = agent1.getWallet()?.anoncreds?.issuerCreateSchema(
             first, schemaName, "1.0", "attr1", "attr2", "attr3"
-        )
-        val ledger: Ledger = agent1.getLedgers().get("default")
-        val (first1) = ledger.registerSchema(second, first)
+        )?:Pair(null,null)
+        val ledger: Ledger? = agent1.getLedgers().get("default")
+        val (first1) = ledger?.registerSchema(second, first) ?:Pair(false, null)
         assertTrue(first1)
-        val fetches: List<Schema> = ledger.fetchSchemas(null, schemaName)
+        val fetches: List<Schema> = ledger?.fetchSchemas(null, schemaName) ?: listOf()
         assertEquals(1, fetches.size.toLong())
         assertEquals(first, fetches[0].issuerDid)
         agent1.close()
@@ -89,13 +90,13 @@ class TestLedgers {
         val agent1: CloudAgent = confTest.agent1()
         agent1.open()
         val seed = "000000000000000000000000Steward1"
-        val (first) = agent1.getWallet().did.createAndStoreMyDid(null, seed)
+        val (first) = agent1.getWallet()?.did?.createAndStoreMyDid(null, seed) ?:Pair("","")
         val schemaName = "schema_" + UUID.randomUUID.getMostSignificantBits()
-        val (_, second) = agent1.getWallet().anoncreds.issuerCreateSchema(
+        val (_, second) = agent1.getWallet()?.anoncreds?.issuerCreateSchema(
             first, schemaName, "1.0", "attr1", "attr2", "attr3"
-        )
-        val ledger: Ledger = agent1.getLedgers().get("default")
-        val (first1, second1) = ledger.registerSchema(second, first)
+        )?:Pair(null,null)
+        val ledger: Ledger? = agent1.getLedgers().get("default")
+        val (first1, second1) = ledger?.registerSchema(second, first) ?:Pair(false, null)
         assertTrue(first1)
         val credDef = CredentialDefinition("Test Tag", second1)
         assertNull(credDef.getBody())

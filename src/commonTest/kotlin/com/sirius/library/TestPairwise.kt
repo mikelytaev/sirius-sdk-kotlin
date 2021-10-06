@@ -22,22 +22,22 @@ class TestPairwise {
         val agent2: CloudAgent = confTest.agent2()
         agent1.open()
         agent2.open()
-        val (first, second) = agent1.getWallet()?.did?.createAndStoreMyDid()
-        val (first1, second1) = agent2.getWallet()?.did?.createAndStoreMyDid()
+        val (first, second) = agent1.getWallet()?.did?.createAndStoreMyDid() ?:Pair("","")
+        val (first1, second1) = agent2.getWallet()?.did?.createAndStoreMyDid() ?:Pair("","")
         val metaObj: JSONObject = JSONObject()
         metaObj.put("test", "test-value")
         val pairwise = Pairwise(
             Pairwise.Me(first, second),
             Pairwise.Their(first1, "Test-Pairwise", "http://endpoint", second1), metaObj
         )
-        val list1: List<Any> = agent1.getWallet().pairwise.listPairwise()
-        agent1.getPairwiseList().ensureExists(pairwise)
-        val list2: List<Any> = agent1.getWallet().pairwise.listPairwise()
+        val list1: List<Any?> = agent1.getWallet()?.pairwise?.listPairwise() ?: listOf<Any?>()
+        agent1.getPairwiseList()?.ensureExists(pairwise)
+        val list2: List<Any?> = agent1.getWallet()?.pairwise?.listPairwise()?: listOf<Any?>()
         assertTrue(list1.size < list2.size)
-        val ok: Boolean = agent1.getPairwiseList().isExists(first1)
+        val ok: Boolean = agent1.getPairwiseList()?.isExists(first1) ?: false
         assertTrue(ok)
-        val pairwise2: Pairwise = agent1.getPairwiseList().loadForVerkey(second1)
-        assertEquals(pairwise.getMetadata().toString(), pairwise2.getMetadata().toString())
+        val pairwise2: Pairwise? = agent1.getPairwiseList()?.loadForVerkey(second1)
+        assertEquals(pairwise.getMetadata().toString(), pairwise2?.getMetadata().toString())
         agent1.close()
         agent2.close()
     }

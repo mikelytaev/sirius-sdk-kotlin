@@ -5,6 +5,7 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.utils.Base64
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
+import com.sirius.library.utils.StringCodec
 
 class Invitation(msg: String) : ConnProtocolMessage(msg) {
     companion object {
@@ -48,11 +49,8 @@ class Invitation(msg: String) : ConnProtocolMessage(msg) {
     }
 
     fun invitationUrl(): String {
-        val b64Invite = String(
-            Base64.getUrlEncoder()
-                .encode(getMessageObj().toString().getBytes(java.nio.charset.StandardCharsets.US_ASCII)),
-            java.nio.charset.StandardCharsets.US_ASCII
-        )
+        val codec = StringCodec()
+        val b64Invite = codec.fromByteArrayToASCIIString(Base64.getUrlEncoder().encode(codec.fromASCIIStringToByteArray(getMessageObj().toString())))
         return "?c_i=$b64Invite"
     }
 

@@ -15,7 +15,7 @@ class KeylistUpdate(message: String) : CoordinateMediationMessage(message) {
         }
     }
 
-    abstract class Builder<B : Builder<B>?> : CoordinateMediationMessage.Builder<B>() {
+    abstract class Builder<B : Builder<B>> : CoordinateMediationMessage.Builder<B>() {
         var updates: JSONArray = JSONArray()
         fun addKey(key: String?): B {
             updates.put(JSONObject().put("action", "add").put("recipient_key", key))
@@ -43,7 +43,7 @@ class KeylistUpdate(message: String) : CoordinateMediationMessage(message) {
         }
     }
 
-    private class KeylistUpdateMessageBuilder : Builder<KeylistUpdateMessageBuilder?>() {
+    private class KeylistUpdateMessageBuilder : Builder<KeylistUpdateMessageBuilder>() {
         protected override fun self(): KeylistUpdateMessageBuilder {
             return this
         }

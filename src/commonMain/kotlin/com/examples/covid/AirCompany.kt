@@ -32,7 +32,7 @@ class AirCompany(
 ) :
     BaseParticipant(config, pairwises, covidMicroledgerName!!, me) {
     var boardingPasses: MutableMap<String, BoardingPass> =
-        java.util.concurrent.ConcurrentHashMap<String, BoardingPass>()
+        HashMap<String, BoardingPass>()
     var aircompanyClientDids: MutableMap<String, String> = HashMap<String, String>()
     var covidPosNames: MutableSet<String> = HashSet<String>()
     fun register(boardingPass: BoardingPass): Pair<String, Invitation>? {
@@ -72,7 +72,7 @@ class AirCompany(
 
     private fun processNewCommit(c: Context, event: Event) {
         val propose: ProposeTransactionsMessage = event.message() as ProposeTransactionsMessage
-        val machine = MicroLedgerSimpleConsensus(c, event.getPairwise().me)
+        val machine = MicroLedgerSimpleConsensus(c, event.getPairwise()?.me)
         machine.acceptCommit(event.getPairwise(), propose)
         val trs: List<Transaction> = propose.transactions() ?: listOf()
         for (tr in trs) {
@@ -96,7 +96,7 @@ class AirCompany(
     }
 
     private fun processInitMicroledger(c: Context, event: Event) {
-        val machine = MicroLedgerSimpleConsensus(c, event.getPairwise().me)
+        val machine = MicroLedgerSimpleConsensus(c, event.getPairwise()?.me)
         val (first) = machine.acceptMicroledger(event.getPairwise(), event.message() as InitRequestLedgerMessage)
         if (first) {
             println("Microledger for aircompany created successfully")
@@ -108,8 +108,8 @@ class AirCompany(
     private fun processBoardingPassRequest(c: Context, event: Event) {
         val request: ConnRequest = event.message() as ConnRequest
         val (first, second) = c.getDid().createAndStoreMyDid()
-        val connectionKey: String = event.recipientVerkey
-        val myEndpoint: Endpoint = c.endpointWithEmptyRoutingKeys
+        val connectionKey: String? = event.recipientVerkey
+        val myEndpoint: Endpoint? = c.endpointWithEmptyRoutingKeys
         val sm = Inviter(c, Pairwise.Me(first, second), connectionKey, myEndpoint)
         val p2p: Pairwise = sm.createConnection(request)
         val boardingPass: BoardingPass? = boardingPasses[connectionKey]

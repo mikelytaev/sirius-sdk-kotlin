@@ -33,7 +33,10 @@ class Base64 {
     }
 
     class Encoder(){
-        fun encode(byteArray : ByteArray) : ByteArray{
+        fun encode(byteArray : ByteArray?) : ByteArray{
+            if(byteArray == null){
+                return ByteArray(0)
+            }
             return ByteArray(0)
         }
     }

@@ -57,7 +57,9 @@ class TestAriesFeature0113 {
                         val e: Event = listener?.one.get(60, java.util.concurrent.TimeUnit.SECONDS)
                         if (e.message() is QuestionMessage) {
                             val question: QuestionMessage = e.message() as QuestionMessage
-                            Recipes.makeAnswer(context, "Yes", question, e.getPairwise())
+                            e.getPairwise()?.let {
+                                Recipes.makeAnswer(context, "Yes", question, it)
+                            }
                             return@label
                         }
                     }

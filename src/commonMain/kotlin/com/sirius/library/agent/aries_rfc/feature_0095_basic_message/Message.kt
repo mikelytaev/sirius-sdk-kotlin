@@ -18,7 +18,7 @@ class Message(msg: String) : AriesProtocolMessage(msg) {
 
     val content: String?
         get() = getMessageObj().optString("content")
-    val attaches: List<Any>
+    val attaches: List<Attach>
         get() {
             val res: MutableList<Attach> = ArrayList<Attach>()
             if (messageObjectHasKey("~attach")) {

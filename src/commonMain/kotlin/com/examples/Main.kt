@@ -13,6 +13,7 @@ import com.sirius.library.encryption.P2PConnection
 import com.sirius.library.hub.CloudContext
 import com.sirius.library.hub.CloudHub
 import com.sirius.library.hub.Context
+import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 import kotlin.jvm.JvmStatic
@@ -116,7 +117,7 @@ object Main {
                 // Ensure pairwise is stored
                 context.getPairwiseList().ensureExists(p2p)
                 val hello: Message =
-                    Message.builder().setContent("Привет в новый МИР!!!" + java.util.Date().toString()).setLocale("ru")
+                    Message.builder().setContent("Привет в новый МИР!!!" + Date().toString()).setLocale("ru")
                         .build()
                 println("Sending hello")
                 context.sendTo(hello, p2p)

@@ -524,14 +524,14 @@ abstract class Context internal constructor(hub: AbstractHub) : Closeable {
             }
     }
 
-    fun nonSecrets: AbstractNonSecrets {
+    fun getNonSecrets(): AbstractNonSecrets {
         return nonSecrets
     }
 
     val endpoints: List<Endpoint>
         get() = currentHub?.agentConnectionLazy?.getEndpoints().orEmpty()
 
-    fun crypto: AbstractCrypto {
+    fun getCrypto(): AbstractCrypto {
         return crypto
     }
 
@@ -591,8 +591,8 @@ abstract class Context internal constructor(hub: AbstractHub) : Closeable {
 
     fun acquire(
         resources: List<String?>?,
-        lockTimeoutSec: Double?,
-        enterTimeoutSec: Double?
+        lockTimeoutSec: Int?,
+        enterTimeoutSec: Int?
     ): Pair<Boolean, List<String>> {
         return currentHub.agentConnectionLazy?.acquire(resources, lockTimeoutSec, enterTimeoutSec) ?: Pair(false, listOf())
     }

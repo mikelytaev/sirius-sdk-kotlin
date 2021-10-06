@@ -7,17 +7,18 @@ import com.sirius.library.errors.sirius_exceptions.SiriusInvalidPayloadStructure
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
+import com.sirius.library.utils.StringCodec
 
 /**
  * Transport abstraction that help build tunnels (p2p pairwise relationships) over channel layer.
  */
 class AddressedTunnel(var address: String, input: ReadOnlyChannel, output: WriteOnlyChannel, p2p: P2PConnection) {
     var log: Logger = Logger.getLogger(AddressedTunnel::class.simpleName)
-    //var ENC: java.nio.charset.Charset = java.nio.charset.StandardCharsets.UTF_8
+    var ENC: String = StringCodec.UTF_8
     var input: ReadOnlyChannel
     var output: WriteOnlyChannel
     var p2p: P2PConnection
-    var context: Context
+    private var context: Context
 
     /**
      * Read message.
@@ -32,23 +33,18 @@ class AddressedTunnel(var address: String, input: ReadOnlyChannel, output: Write
     @Throws(SiriusInvalidPayloadStructure::class)
     fun receive(timeout: Int): Message? {
         var payload = ByteArray(0)
+        val codec = StringCodec()
         payload = try {
             input.read().get(timeout, java.util.concurrent.TimeUnit.SECONDS)
-        } catch (e: java.lang.InterruptedException) {
-            e.printStackTrace()
-            return null
-        } catch (e: java.util.concurrent.ExecutionException) {
-            e.printStackTrace()
-            return null
-        } catch (e: java.util.concurrent.TimeoutException) {
+        } catch (e: Exception) {
             e.printStackTrace()
             return null
         }
         return try {
-            val payloadString = String(payload, java.nio.charset.StandardCharsets.US_ASCII)
+            val payloadString = codec.fromByteArrayToASCIIString(payload)
             val jsonObject = JSONObject(payloadString)
             if (jsonObject.has("protected")) {
-                val unpacked: String? = p2p.unpack(String(payload, java.nio.charset.StandardCharsets.US_ASCII))
+                val unpacked: String? = p2p.unpack(codec.fromByteArrayToASCIIString(payload))
                 //log.log(Level.INFO, "Received protected message. Unpacked: " + unpacked);
                 context.isEncrypted = true
                 unpacked?.let {
@@ -57,7 +53,7 @@ class AddressedTunnel(var address: String, input: ReadOnlyChannel, output: Write
             } else {
                 context.isEncrypted = false
                 //log.log(Level.INFO, "Received message: " + payload);
-                Message(String(payload, java.nio.charset.StandardCharsets.US_ASCII))
+                Message(codec.fromByteArrayToASCIIString(payload))
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -82,7 +78,9 @@ class AddressedTunnel(var address: String, input: ReadOnlyChannel, output: Write
         } else {
             message.serialize()
         }
-        return output.write(payload.toByteArray(java.nio.charset.StandardCharsets.US_ASCII))
+        val codec = StringCodec()
+
+        return output.write(codec.fromASCIIStringToByteArray(payload))
     }
 
     /**

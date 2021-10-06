@@ -3,8 +3,11 @@ package com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.message
 import com.sirius.library.errors.sirius_exceptions.SiriusValidationError
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.Base64
+import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(message) {
     companion object {
@@ -41,8 +44,8 @@ class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
         for (i in 0 until offerAttaches.length()) {
             val attach: JSONObject? = offerAttaches.getJSONObject(i)
             if (attach?.has("data")==true && attach?.getJSONObject("data")?.has("base64") == true) {
-                val rawBase64: String? = attach?.getJSONObject("data")?.getString("base64")
-                val payload = JSONObject(String(Base64.getDecoder().decode(rawBase64)))
+                val rawBase64: String = attach?.getJSONObject("data")?.getString("base64") ?:""
+                val payload = JSONObject(Base64.getDecoder().decode(rawBase64).decodeToString())
                 val offerFields: Set<String> = HashSet<String>(
                     listOf(
                         "key_correctness_proof",
@@ -64,13 +67,13 @@ class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
                 if (payload.keySet().containsAll(offerFields)) {
                     res.offerBody = JSONObject()
                     for (field in offerFields) {
-                        res.offerBody.put(field, payload.get(field))
+                        res.offerBody!!.put(field, payload.get(field))
                     }
                 }
                 if (payload.keySet().containsAll(credDefFields)) {
                     res.credDefBody = JSONObject()
                     for (field in credDefFields) {
-                        res.credDefBody.put(field, payload.get(field))
+                        res.credDefBody!!.put(field, payload.get(field))
                     }
                 }
             }
@@ -105,7 +108,7 @@ class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
         return null
     }
 
-    val credentialPreview: List<Any>
+    val credentialPreview: List<ProposedAttrib>
         get() {
             val res: MutableList<ProposedAttrib> = ArrayList<ProposedAttrib>()
             val credentialPreview: JSONObject? = getMessageObj().optJSONObject("credential_preview")
@@ -129,7 +132,7 @@ class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
         var translation: List<AttribTranslation>? = null
         var preview: List<ProposedAttrib>? = null
         var issuerSchema: JSONObject? = null
-        var expiresTime: java.util.Date? = null
+        var expiresTime: Date? = null
         fun setOffer(offer: JSONObject?): B {
             this.offer = offer
             return self()
@@ -155,7 +158,7 @@ class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
             return self()
         }
 
-        fun setExpiresTime(expiresTime: java.util.Date?): B {
+        fun setExpiresTime(expiresTime: Date?): B {
             this.expiresTime = expiresTime
             return self()
         }
@@ -173,15 +176,15 @@ class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
             }
             if (offer != null && credDef != null) {
                 val payload = JSONObject()
-                for (key in JSONObject.getNames(offer)) payload.put(key, offer.get(key))
-                for (key in JSONObject.getNames(credDef)) payload.put(key, credDef.get(key))
+                for (key in JSONObject.getNames(offer!!)) payload.put(key, offer!!.get(key))
+                for (key in JSONObject.getNames(credDef!!)) payload.put(key, credDef!!.get(key))
                 val offersAttach = JSONObject()
                 offersAttach.put("@id", "libindy-cred-offer-$id")
                 offersAttach.put("mime-type", "application/json")
                 val data = JSONObject()
                 val base64: ByteArray = Base64.getEncoder()
-                    .encode(payload.toString().toByteArray(java.nio.charset.StandardCharsets.UTF_8))
-                data.put("base64", String(base64))
+                    .encode(payload.toString().encodeToByteArray())
+                data.put("base64", base64.decodeToString())
                 offersAttach.put("data", data)
                 val attaches = JSONArray()
                 attaches.put(offersAttach)
@@ -220,8 +223,7 @@ class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
             }
             if (expiresTime != null) {
                 val timing = JSONObject()
-                val df: java.text.DateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-                timing.put("expires_time", df.format(expiresTime))
+                timing.put("expires_time",  expiresTime!!.formatTo("yyyy-MM-dd'T'HH:mm:ss.SSSZ"))
                 jsonObject.put("~timing", timing)
             }
             return jsonObject

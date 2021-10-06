@@ -5,7 +5,7 @@ import com.sirius.library.agent.wallet.abstract_wallet.AbstractCrypto
 import com.sirius.library.encryption.P2PConnection
 
 class CloudContext : Context {
-    internal constructor(hub: AbstractHub?) : super(hub) {}
+    internal constructor(hub: AbstractHub) : super(hub) {}
     constructor(config: CloudHub.Config?) : super(CloudHub(config)) {}
 
     class CloudContextBuilder {

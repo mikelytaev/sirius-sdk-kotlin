@@ -9,6 +9,8 @@ import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class TestStorages {
     @Test
@@ -16,7 +18,7 @@ class TestStorages {
         val kv = InMemoryKeyValueStorage()
         kv.selectDb("db1")
         kv.set("key1", "value1")
-        var value: Any = kv.get("key1")
+        var value: Any? = kv.get("key1")
         assertEquals("value1", value)
         kv.selectDb("db2")
         kv.set("key1", 1000)
@@ -38,9 +40,9 @@ class TestStorages {
         collection.add("Value1", "{\"tag1\": \"tag-val-1\", \"tag2\": \"tag-val-2\"}")
         collection.add("Value2", "{\"tag1\": \"tag-val-1\", \"tag2\": \"tag-val-3\"}")
         val (_, second) = collection.fetch("{\"tag1\": \"tag-val-1\"}", 0)
-        assertEquals(second.intValue(), 2)
+        assertEquals(second, 2)
         val (_, second1) = collection.fetch("{\"tag2\": \"tag-val-2\"}", 0)
-        assertEquals(second1.intValue(), 1)
+        assertEquals(second1, 1)
         collection.selectDb("db2")
         collection.fetch("{}", 0)
     }
@@ -51,9 +53,9 @@ class TestStorages {
         val confTest: ConfTest = ConfTest.newInstance()
         val agent1: CloudAgent = confTest.agent1()
         agent1.open()
-
+        assertNotNull(agent1.getWallet()?.nonSecrets)
         //  agent1: Agent
-        val collection = InWalletImmutableCollection(agent1.getWallet().nonSecrets)
+        val collection = InWalletImmutableCollection(agent1.getWallet()!!.nonSecrets)
         val value1: JSONObject = JSONObject()
         value1.put("key1", "value1")
         value1.put("key2", 10000)
@@ -70,22 +72,22 @@ class TestStorages {
         val query1: JSONObject = JSONObject()
         query1.put("tag", "value1")
         val (first, second) = collection.fetch(query1.toString())
-        assertEquals(1, second as Int.toLong())
-        assertEquals(1, first.size())
+        assertEquals(1, second as Int)
+        assertEquals(1, first.size)
         assertEquals(value1.toString(), first[0])
         val query2: JSONObject = JSONObject()
         query2.put("tag", "value2")
         val (first1, second1) = collection.fetch(query2.toString())
-        assertEquals(1, second1 as Int.toLong())
-        assertEquals(1, first1.size())
+        assertEquals(1, second1 )
+        assertEquals(1, first1.size)
         assertEquals(value2.toString(), first1[0])
         val query3: JSONObject = JSONObject()
         val (_, second2) = collection.fetch(query3.toString())
-        assertEquals(2, second2 as Int.toLong())
+        assertEquals(2, second2 )
         collection.selectDb(UUID.randomUUID.toString())
         val query4: JSONObject = JSONObject()
         val (_, second3) = collection.fetch(query4.toString())
-        assertEquals(0, second3 as Int.toLong())
+        assertEquals(0, second3)
         agent1.close()
     }
 }

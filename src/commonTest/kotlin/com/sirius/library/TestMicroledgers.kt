@@ -4,6 +4,7 @@ import com.sirius.library.agent.CloudAgent
 import com.sirius.library.agent.microledgers.*
 import com.sirius.library.helpers.ConfTest
 import com.sirius.library.helpers.ConfTest.Companion.getState
+import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.UUID
 import kotlin.test.*
@@ -35,8 +36,8 @@ class TestMicroledgers {
                         .put("identifier", "CECeGXDi6EHuhpwz19uyjjEnsRGNXodFYqCRgdLmLRkt").put("op", "op3")
                 )
             )
-            val (ledger, txns) = agent4.getMicroledgers().create(ledgerName, genesisTxns)
-            assertEquals("3u8ZCezSXJq72H5CdEryyTuwAKzeZnCZyfftJVFr7y8U", ledger.rootHash())
+            val (ledger, txns) = agent4.getMicroledgers()?.create(ledgerName, genesisTxns) ?: Pair(null,null)
+            assertEquals("3u8ZCezSXJq72H5CdEryyTuwAKzeZnCZyfftJVFr7y8U", ledger?.rootHash())
         } finally {
             agent4.close()
         }
@@ -70,11 +71,11 @@ class TestMicroledgers {
                         .put("identifier", "CECeGXDi6EHuhpwz19uyjjEnsRGNXodFYqCRgdLmLRkt").put("op", "op5")
                 )
             )
-            val (ledger, txns) = agent4.getMicroledgers().create(ledgerName, genesisTxns)
-            val merkleInfo: MerkleInfo = ledger.getMerkleInfo(4)
-            assertEquals(merkleInfo.rootHash, "CwX1TRYKpejHmdnx3gMgHtSioDzhDGTASAD145kjyyRh")
+            val (ledger, txns) = agent4.getMicroledgers()?.create(ledgerName, genesisTxns)?: Pair(null,null)
+            val merkleInfo: MerkleInfo? = ledger?.getMerkleInfo(4)
+            assertEquals(merkleInfo?.rootHash, "CwX1TRYKpejHmdnx3gMgHtSioDzhDGTASAD145kjyyRh")
             assertEquals(
-                merkleInfo.auditPath, listOf(
+                merkleInfo?.auditPath, listOf(
                     "46kxvYf7RjRERXdS56vUpFCzm2A3qRYSLaRr6tVT6tSd",
                     "3sgNJmsXpmin7P5C6jpHiqYfeWwej5L6uYdYoXTMc1XQ"
                 )
@@ -96,7 +97,7 @@ class TestMicroledgers {
                         .put("identifier", "5rArie7XKukPCaEwq5XGQJnM9Fc5aZE3M9HAPVfMU2xC").put("op", "op1")
                 )
             )
-            val (ledger) = agent4.getMicroledgers().create(ledgerName, genesisTxns)
+            val (ledger) = agent4.getMicroledgers()?.create(ledgerName, genesisTxns) ?: Pair(null,null)
             val txns: List<Transaction> = listOf(
                 Transaction(
                     Transaction(
@@ -109,13 +110,12 @@ class TestMicroledgers {
                         .put("identifier", "CECeGXDi6EHuhpwz19uyjjEnsRGNXodFYqCRgdLmLRkt").put("op", "op3")
                 )
             )
-            val df: java.text.DateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-            val txnTime: String = df.format(java.util.Date(java.lang.System.currentTimeMillis()))
-            val (first, second, third) = ledger.append(txns, txnTime)
-            assertEquals(3, second as Int.toLong())
-            assertEquals(2, first as Int.toLong())
-            assertEquals(txnTime, third[0].getTime())
-            assertEquals(txnTime, third[1].getTime())
+            val txnTime: String = Date().formatTo("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+            val (first, second, third) = ledger?.append(txns, txnTime) ?: Triple(0,0, listOf())
+            assertEquals(3, second )
+            assertEquals(2, first )
+            assertEquals(txnTime, third[0].time)
+            assertEquals(txnTime, third[1].time)
         } finally {
             agent4.close()
         }

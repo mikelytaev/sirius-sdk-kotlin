@@ -1,7 +1,6 @@
 package com.sirius.library.agent.ledger
 
 import com.sirius.library.base.JsonSerializable
-import com.sirius.library.utils.GsonUtils
 import com.sirius.library.utils.JSONObject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

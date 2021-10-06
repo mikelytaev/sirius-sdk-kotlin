@@ -24,8 +24,8 @@ class AnswerMessage(msg: String) : AriesProtocolMessage(msg) {
             timing = JSONObject()
             getMessageObj().put("~timing", timing)
         }
-        val timeIso: String =
-            java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC).format(java.time.format.DateTimeFormatter.ISO_INSTANT)
+        val timeIso: String = ""
+        //TODO java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC).format(java.time.format.DateTimeFormatter.ISO_INSTANT)
         timing.put("out_time", timeIso)
     }
 

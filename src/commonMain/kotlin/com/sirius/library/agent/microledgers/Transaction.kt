@@ -4,7 +4,7 @@ import com.sirius.library.utils.JSONObject
 
 class Transaction(obj: JSONObject) : JSONObject(obj.toString()) {
     fun hasMetadata(): Boolean {
-        return has(METADATA_ATTR) && !optJSONObject(METADATA_ATTR).isEmpty()
+        return has(METADATA_ATTR) && !optJSONObject(METADATA_ATTR)!!.isEmpty()
     }
 
     val time: String?

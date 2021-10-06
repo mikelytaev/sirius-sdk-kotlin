@@ -13,7 +13,7 @@ abstract class BaseParticipant(
     var config: CloudHub.Config
     var pairwises: List<Pairwise>?
     var thread: java.lang.Thread? = null
-    var covidMicroledgerName: String
+    var covidMicroledgerName: String?
     var me: Pairwise.Me?
     var covidMicroledgerParticipants: MutableList<String>
     fun start() {

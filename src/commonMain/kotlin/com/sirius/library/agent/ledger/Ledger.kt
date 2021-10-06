@@ -68,7 +68,7 @@ class Ledger(
        raise SiriusInvalidPayloadStructure()
 
    */
-    fun registerSchema(schema: AnonCredSchema, submitterDid: String?): Pair<Boolean, Schema> {
+    fun registerSchema(schema: AnonCredSchema?, submitterDid: String?): Pair<Boolean, Schema?> {
         val (first, second) = api.registerSchema(name, submitterDid, schema)
         val txnResponse: JsonObject = GsonUtils.toJsonObject(second)
         if (first && "REPLY" == txnResponse.get("op").getAsString()) {
@@ -191,7 +191,7 @@ class Ledger(
         credDef: CredentialDefinition,
         submitterDid: String?,
         tags: JSONObject?
-    ): Pair<Boolean, CredentialDefinition> {
+    ): Pair<Boolean, CredentialDefinition?> {
         val (_, body) = issuer.issuerCreateAndStoreCredentialDef(
             submitterDid,
             credDef.getSchema().serializeToJSONObject(),
@@ -217,7 +217,7 @@ class Ledger(
         return Pair(true, legderCredDef)
     }
 
-    fun registerCredDef(credDef: CredentialDefinition, submitterDid: String?): Pair<Boolean, CredentialDefinition> {
+    fun registerCredDef(credDef: CredentialDefinition, submitterDid: String?): Pair<Boolean, CredentialDefinition?> {
         return registerCredDef(credDef, submitterDid, JSONObject())
     }
 

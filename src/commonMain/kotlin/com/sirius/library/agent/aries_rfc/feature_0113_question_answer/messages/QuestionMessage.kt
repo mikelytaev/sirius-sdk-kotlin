@@ -2,6 +2,7 @@ package com.sirius.library.agent.aries_rfc.feature_0113_question_answer.messages
 
 import com.sirius.library.agent.aries_rfc.AriesProtocolMessage
 import com.sirius.library.messaging.Message
+import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 
@@ -48,12 +49,12 @@ class QuestionMessage(msg: String) : AriesProtocolMessage(msg) {
         }
     val content: String?
         get() = getMessageObj().optString("content")
-    val expiresTime: java.time.ZonedDateTime?
+    val expiresTime: Date?
         get() {
             val timing: JSONObject? = getMessageObj().optJSONObject("~timing")
             if (timing != null) {
-                val expiresTimeStr: String = timing.optString("expires_time")
-                if (!expiresTimeStr.isEmpty()) return java.time.ZonedDateTime.parse(expiresTimeStr)
+                val expiresTimeStr: String = timing.optString("expires_time") ?:""
+                if (!expiresTimeStr.isEmpty()) return Date.paresDate(expiresTimeStr,"ISO")
             }
             return null
         }
@@ -64,7 +65,7 @@ class QuestionMessage(msg: String) : AriesProtocolMessage(msg) {
         var nonce: String? = null
         var signatureRequired = false
         var validResponses: List<String>? = null
-        var expiresTime: java.util.Date? = null
+        var expiresTime: Date? = null
         var ttlSec: Int? = null
         fun setQuestionText(text: String?): B {
             questionText = text
@@ -76,7 +77,7 @@ class QuestionMessage(msg: String) : AriesProtocolMessage(msg) {
             return self()
         }
 
-        fun setExpiresTime(expiresTime: java.util.Date?): B {
+        fun setExpiresTime(expiresTime: Date?): B {
             this.expiresTime = expiresTime
             return self()
         }
@@ -120,9 +121,10 @@ class QuestionMessage(msg: String) : AriesProtocolMessage(msg) {
                     timing = JSONObject()
                     jsonObject.put("~timing", timing)
                 }
-                val expiresTimeIso: String = java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC).plusSeconds(
-                    ttlSec!!.toLong()
-                ).format(java.time.format.DateTimeFormatter.ISO_INSTANT)
+                val expiresTimeIso: String = ""
+                    //TODO java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC).plusSeconds(
+                 //   ttlSec!!.toLong()
+               // ).format(java.time.format.DateTimeFormatter.ISO_INSTANT)
                 timing.put("expires_time", expiresTimeIso)
             }
             if (validResponses != null) {

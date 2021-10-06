@@ -14,7 +14,7 @@ class MediateDeny(message: String) : CoordinateMediationMessage(message) {
         }
     }
 
-    abstract class Builder<B : Builder<B>?> : CoordinateMediationMessage.Builder<B>() {
+    abstract class Builder<B : Builder<B>> : CoordinateMediationMessage.Builder<B>() {
         override fun generateJSON(): JSONObject {
             return super.generateJSON()
         }
@@ -24,7 +24,7 @@ class MediateDeny(message: String) : CoordinateMediationMessage(message) {
         }
     }
 
-    private class MediateDenyMessageBuilder : Builder<MediateDenyMessageBuilder?>() {
+    private class MediateDenyMessageBuilder : Builder<MediateDenyMessageBuilder>() {
         protected override fun self(): MediateDenyMessageBuilder {
             return this
         }

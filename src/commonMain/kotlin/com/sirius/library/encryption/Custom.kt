@@ -3,6 +3,7 @@ package com.sirius.library.encryption
 import com.sirius.library.errors.sirius_exceptions.SiriusCryptoError
 import com.sirius.library.utils.Base58
 import com.sirius.library.utils.Base64
+import com.sirius.library.utils.StringCodec
 
 object Custom {
     /**
@@ -13,8 +14,8 @@ object Custom {
      * @return bytes array
      */
     fun b64ToBytes(value: String, urlSafe: Boolean): ByteArray {
-        //java.nio.charset.StandardCharsets.US_ASCII
-        val valueBytes: ByteArray = value.encodeToByteArray() //THIS IS UTF_8
+        val codec = StringCodec()
+        val valueBytes: ByteArray = codec.fromASCIIStringToByteArray(value)
         /*   if isinstance(value, str):
         value = value.encode('ascii')
         if urlsafe:
@@ -51,9 +52,8 @@ object Custom {
         } else {
             Base64.getEncoder().encode(bytes)
         }
-       // String(decodedByte, java.nio.charset.StandardCharsets.US_ASCII)
-            //THIS DECODE to UTF-8
-        return decodedByte.decodeToString()
+        val codec = StringCodec()
+        return  codec.fromByteArrayToASCIIString(decodedByte)
     }
 
     /**
@@ -120,8 +120,8 @@ object Custom {
         if (message.contains("=")) {
             bytes = b64ToBytes(message, false)
         } else {
-            //java.nio.charset.StandardCharsets.US_ASCII
-            bytes = message.encodeToByteArray() //THIS TO UTF-8
+            val codec = StringCodec()
+            bytes =  codec.fromASCIIStringToByteArray(message)
         }
         return validateSeed(bytes)
     }

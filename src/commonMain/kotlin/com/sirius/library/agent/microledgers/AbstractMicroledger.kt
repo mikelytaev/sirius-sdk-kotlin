@@ -6,9 +6,9 @@ abstract class AbstractMicroledger {
     abstract fun uncommittedSize(): Int
     abstract fun rootHash(): String?
     abstract fun uncommittedRootHash(): String?
-    abstract fun seqNo(): Int
+    abstract fun seqNo(): Int?
     abstract fun reload()
-    abstract fun rename(newName: String?)
+    abstract fun rename(newName: String)
     abstract fun init(genesis: List<Transaction?>?): List<Transaction?>?
     abstract fun append(transactions: List<Transaction?>?, txnTime: String?): Triple<Int, Int, List<Transaction>>
     fun append(transactions: List<Transaction?>?): Triple<Int, Int, List<Transaction>> {

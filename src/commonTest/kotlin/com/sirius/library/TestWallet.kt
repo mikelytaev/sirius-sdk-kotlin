@@ -7,10 +7,7 @@ import com.sirius.library.agent.wallet.abstract_wallet.model.CacheOptions
 import com.sirius.library.agent.wallet.abstract_wallet.model.NYMRole
 import com.sirius.library.agent.wallet.abstract_wallet.model.RetrieveRecordOptions
 import com.sirius.library.helpers.ConfTest
-import com.sirius.library.utils.JSONArray
-import com.sirius.library.utils.JSONObject
-import com.sirius.library.utils.Logger
-import com.sirius.library.utils.UUID
+import com.sirius.library.utils.*
 import kotlin.test.*
 
 class TestWallet {
@@ -62,9 +59,10 @@ class TestWallet {
         val walletSigner: AbstractWallet? = agent1.getWallet()
         val walletVerifier: AbstractWallet? = agent2.getWallet()
         val keySigner: String? = walletSigner?.crypto?.createKey()
+        val codec = StringCodec()
         val message: JSONObject = JSONObject()
         message.put("content", "Hello!")
-        val messageBytes: ByteArray = message.toString().toByteArray(java.nio.charset.StandardCharsets.US_ASCII)
+        val messageBytes: ByteArray = codec.fromASCIIStringToByteArray(message.toString())
         val signature: ByteArray? = walletSigner?.crypto?.cryptoSign(keySigner, messageBytes)
         val isOk: Boolean = walletVerifier?.crypto?.cryptoVerify(keySigner, messageBytes, signature) ?: false
         assertTrue(isOk)

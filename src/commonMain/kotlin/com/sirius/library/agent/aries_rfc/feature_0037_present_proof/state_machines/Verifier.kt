@@ -12,6 +12,7 @@ import com.sirius.library.agent.wallet.abstract_wallet.model.CacheOptions
 import com.sirius.library.errors.StateMachineTerminatedWithError
 import com.sirius.library.hub.Context
 import com.sirius.library.hub.coprotocols.CoProtocolP2P
+import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
@@ -27,17 +28,17 @@ class Verifier : BaseVerifyStateMachine {
     var poolname: String
     var requestedProof: JSONObject? = null
 
-    constructor(context: Context, prover: Pairwise, ledger: Ledger, timeToLive: Int) : super(context) {
+    constructor(context: Context, prover: Pairwise, ledger: Ledger?, timeToLive: Int) : super(context) {
         this.context = context
         this.prover = prover
-        poolname = ledger.name
+        poolname = ledger?.name?:""
         timeToLiveSec = timeToLive
     }
 
-    constructor(context: Context, prover: Pairwise, ledger: Ledger) : super(context) {
+    constructor(context: Context, prover: Pairwise, ledger: Ledger?) : super(context) {
         this.context = context
         this.prover = prover
-        poolname = ledger.name
+        poolname = ledger?.name?:""
     }
 
     class VerifyParams {
@@ -96,20 +97,20 @@ class Verifier : BaseVerifyStateMachine {
             CoProtocolP2P(context, prover, protocols(), timeToLiveSec).also { coprotocol ->
                 try {
                     // Step-1: Send proof request
-                    val expiresTime: java.util.Date =
-                        java.util.Date(java.lang.System.currentTimeMillis() + timeToLiveSec * 1000L)
+                    val expiresTime: Date =
+                        Date(Date().time + timeToLiveSec * 1000L)
                     val requestPresentationMessage: RequestPresentationMessage =
                         RequestPresentationMessage.builder().setProofRequest(params.proofRequest)
                             .setTranslation(params.translation).setComment(params.comment)
-                            .setLocale(params.locale).setVersion //setExpiresTime(expiresTime).
-                    params.protocolVersion.build()
+                            .setLocale(params.locale).setVersion(params.protocolVersion?:"1.0") //setExpiresTime(expiresTime).
+                    .build()
                     requestPresentationMessage.setPleaseAck(true)
                     log.log(Logger.Level.INFO, "30% - Send request")
                     val (_, second) = coprotocol.sendAndWait(requestPresentationMessage)
                     if (second !is PresentationMessage) {
                         throw StateMachineTerminatedWithError(
                             RESPONSE_NOT_ACCEPTED,
-                            "Unexpected @type: " + second.getType()
+                            "Unexpected @type: " + second?.getType()
                         )
                     }
                     log.log(Logger.Level.INFO, "60% - Presentation received")

@@ -21,8 +21,8 @@ class IssueCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
     fun cred(): JSONObject? {
         val attach: JSONObject? = attach
         if (attach != null) {
-            val b64: String? = attach.optJSONObject("data")?.optString("base64")
-            return JSONObject(String(Base64.getDecoder().decode(b64)))
+            val b64: String = attach.optJSONObject("data")?.optString("base64") ?:""
+            return JSONObject(Base64.getDecoder().decode(b64).decodeToString())
         }
         return null
     }
@@ -43,16 +43,16 @@ class IssueCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
             return attach
         }
 
-    abstract class Builder<B : Builder<B>?> :
+    abstract class Builder<B : Builder<B>> :
         BaseIssueCredentialMessage.Builder<B>() {
-        var cred: JsonObject? = null
+        var cred: JSONObject? = null
         var credId: String? = null
-        fun setCred(cred: JsonObject?): B? {
+        fun setCred(cred: JSONObject?): B {
             this.cred = cred
             return self()
         }
 
-        fun setCredId(credId: String?): B? {
+        fun setCredId(credId: String?): B {
             this.credId = credId
             return self()
         }
@@ -69,7 +69,7 @@ class IssueCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
                 val base64: ByteArray = Base64.getEncoder()
                     .encode(cred.toString().encodeToByteArray())
 
-                data.put("base64", String(base64))
+                data.put("base64", base64.decodeToString())
                 credAttach.put("data", data)
                 val attaches = JSONArray()
                 attaches.put(credAttach)
@@ -84,7 +84,7 @@ class IssueCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
     }
 
     private class IssueCredentialMessageBuilder :
-        Builder<IssueCredentialMessageBuilder?>() {
+        Builder<IssueCredentialMessageBuilder>() {
         override fun self(): IssueCredentialMessageBuilder {
             return this
         }

@@ -27,7 +27,7 @@ class MediateGrant(message: String) : CoordinateMediationMessage(message) {
             return res
         }
 
-    abstract class Builder<B : Builder<B>?> : CoordinateMediationMessage.Builder<B>() {
+    abstract class Builder<B : Builder<B>> : CoordinateMediationMessage.Builder<B>() {
         override fun generateJSON(): JSONObject {
             return super.generateJSON()
         }
@@ -37,7 +37,7 @@ class MediateGrant(message: String) : CoordinateMediationMessage(message) {
         }
     }
 
-    private class MediateGrantMessageBuilder : Builder<MediateGrantMessageBuilder?>() {
+    private class MediateGrantMessageBuilder : Builder<MediateGrantMessageBuilder>() {
         protected override fun self(): MediateGrantMessageBuilder {
             return this
         }

@@ -5,6 +5,11 @@ import kotlin.reflect.KClass
 
 open class JSONObject {
     companion object {
+        fun getNames(offer: JSONObject): List<String> {
+            return listOf()
+
+        }
+
         val NULL = JsonNull.content
     }
 
@@ -24,9 +29,7 @@ open class JSONObject {
        // Json.encodeToJsonElement()
     }
 
-    fun deserilaize(string : String, kClass: KClass<Any>){
-        val data = Json.decodeFromString<KClass>(string)
-    }
+
 
 
     //fun
@@ -103,8 +106,8 @@ open class JSONObject {
         return jsonObject.get(key)?.jsonPrimitive?.intOrNull
     }
 
-    fun optInt(recipient: String, defaultValue: Int?): Int? {
-        return null
+    fun optInt(key: String, defaultValue: Int?=null): Int? {
+        return getInt(key) ?: defaultValue
     }
 
     override fun toString(): String {
@@ -118,5 +121,17 @@ open class JSONObject {
 
     fun keySet(): Set<String> {
        return jsonObject.keys
+    }
+
+    fun isEmpty(): Boolean {
+        return jsonObject.isEmpty()
+    }
+
+    fun similar(cleanedExpect: JSONObject): Boolean {
+        return false
+    }
+
+    fun length(): Int {
+        return 0
     }
 }

@@ -19,7 +19,7 @@ class CloudWallet(agentRPC: AgentRPC) : AbstractWallet {
         return did
     }
 
-    fun crypto: AbstractCrypto {
+    fun getCrypto(): AbstractCrypto {
         return crypto
     }
 
@@ -39,7 +39,7 @@ class CloudWallet(agentRPC: AgentRPC) : AbstractWallet {
         return anoncreds
     }
 
-    fun nonSecrets: AbstractNonSecrets {
+    fun getNonSecrets(): AbstractNonSecrets {
         return nonSecrets
     }
 

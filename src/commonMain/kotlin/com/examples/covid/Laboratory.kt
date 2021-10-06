@@ -114,7 +114,7 @@ class Laboratory(
         if (ok) {
             println("Covid test confirmation was successfully issued")
             if (testRes.hasCovid()) {
-                val ledger: AbstractMicroledger = c.getMicrolegders().getLedger(covidMicroledgerName)
+                val ledger: AbstractMicroledger? = c.getMicrolegders().getLedger(covidMicroledgerName)
                 val machine = MicroLedgerSimpleConsensus(c, me)
                 val tr = Transaction(JSONObject().put("test_res", testRes))
                 machine.commit(ledger, covidMicroledgerParticipants, listOf(tr))

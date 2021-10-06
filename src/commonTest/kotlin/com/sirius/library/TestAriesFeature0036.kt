@@ -28,11 +28,6 @@ class TestAriesFeature0036 {
     }
 
     @Test
-    @Throws(
-        java.lang.InterruptedException::class,
-        java.util.concurrent.ExecutionException::class,
-        java.util.concurrent.TimeoutException::class
-    )
     fun testSane() {
         val issuer: CloudAgent = confTest.getAgent("agent1")
         val holder: CloudAgent = confTest.getAgent("agent2")
@@ -40,20 +35,20 @@ class TestAriesFeature0036 {
         holder.open()
         val i2h: Pairwise = confTest.getPairwise(issuer, holder)
         val h2i: Pairwise = confTest.getPairwise(holder, issuer)
-        val issuerDid: String = i2h.me.did
-        val issuerVerkey: String = i2h.getMe().getVerkey()
+        val issuerDid: String? = i2h.me.did
+        val issuerVerkey: String? = i2h.me.verkey
         val schemaName = "schema_" + UUID.randomUUID.toString()
-        val (schemaId, anoncredSchema) = issuer.getWallet().getAnoncreds().issuerCreateSchema(
+        val (schemaId, anoncredSchema) = issuer.getWallet()?.anoncreds?.issuerCreateSchema(
             issuerDid,
             schemaName, "1.0", "attr1", "attr2", "attr3", "attr4"
-        )
-        val ledger: Ledger = issuer.getLedgers().get("default")
-        val (first, schema) = ledger.registerSchema(anoncredSchema, issuerDid)
+        ) ?:Pair(null,null)
+        val ledger: Ledger? = issuer.getLedgers().get("default")
+        val (first, schema) = ledger?.registerSchema(anoncredSchema, issuerDid) ?:Pair(false, null)
         assertTrue(first)
-        val (first1, credDef) = ledger.registerCredDef(CredentialDefinition("TAG", schema), issuerDid)
+        val (first1, credDef) = ledger?.registerCredDef(CredentialDefinition("TAG", schema), issuerDid) ?:Pair(false, null)
         assertTrue(first1)
         try {
-            holder.getWallet().anoncreds.proverCreateMasterSecret(ConfTest.proverMasterSecretName)
+            holder.getWallet()?.anoncreds?.proverCreateMasterSecret(ConfTest.proverMasterSecretName)
         } catch (ignored: DuplicateMasterSecretNameException) {
         }
         issuer.close()
@@ -98,7 +93,7 @@ class TestAriesFeature0036 {
                         ).setP2p(holderParams.getConnection()).build().also { context ->
                             var event: Event? = null
                             event = try {
-                                context.subscribe().getOne().get(30, java.util.concurrent.TimeUnit.SECONDS)
+                                context.subscribe()?.one.get(30, java.util.concurrent.TimeUnit.SECONDS)
                             } catch (e: java.lang.InterruptedException) {
                                 e.printStackTrace()
                                 return@supplyAsync Pair(false, "")
@@ -109,16 +104,16 @@ class TestAriesFeature0036 {
                                 e.printStackTrace()
                                 return@supplyAsync Pair(false, "")
                             }
-                            val offer: Message = event.message()
+                            val offer: Message? = event?.message()
                             assertTrue(offer is OfferCredentialMessage)
                             val holderMachine = Holder(context, h2i, holderSecretId, "en")
                             val okCredId: Pair<Boolean, String> =
                                 holderMachine.accept(offer as OfferCredentialMessage, "Hello, Iam holder")
                             if (okCredId.first) {
-                                val cred: String = context.getAnonCreds().proverGetCredential(okCredId.second)
+                                val cred: String? = context.getAnonCreds().proverGetCredential(okCredId.second)
                                 println(cred)
                                 val mimeTypes: JSONObject = Holder.getMimeTypes(context, okCredId.second)
-                                assertEquals(2, mimeTypes.length().toLong())
+                                assertEquals(2, mimeTypes.length())
                                 assertEquals("text/plain", mimeTypes.optString("attr1"))
                                 assertEquals("image/png", mimeTypes.optString("attr4"))
                             }

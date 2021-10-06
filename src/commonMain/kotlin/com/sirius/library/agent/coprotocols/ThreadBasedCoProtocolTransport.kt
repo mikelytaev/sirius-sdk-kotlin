@@ -30,16 +30,16 @@ class ThreadBasedCoProtocolTransport(var thid: String, pairwise: Pairwise?, rpc:
         val response: Message = res.second
         if (res.first) {
             if (response.messageObjectHasKey(THREAD_DECORATOR)) {
-                if (response.getMessageObj().getJSONObject(THREAD_DECORATOR).has("sender_order")) {
-                    val respondSenderOrder: Int =
-                        response.getMessageObj().getJSONObject(THREAD_DECORATOR).getInt("sender_order")
+                if (response.getMessageObj().getJSONObject(THREAD_DECORATOR)?.has("sender_order")==true) {
+                    val respondSenderOrder: Int? =
+                        response.getMessageObj().getJSONObject(THREAD_DECORATOR)?.getInt("sender_order")
                     if (their != null) {
-                        val recipient: String = their.did
+                        val recipient: String = their!!.did?:""
                         //err = DIDField().validate(recipient)
                         //if err is None:
                         run {
-                            val order: Int = receivedOrders.optInt(recipient, 0)
-                            receivedOrders.put(recipient, java.lang.Math.max(order, respondSenderOrder))
+                            val order: Int = receivedOrders?.optInt(recipient, 0) ?:0
+                            receivedOrders?.put(recipient, java.lang.Math.max(order, respondSenderOrder))
                         }
                     }
                 }
@@ -75,13 +75,13 @@ class ThreadBasedCoProtocolTransport(var thid: String, pairwise: Pairwise?, rpc:
         }
     }
 
-    fun start(protocols: List<String?>?, timeToLiveSec: Int) {
-        super.start(protocols!!, timeToLiveSec)
+    override fun start(protocols: List<String>, timeToLiveSec: Int) {
+        super.start(protocols, timeToLiveSec)
         rpc.startProtocolWithThreading(thid, timeToLiveSec)
     }
 
-    fun start(protocols: List<String?>?) {
-        super.start(protocols!!)
+    override fun start(protocols: List<String>) {
+        super.start(protocols)
         rpc.startProtocolWithThreading(thid, timeToLiveSec)
     }
 
