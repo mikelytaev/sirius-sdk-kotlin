@@ -1,0 +1,89 @@
+package com.sirius.library.agent.connections
+
+import com.sirius.library.base.WebSocketConnector
+import com.sirius.library.encryption.P2PConnection
+import com.sirius.library.errors.sirius_exceptions.SiriusFieldValueError
+import com.sirius.library.messaging.Message
+import com.sirius.library.rpc.AddressedTunnel
+
+
+abstract class BaseAgentConnection {
+    var log: java.util.logging.Logger = java.util.logging.Logger.getLogger(AddressedTunnel::class.java.getName())
+
+    companion object {
+        val IO_TIMEOUT = 30
+
+    }
+
+    var MSG_TYPE_CONTEXT = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sirius_rpc/1.0/context"
+    var serverAddress: String? = null
+    var credentials: ByteArray? =null
+    var p2p: P2PConnection? = null
+
+    var timeout = IO_TIMEOUT
+    var connector: WebSocketConnector? = null
+
+    open fun setTimeout(timeout: Int) {
+        if (timeout <= 0) {
+            throw java.lang.RuntimeException("Timeout must be > 0")
+        }
+        this.timeout = timeout
+    }
+
+
+    constructor(serverAddress: String?, credentials: ByteArray?, p2p: P2PConnection?, timeout: Int) {
+        this.serverAddress = serverAddress
+        this.credentials = credentials
+        this.p2p = p2p
+        this.timeout = timeout
+        connector = WebSocketConnector(
+            this.timeout,
+            java.nio.charset.StandardCharsets.UTF_8,
+            serverAddress,
+            path(),
+            credentials
+        )
+    }
+
+    abstract fun path(): String?
+
+    open fun setup(context: Message?) {}
+
+    open fun getTimeout(): Int {
+        return timeout
+    }
+
+
+    open val isOpen: Boolean
+        get() = connector?.isOpen ?:false
+
+    open fun close() {
+        connector.close()
+    }
+
+
+    @Throws(SiriusFieldValueError::class)
+    open fun create() {
+        val feat: java.util.concurrent.CompletableFuture<ByteArray> = connector.read()
+        connector.open()
+        var payload = ByteArray(0)
+        try {
+            payload = feat.get(getTimeout().toLong(), java.util.concurrent.TimeUnit.SECONDS)
+        } catch (e: java.lang.InterruptedException) {
+            e.printStackTrace()
+        } catch (e: java.util.concurrent.ExecutionException) {
+            e.printStackTrace()
+        } catch (e: java.util.concurrent.TimeoutException) {
+            e.printStackTrace()
+        }
+        val msgString = String(payload, java.nio.charset.StandardCharsets.UTF_8)
+        //log.log(Level.INFO, "Received message: " + msgString);
+        val context = Message(msgString)
+        if (context.getType() == null) {
+            throw SiriusFieldValueError("message @type is empty")
+        }
+        if (MSG_TYPE_CONTEXT != context.getType()) {
+            throw SiriusFieldValueError("message @type not equal $MSG_TYPE_CONTEXT")
+        }
+        setup(context)
+    }
