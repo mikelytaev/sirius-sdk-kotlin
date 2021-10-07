@@ -36,7 +36,7 @@ open class Message : JsonSerializable<Message> {
         this.messageObj.put(FIELD_ID, id)
     }
 
-    fun getMessageObj(): JSONObject {
+    fun getMessageObjec(): JSONObject {
         return messageObj
     }
 

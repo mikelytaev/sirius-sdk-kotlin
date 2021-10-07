@@ -53,9 +53,9 @@ class TestStorages {
         val confTest: ConfTest = ConfTest.newInstance()
         val agent1: CloudAgent = confTest.agent1()
         agent1.open()
-        assertNotNull(agent1.getWallet()?.nonSecrets)
+        assertNotNull(agent1.getWalleti()?.nonSecrets)
         //  agent1: Agent
-        val collection = InWalletImmutableCollection(agent1.getWallet()!!.nonSecrets)
+        val collection = InWalletImmutableCollection(agent1.getWalleti()!!.nonSecrets)
         val value1: JSONObject = JSONObject()
         value1.put("key1", "value1")
         value1.put("key2", 10000)

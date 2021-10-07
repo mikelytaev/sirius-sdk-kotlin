@@ -17,7 +17,7 @@ class RequestPresentationMessage(msg: String) : BasePresentProofMessage(msg) {
     }
 
     fun proofRequest(): JSONObject? {
-        val obj: Any? = getMessageObj().get("request_presentations~attach")
+        val obj: Any? = getMessageObjec().get("request_presentations~attach")
         var attach: JSONObject? = null
         if (obj is JSONArray && !(obj as JSONArray).isEmpty()) {
             attach = (obj as JSONArray).getJSONObject(0)
@@ -33,7 +33,7 @@ class RequestPresentationMessage(msg: String) : BasePresentProofMessage(msg) {
     }
 
     fun expiresTime(): Date? {
-        val timing: JSONObject? = getMessageObj().optJSONObject("~timing")
+        val timing: JSONObject? = getMessageObjec().optJSONObject("~timing")
         if (timing != null) {
             val dateTimeStr: String = timing.optString("expires_time", "") ?:""
             if (!dateTimeStr.isEmpty()) {
@@ -91,7 +91,7 @@ class RequestPresentationMessage(msg: String) : BasePresentProofMessage(msg) {
                 val data = JSONObject()
                 val transArr = JSONArray()
                 for (trans in translation!!) {
-                    transArr.put(trans.getDict())
+                    transArr.put(trans.getDicti())
                 }
                 data.put("json", transArr)
                 attach.put("data", data)

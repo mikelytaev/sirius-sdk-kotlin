@@ -63,7 +63,7 @@ class ServerTestSuite {
 
     fun runSuiteLocally() {}
     fun httpGet(url: String?): Pair<Boolean, String> {
-        return try {
+    /*    return try {
             val httpclient: CloseableHttpClient = HttpClients.createDefault()
             val httpGet = HttpGet(url)
             val response1: CloseableHttpResponse = httpclient.execute(httpGet)
@@ -92,7 +92,8 @@ class ServerTestSuite {
         } catch (e: java.io.IOException) {
             e.printStackTrace()
             Pair(false, e.message)
-        }
+        }*/
+        return Pair(false, "e.message")
     }
 
     companion object {
@@ -101,7 +102,7 @@ class ServerTestSuite {
         }
 
         fun getFirstEndpointAddressWIthEmptyRoutingKeys(agent: CloudAgent): String {
-            for (e in agent.getEndpoints()) {
+            for (e in agent.getEndpointsi()) {
                 if (e.routingKeys.size === 0) {
                     return e.address
                 }

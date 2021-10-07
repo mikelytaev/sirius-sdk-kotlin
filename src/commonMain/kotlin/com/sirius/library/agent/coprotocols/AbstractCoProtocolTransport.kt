@@ -34,7 +34,7 @@ abstract class AbstractCoProtocolTransport {
     abstract fun send(message: Message)
     @Throws(SiriusPendingOperation::class)
     abstract fun sendMany(message: Message, to: List<Pairwise>): List<Pair<Boolean, String?>>
-    fun setTimeToLiveSec(timeToLiveSec: Int) {
+    fun setTimeToLiveSeci(timeToLiveSec: Int) {
         this.timeToLiveSec = timeToLiveSec
     }
 }

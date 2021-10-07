@@ -1,13 +1,15 @@
 package com.sirius.library.naclJava
 
+import com.sirius.library.utils.KeyPair
+
 class CryptoAead {
 
     fun decrypt(
         cipher: ByteArray,
         additionalData: ByteArray?,
         nPub: ByteArray?,
-        k: Key,
-        method: com.goterl.lazycode.lazysodium.interfaces.AEAD.Method
+        k: KeyPair.Key,
+        method: String
     ): ByteArray? {
         return this.decrypt(cipher, additionalData, null as ByteArray?, nPub, k, method)
     }
@@ -17,11 +19,11 @@ class CryptoAead {
         additionalData: ByteArray?,
         nSec: ByteArray?,
         nPub: ByteArray?,
-        k: Key,
-        method: com.goterl.lazycode.lazysodium.interfaces.AEAD.Method
+        k: KeyPair.Key,
+        method: String
     ): ByteArray? {
         //byte[] cipherBytes = cipher.getBytes(StandardCharsets.US_ASCII);
-        val additionalDataBytes = additionalData ?: ByteArray(0)
+      /*  val additionalDataBytes = additionalData ?: ByteArray(0)
         val additionalBytesLen = if (additionalData == null) 0L else additionalDataBytes.size.toLong()
         val keyBytes: ByteArray = k.getAsBytes()
         val messageBytes: ByteArray
@@ -40,14 +42,14 @@ class CryptoAead {
                 keyBytes
             )
             return messageBytes
-        }
+        }*/
         return null
     }
 
 
-    @Throws(SodiumException::class)
-    fun cryptoBoxSeal(messageBytes: ByteArray, publicKey: Key): ByteArray? {
-        val keyBytes: ByteArray = publicKey.getAsBytes()
+
+    fun cryptoBoxSeal(messageBytes: ByteArray, publicKey: KeyPair.Key): ByteArray? {
+       /* val keyBytes: ByteArray = publicKey.getAsBytes()
         val cipher = ByteArray(48 + messageBytes.size)
         return if (!LibSodium.getInstance().getNativeBox()
                 .cryptoBoxSeal(cipher, messageBytes, messageBytes.size.toLong(), keyBytes)
@@ -55,17 +57,18 @@ class CryptoAead {
             throw SodiumException("Could not encrypt message.")
         } else {
             cipher
-        }
+        }*/
+        return null
     }
 
     fun encrypt(
         m: String,
         additionalData: String?,
         nPub: ByteArray?,
-        k: Key,
-        method: com.goterl.lazycode.lazysodium.interfaces.AEAD.Method
+        k: KeyPair.Key,
+        method: String
     ): ByteArray? {
-        return this.encrypt(m, additionalData, null as ByteArray?, nPub, k, method)
+        return null
     }
 
     fun encrypt(
@@ -73,10 +76,10 @@ class CryptoAead {
         additionalData: String?,
         nSec: ByteArray?,
         nPub: ByteArray?,
-        k: Key,
-        method: com.goterl.lazycode.lazysodium.interfaces.AEAD.Method
+        k: KeyPair.Key,
+        method: String
     ): ByteArray? {
-        val messageBytes: ByteArray = m.toByteArray(java.nio.charset.StandardCharsets.US_ASCII)
+       /* val messageBytes: ByteArray = m.toByteArray(java.nio.charset.StandardCharsets.US_ASCII)
         val additionalDataBytes =
             if (additionalData == null) ByteArray(0) else additionalData.toByteArray(java.nio.charset.StandardCharsets.US_ASCII)
         val additionalBytesLen = if (additionalData == null) 0L else additionalDataBytes.size.toLong()
@@ -96,14 +99,14 @@ class CryptoAead {
                 keyBytes
             )
             return cipherBytes
-        }
+        }*/
         return null
     }
 
 
-    @Throws(SodiumException::class)
+
     fun cryptoBox(messageBytes: ByteArray, nonce: ByteArray?, keyPair: KeyPair): ByteArray? {
-        val bObj: java.io.ByteArrayOutputStream = java.io.ByteArrayOutputStream()
+       /* val bObj: java.io.ByteArrayOutputStream = java.io.ByteArrayOutputStream()
         bObj.reset()
         val cipherBytesPadding = ByteArray(32)
         for (cipherBytesPadding1 in cipherBytesPadding) {
@@ -135,15 +138,16 @@ class CryptoAead {
                 }
                 bObj2.write(mesByte.toInt())
             }
-            bObj2.toByteArray()
-
+            bObj2.toByteArray()*/
+        return null
             //return new String(cipherBytes);
         }
     }
 
-    @Throws(SodiumException::class)
+
     fun cryptoBoxOpen(cipherText: ByteArray, nonce: ByteArray?, keyPair: KeyPair): ByteArray? {
-        val message = ByteArray(cipherText.size + 16)
+        return null
+       /* val message = ByteArray(cipherText.size + 16)
         val cipherBytesPadding = ByteArray(16)
         val bObj: java.io.ByteArrayOutputStream = java.io.ByteArrayOutputStream()
         bObj.reset()
@@ -177,12 +181,12 @@ class CryptoAead {
                 bObj2.write(mesByte.toInt())
             }
             bObj2.toByteArray()
-        }
+        }*/
     }
 
-    @Throws(SodiumException::class)
-    fun cryptoBoxSeal(messageString: String, publicKey: Key): ByteArray? {
-        val keyBytes: ByteArray = publicKey.getAsBytes()
+
+    fun cryptoBoxSeal(messageString: String, publicKey: KeyPair.Key): ByteArray? {
+       /* val keyBytes: ByteArray = publicKey.getAsBytes()
         val message: ByteArray = messageString.toByteArray(java.nio.charset.StandardCharsets.US_ASCII)
         val _mlen = message.size
         val _clen = 48 + _mlen
@@ -193,12 +197,13 @@ class CryptoAead {
             throw SodiumException("Could not encrypt message.")
         } else {
             ciphertext
-        }
+        }*/
+        return null
     }
 
-    @Throws(SodiumException::class)
+
     fun cryptoBoxSealOpen(cipherString: String, keyPair: KeyPair): String? {
-        val cipherText: ByteArray = cipherString.toByteArray(java.nio.charset.StandardCharsets.US_ASCII)
+      /*  val cipherText: ByteArray = cipherString.toByteArray(java.nio.charset.StandardCharsets.US_ASCII)
         val _clen = cipherText.size
         val _mlen = _clen - 48
         val plaintext = ByteArray(_mlen)
@@ -213,13 +218,14 @@ class CryptoAead {
             throw SodiumException("Could not decrypt your message.")
         } else {
             String(plaintext, java.nio.charset.StandardCharsets.US_ASCII)
-        }
+        }*/
+        return null
     }
 
-    @Throws(SodiumException::class)
+
     fun cryptoBoxSealOpen(cipherText: ByteArray, keyPair: KeyPair): ByteArray? {
         // byte[] cipherText = cipherString.getBytes(StandardCharsets.US_ASCII);
-        val _clen = cipherText.size
+       /* val _clen = cipherText.size
         val _mlen = _clen - 48
         val plaintext = ByteArray(_mlen)
         val res: Boolean = LibSodium.getInstance().getNativeBox().cryptoBoxSealOpen(
@@ -233,7 +239,8 @@ class CryptoAead {
             throw SodiumException("Could not decrypt your message.")
         } else {
             plaintext
-        }
+        }*/
+        return null
     }
 
 

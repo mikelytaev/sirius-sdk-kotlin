@@ -20,8 +20,8 @@ class TestFuturePromise {
 
     @Test
     fun testSane() {
-        val agent_to_sdk: AddressedTunnel = p2pPair!!.first.getTunnel()
-        val sdk_to_agent: AddressedTunnel = p2pPair!!.second.getTunnel()
+        val agent_to_sdk: AddressedTunnel = p2pPair!!.first.getTunneli()
+        val sdk_to_agent: AddressedTunnel = p2pPair!!.second.getTunneli()
         val future = Future(sdk_to_agent)
         var isSiriusPendingOperation = false
         try {

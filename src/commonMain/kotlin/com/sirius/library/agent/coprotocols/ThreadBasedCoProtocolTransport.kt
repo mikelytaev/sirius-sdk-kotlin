@@ -24,22 +24,22 @@ class ThreadBasedCoProtocolTransport(var thid: String, pairwise: Pairwise?, rpc:
     var their: Pairwise.Their? = null
 
     @Throws(SiriusPendingOperation::class, SiriusInvalidPayloadStructure::class, SiriusInvalidMessage::class)
-    override fun sendAndWait(message: Message): Pair<Boolean, Message> {
+    override fun sendAndWait(message: Message): Pair<Boolean, Message?> {
         prepareMessage(message)
-        val res: Pair<Boolean, Message> = super.sendAndWait(message)
-        val response: Message = res.second
+        val res: Pair<Boolean, Message?> = super.sendAndWait(message)
+        val response: Message? = res.second
         if (res.first) {
-            if (response.messageObjectHasKey(THREAD_DECORATOR)) {
-                if (response.getMessageObj().getJSONObject(THREAD_DECORATOR)?.has("sender_order")==true) {
+            if (response?.messageObjectHasKey(THREAD_DECORATOR)!!) {
+                if (response?.getMessageObjec().getJSONObject(THREAD_DECORATOR)?.has("sender_order")==true) {
                     val respondSenderOrder: Int? =
-                        response.getMessageObj().getJSONObject(THREAD_DECORATOR)?.getInt("sender_order")
+                        response?.getMessageObjec().getJSONObject(THREAD_DECORATOR)?.getInt("sender_order")
                     if (their != null) {
                         val recipient: String = their!!.did?:""
                         //err = DIDField().validate(recipient)
                         //if err is None:
                         run {
                             val order: Int = receivedOrders?.optInt(recipient, 0) ?:0
-                            receivedOrders?.put(recipient, java.lang.Math.max(order, respondSenderOrder))
+                           // receivedOrders?.put(recipient, java.lang.Math.max(order, respondSenderOrder))
                         }
                     }
                 }
@@ -71,7 +71,7 @@ class ThreadBasedCoProtocolTransport(var thid: String, pairwise: Pairwise?, rpc:
                 threadDecorator.put("received_orders", receivedOrders)
             }
             senderOrder++
-            msg.getMessageObj().put(THREAD_DECORATOR, threadDecorator)
+            msg.getMessageObjec().put(THREAD_DECORATOR, threadDecorator)
         }
     }
 

@@ -19,13 +19,13 @@ abstract class BaseAgentConnection {
 
     var MSG_TYPE_CONTEXT = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sirius_rpc/1.0/context"
     var serverAddress: String? = null
-    var credentials: ByteArray? =null
+    var credentials: ByteArray? = null
     var p2p: P2PConnection? = null
 
     var timeout = IO_TIMEOUT
     var connector: WebSocketConnector? = null
 
-    open fun setTimeout(timeout: Int) {
+    open fun setTimeouti(timeout: Int) {
         if (timeout <= 0) {
             throw RuntimeException("Timeout must be > 0")
         }
@@ -38,44 +38,38 @@ abstract class BaseAgentConnection {
         this.credentials = credentials
         this.p2p = p2p
         this.timeout = timeout
-        connector = WebSocketConnector(
+      /*  connector = WebSocketConnector(
             this.timeout,
             StringCodec.UTF_8,
             serverAddress,
-            path(),
+            path() ?: "",
             credentials
-        )
+        )*/
     }
 
     abstract fun path(): String?
 
     open fun setup(context: Message) {}
 
-    open fun getTimeout(): Int {
-        return timeout
-    }
+
 
 
     open val isOpen: Boolean
-        get() = connector?.isOpen ?:false
+        get() = connector?.isOpen ?: false
 
     open fun close() {
-        connector.close()
+        connector!!.close()
     }
 
 
     @Throws(SiriusFieldValueError::class)
     open fun create() {
-        val feat: java.util.concurrent.CompletableFuture<ByteArray> = connector.read()
-        connector.open()
+        // val feat: java.util.concurrent.CompletableFuture<ByteArray> = connector.read()
+        connector!!.open()
         var payload = ByteArray(0)
         try {
-            payload = feat.get(getTimeout().toLong(), java.util.concurrent.TimeUnit.SECONDS)
-        } catch (e: java.lang.InterruptedException) {
-            e.printStackTrace()
-        } catch (e: java.util.concurrent.ExecutionException) {
-            e.printStackTrace()
-        } catch (e: java.util.concurrent.TimeoutException) {
+            //  payload = feat.get(getTimeout().toLong(), java.util.concurrent.TimeUnit.SECONDS)
+        } catch (e: Exception) {
             e.printStackTrace()
         }
         val msgString = payload.decodeToString()
@@ -89,3 +83,4 @@ abstract class BaseAgentConnection {
         }
         setup(context)
     }
+}

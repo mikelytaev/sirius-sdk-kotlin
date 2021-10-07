@@ -4,10 +4,7 @@ import com.sirius.library.encryption.P2PConnection
 import com.sirius.library.errors.sirius_exceptions.SiriusConnectionClosed
 import com.sirius.library.errors.sirius_exceptions.SiriusInvalidPayloadStructure
 import com.sirius.library.messaging.Message
-import com.sirius.library.utils.JSONArray
-import com.sirius.library.utils.JSONObject
-import com.sirius.library.utils.Logger
-import com.sirius.library.utils.StringCodec
+import com.sirius.library.utils.*
 
 /**
  * RPC service.
@@ -42,11 +39,12 @@ class CloudAgentEvents(serverAddress: String, credentials: ByteArray?, p2p: P2PC
     }
 
     @Throws(SiriusConnectionClosed::class, SiriusInvalidPayloadStructure::class)
-    override fun pull(): java.util.concurrent.CompletableFuture<Message> {
+    override fun pull(): CompletableFuture<Message?> {
         if (!connector!!.isOpen) {
             throw SiriusConnectionClosed("Open agent connection at first")
         }
-        return connector?.read().thenApply { data ->
+        return CompletableFuture()
+       /* return connector?.read().thenApply { data ->
             try {
                 val codec = StringCodec()
                 val payload: JSONObject =
@@ -64,6 +62,6 @@ class CloudAgentEvents(serverAddress: String, credentials: ByteArray?, p2p: P2PC
                 return@thenApply null
                 //throw new SiriusInvalidPayloadStructure(e.getMessage());
             }
-        }
+        }*/
     }
 }

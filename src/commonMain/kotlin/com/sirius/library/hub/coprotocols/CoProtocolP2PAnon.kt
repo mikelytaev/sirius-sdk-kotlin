@@ -36,7 +36,7 @@ class CoProtocolP2PAnon(
         val response: Message? = res.second
         if (res.first) {
             if (response?.messageObjectHasKey(PLEASE_ACK_DECORATOR) == true) {
-                threadId = response.getMessageObj()?.getJSONObject(PLEASE_ACK_DECORATOR)?.optString("message_id") ?:""
+                threadId = response.getMessageObjec()?.getJSONObject(PLEASE_ACK_DECORATOR)?.optString("message_id") ?:""
                 if (threadId.isEmpty()) threadId = message.getId() ?:""
             } else {
                 threadId = ""
@@ -48,16 +48,16 @@ class CoProtocolP2PAnon(
     private fun setup(message: Message, pleaseAck: Boolean) {
         if (pleaseAck) {
             if (!message.messageObjectHasKey(PLEASE_ACK_DECORATOR)) {
-                message.getMessageObj()
+                message.getMessageObjec()
                     ?.put(PLEASE_ACK_DECORATOR, JSONObject().put("message_id", message.getId()))
             }
         }
         if (!threadId.isEmpty()) {
-            var thread: JSONObject? = message.getMessageObj()?.optJSONObject(THREAD_DECORATOR)
+            var thread: JSONObject? = message.getMessageObjec()?.optJSONObject(THREAD_DECORATOR)
             thread = if (thread != null) thread else JSONObject()
             if (!thread.has("thid")) {
                 thread.put("thid", threadId)
-                message.getMessageObj()?.put(THREAD_DECORATOR, thread)
+                message.getMessageObjec()?.put(THREAD_DECORATOR, thread)
             }
         }
     }
@@ -71,7 +71,7 @@ class CoProtocolP2PAnon(
             if (transport == null) {
                 transport = context.currentHub?.agentConnectionLazy?.spawn(myVerkey, endpoint)
                 transport?.protocols = protocols
-                transport?.setTimeToLiveSec(timeToLiveSec)
+                transport?.setTimeToLiveSeci(timeToLiveSec)
                 transport?.start()
                 started = true
             }

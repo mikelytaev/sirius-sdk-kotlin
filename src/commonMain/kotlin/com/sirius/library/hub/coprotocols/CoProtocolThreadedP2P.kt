@@ -2,8 +2,6 @@ package com.sirius.library.hub.coprotocols
 
 import com.sirius.library.agent.coprotocols.AbstractCoProtocolTransport
 import com.sirius.library.agent.pairwise.Pairwise
-import com.sirius.library.errors.sirius_exceptions.SiriusInvalidMessage
-import com.sirius.library.errors.sirius_exceptions.SiriusInvalidPayloadStructure
 import com.sirius.library.errors.sirius_exceptions.SiriusPendingOperation
 import com.sirius.library.hub.Context
 import com.sirius.library.messaging.Message
@@ -49,7 +47,7 @@ class CoProtocolThreadedP2P : AbstractP2PCoProtocol {
                 } else {
                     context.currentHub?.agentConnectionLazy?.spawn(thid, to, pthid!!)
                 }
-                transport?.setTimeToLiveSec(timeToLiveSec)
+                transport?.setTimeToLiveSeci(timeToLiveSec)
                 transport?.start()
                 started = true
             }

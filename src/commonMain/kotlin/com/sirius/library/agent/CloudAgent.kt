@@ -300,10 +300,7 @@ class CloudAgent : AbstractAgent {
             RemoteCallWrapper<Unit>(rpc!!) {}.remoteCall("did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/admin/1.0/release")
     }
 
-    fun getEvents(): CloudAgentEvents? {
-        checkIsOpen()
-        return events
-    }
+
 }
 
 

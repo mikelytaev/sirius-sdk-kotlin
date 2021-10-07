@@ -3,6 +3,7 @@ package com.sirius.library.encryption
 import com.sirius.library.errors.sirius_exceptions.SiriusCryptoError
 import com.sirius.library.utils.Base58
 import com.sirius.library.utils.Base64
+import com.sirius.library.utils.KeyPair
 import com.sirius.library.utils.StringCodec
 
 object Custom {
@@ -82,7 +83,7 @@ object Custom {
      * @param seed (bytes) Seed for keypair
      * @return A tuple of (public key, secret key)
      */
-    @Throws(SiriusCryptoError::class, SodiumException::class)
+
     fun createKeypair(seed: ByteArray?): KeyPair {
         //  Sodium.crypto_sign_seed_keypair()
         var seed = seed
@@ -91,7 +92,7 @@ object Custom {
         } else {
             seed = randomSeed()
         }
-        return LibSodium.getInstance().getLazySodium().cryptoSignSeedKeypair(seed)
+        return KeyPair()
     }
 
     /**
@@ -100,7 +101,7 @@ object Custom {
      * @return A new random seed
      */
     fun randomSeed(): ByteArray {
-        return LibSodium.getInstance().getLazySodium().randomBytesBuf(SecretBox.KEYBYTES)
+        return ByteArray(0)
 
         //   return new Random().randomBytes(Sodium.crypto_secretbox_keybytes());
     }
@@ -150,10 +151,7 @@ object Custom {
      * @return The signature
      */
     fun signMessage(message: ByteArray, secret: ByteArray?): ByteArray? {
-        val signedMessage = ByteArray(Sign.BYTES + message.size)
-        return if (LibSodium.getInstance().getLazySodium().cryptoSign(signedMessage, message, message.size, secret)) {
-            java.util.Arrays.copyOfRange(signedMessage, 0, Sign.BYTES)
-        } else null
+        return null
     }
 
     /**
@@ -164,12 +162,10 @@ object Custom {
      * @return
      */
     fun verifySignedMessage(verkey: ByteArray?, message: ByteArray?, signature: ByteArray?): Boolean {
-        val signedMessage: ByteArray = ArrayUtils.addAll(signature, message)
-        return LibSodium.getInstance().getLazySodium()
-            .cryptoSignOpen(message, signedMessage, signedMessage.size, verkey)
+       return false
     }
 
     fun didFromVerkey(verkey: ByteArray?): ByteArray {
-        return java.util.Arrays.copyOfRange(verkey, 0, 16)
+        return ByteArray(0)
     }
 }

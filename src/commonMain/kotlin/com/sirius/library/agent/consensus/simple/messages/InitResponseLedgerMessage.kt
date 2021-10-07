@@ -19,9 +19,9 @@ class InitResponseLedgerMessage(msg: String) : InitRequestLedgerMessage(msg) {
     }
 
     fun assignFrom(source: BaseInitLedgerMessage) {
-        for (key in source.getMessageObj().keySet()) {
+        for (key in source.getMessageObjec().keySet()) {
             if (key == FIELD_ID || key == FIELD_TYPE || key == THREAD_DECORATOR) continue
-            this.getMessageObj().put(key, source.getMessageObj().get(key))
+            this.getMessageObjec().put(key, source.getMessageObjec().get(key))
         }
     }
 

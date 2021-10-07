@@ -22,13 +22,13 @@ class TestLocks {
         val session1 = CloudAgent(
             params.serverAddress,
             params.credentials.encodeToByteArray(),
-            params.getConnection(),
+            params.getConnectioni(),
             5
         )
         val session2 = CloudAgent(
             params.serverAddress,
             params.credentials.encodeToByteArray(),
-            params.getConnection(),
+            params.getConnectioni(),
             5
         )
         session1.open()
@@ -75,13 +75,13 @@ class TestLocks {
         val session1 = CloudAgent(
             params.serverAddress,
             params.credentials.encodeToByteArray(),
-            params.getConnection(),
+            params.getConnectioni(),
             5
         )
         val session2 = CloudAgent(
             params.serverAddress,
             params.credentials.encodeToByteArray(),
-            params.getConnection(),
+            params.getConnectioni(),
             5
         )
         session1.open()
@@ -113,13 +113,13 @@ class TestLocks {
         val session1 = CloudAgent(
             params1.serverAddress,
             params1.credentials.encodeToByteArray(),
-            params1.getConnection(),
+            params1.getConnectioni(),
             5
         )
         val session2 = CloudAgent(
             params1.serverAddress,
             params1.credentials.encodeToByteArray(),
-            params2.getConnection(),
+            params2.getConnectioni(),
             5
         )
         session1.open()

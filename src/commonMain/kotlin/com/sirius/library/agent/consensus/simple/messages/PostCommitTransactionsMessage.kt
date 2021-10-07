@@ -28,15 +28,15 @@ class PostCommitTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) 
 
     val commits: JSONArray
         get() {
-            if (!getMessageObj().has("commits")) getMessageObj().put("commits", JSONArray())
-            return getMessageObj().optJSONArray("commits") ?: JSONArray()
+            if (!getMessageObjec().has("commits")) getMessageObjec().put("commits", JSONArray())
+            return getMessageObjec().optJSONArray("commits") ?: JSONArray()
         }
 
     fun addCommitSign(api: AbstractCrypto, commit: CommitTransactionsMessage, me: Pairwise.Me) {
-        val signed: JSONObject = Utils.sign(api, commit.getMessageObj(), me.verkey)
+        val signed: JSONObject = Utils.sign(api, commit.getMessageObjec(), me.verkey)
         val commits: JSONArray = commits
         commits.put(signed)
-        getMessageObj().put("commits", commits)
+        getMessageObjec().put("commits", commits)
     }
 
     fun verifyCommits(api: AbstractCrypto, expected: CommitTransactionsMessage, verkeys: List<String>?): Boolean {
@@ -60,8 +60,8 @@ class PostCommitTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) 
                     if (!key.startsWith("~")) cleanedCommit.put(key, commit.get(key))
                 }
                 val cleanedExpect: JSONObject = JSONObject()
-                for (key in expected.getMessageObj().keySet()) {
-                    if (!key.startsWith("~")) cleanedExpect.put(key, expected.getMessageObj().get(key))
+                for (key in expected.getMessageObjec().keySet()) {
+                    if (!key.startsWith("~")) cleanedExpect.put(key, expected.getMessageObjec().get(key))
                 }
                 if (!cleanedCommit.similar(cleanedExpect)) return false
             } else {

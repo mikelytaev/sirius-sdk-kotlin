@@ -2,13 +2,12 @@ package com.sirius.library.agent.aries_rfc
 
 import com.sirius.library.agent.coprotocols.AbstractCloudCoProtocolTransport.Companion.THREAD_DECORATOR
 import com.sirius.library.utils.JSONObject
-import kotlinx.serialization.json.JsonObject
 
 open class AriesProblemReport(message: String) : AriesProtocolMessage(message) {
     val problemCode: String?
-        get() = getMessageObj()?.optString("problem-code")
+        get() = getMessageObjec()?.optString("problem-code")
     val explain: String?
-        get() = getMessageObj()?.optString("explain")
+        get() = getMessageObjec()?.optString("explain")
 
     abstract class Builder<B : Builder<B>> : AriesProtocolMessage.Builder<B>() {
         var problemCode: String? = null

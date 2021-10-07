@@ -22,17 +22,17 @@ class QuestionMessage(msg: String) : AriesProtocolMessage(msg) {
     }
 
     val questionText: String?
-        get() = getMessageObj().optString("question_text")
+        get() = getMessageObjec().optString("question_text")
     val questionDetail: String?
-        get() = getMessageObj().optString("question_detail")
+        get() = getMessageObjec().optString("question_detail")
     val nonce: String?
-        get() = getMessageObj().optString("nonce")
+        get() = getMessageObjec().optString("nonce")
     val isSignatureRequired: Boolean
-        get() = getMessageObj().optBoolean("signature_required", false)
+        get() = getMessageObjec().optBoolean("signature_required", false)
     val validResponses: List<String>
         get() {
             val responsesLis: MutableList<String> = ArrayList<String>()
-            val responses: JSONArray? = getMessageObj().optJSONArray("valid_responses")
+            val responses: JSONArray? = getMessageObjec().optJSONArray("valid_responses")
             if (responses != null) {
                 for (i in 0 until responses.length()) {
                     val response: JSONObject? = responses.optJSONObject(i)
@@ -48,10 +48,10 @@ class QuestionMessage(msg: String) : AriesProtocolMessage(msg) {
             return responsesLis
         }
     val content: String?
-        get() = getMessageObj().optString("content")
+        get() = getMessageObjec().optString("content")
     val expiresTime: Date?
         get() {
-            val timing: JSONObject? = getMessageObj().optJSONObject("~timing")
+            val timing: JSONObject? = getMessageObjec().optJSONObject("~timing")
             if (timing != null) {
                 val expiresTimeStr: String = timing.optString("expires_time") ?:""
                 if (!expiresTimeStr.isEmpty()) return Date.paresDate(expiresTimeStr,"ISO")

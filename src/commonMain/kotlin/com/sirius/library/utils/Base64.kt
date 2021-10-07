@@ -1,6 +1,6 @@
 package com.sirius.library.utils
 
-
+import kotlinx.coroutines.*
 
 class Base64 {
 
@@ -23,6 +23,8 @@ class Base64 {
     }
 
     class Decoder(){
+
+
         fun decode(byteArray : ByteArray) : ByteArray{
             return ByteArray(0)
         }

@@ -8,7 +8,7 @@ import kotlin.jvm.JvmOverloads
 
 class DidDoc(payload: JSONObject) {
     var payload: JSONObject
-    fun getPayload(): JSONObject {
+    fun getPayloadi(): JSONObject {
         return payload
     }
 

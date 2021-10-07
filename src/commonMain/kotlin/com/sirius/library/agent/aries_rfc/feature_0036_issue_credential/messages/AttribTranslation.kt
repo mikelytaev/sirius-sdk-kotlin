@@ -5,7 +5,7 @@ import kotlinx.serialization.json.JsonObject
 
 class AttribTranslation(attribName: String?, translation: String?) {
     var dict: JSONObject = JSONObject()
-    fun getDict(): JSONObject {
+    fun getDicti(): JSONObject {
         return dict
     }
 

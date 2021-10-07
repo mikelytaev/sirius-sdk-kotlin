@@ -8,7 +8,6 @@ import com.sirius.library.agent.microledgers.Transaction
 import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.base.AbstractStateMachine
 import com.sirius.library.errors.StateMachineTerminatedWithError
-import com.sirius.library.errors.sirius_exceptions.SiriusContextError
 import com.sirius.library.errors.sirius_exceptions.SiriusInvalidMessage
 import com.sirius.library.errors.sirius_exceptions.SiriusInvalidPayloadStructure
 import com.sirius.library.errors.sirius_exceptions.SiriusValidationError
@@ -18,7 +17,6 @@ import com.sirius.library.hub.coprotocols.CoProtocolThreadedTheirs
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
-import com.sirius.library.utils.UUID
 
 class MicroLedgerSimpleConsensus : AbstractStateMachine {
     var log: Logger = Logger.getLogger(Inviter::class.simpleName)
@@ -36,13 +34,8 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
         this.timeToLiveSec = 60
     }
 
-    fun getMe(): Pairwise.Me {
-        return me
-    }
 
-    fun getProblemReport(): SimpleConsensusProblemReport? {
-        return problemReport
-    }
+
 
     private fun acceptors(
         theirs: List<Pairwise>,
@@ -68,7 +61,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
         participants: List<String>,
         genesis: List<Transaction>
     ): Pair<Boolean, AbstractMicroledger?> {
-        try {
+      /*  try {
             bootstrap(participants)
             val relationships: List<Pairwise> = ArrayList(cachedP2P.values)
             acceptors(relationships, "simple-consensus-init-" + UUID.randomUUID).also { co ->
@@ -100,12 +93,12 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
         } catch (siriusValidationError: SiriusValidationError) {
             log.info("100% - Terminated with error")
             siriusValidationError.printStackTrace()
-        }
+        }*/
         return Pair(false, null)
     }
 
-    fun acceptMicroledger(leader: Pairwise, propose: InitRequestLedgerMessage): Pair<Boolean, AbstractMicroledger> {
-        if (!propose.participants
+    fun acceptMicroledger(leader: Pairwise, propose: InitRequestLedgerMessage): Pair<Boolean, AbstractMicroledger?> {
+     /*   if (!propose.participants
                 .contains(me.did)
         ) throw SiriusContextError("Invalid state machine initialization")
         var timeToLive: Int = this.timeToLiveSec
@@ -152,7 +145,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
                     return Pair(false, null)
                 }
             }
-        }
+        }*/
         return Pair(false, null)
     }
 
@@ -169,11 +162,11 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
         participants: List<String>,
         transactions: List<Transaction>
     ): Pair<Boolean, List<Transaction>> {
-        try {
+    /*    try {
             bootstrap(participants)
         } catch (siriusValidationError: SiriusValidationError) {
             siriusValidationError.printStackTrace()
-            return Pair(false, null)
+            return Pair(false, listOf())
         }
         val relationships: List<Pairwise> = ArrayList(cachedP2P.values)
         acceptors(relationships, "simple-consensus-commit-" + UUID.randomUUID).also { co ->
@@ -195,8 +188,8 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
                     co.send(problemReport)
                 }
             }
-        }
-        return Pair(false, null)
+        }*/
+        return Pair(false, listOf())
     }
 
     @Throws(StateMachineTerminatedWithError::class)
@@ -204,7 +197,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
         co: CoProtocolThreadedTheirs, ledger: AbstractMicroledger, transactions: List<Transaction>,
         participants: List<String>
     ): List<Transaction> {
-        val (first) = acquire(listOfNotNull(ledger.name()), this.timeToLiveSec)
+     /*   val (first) = acquire(listOfNotNull(ledger.name()), this.timeToLiveSec)
         if (!first) {
             throw StateMachineTerminatedWithError(
                 REQUEST_NOT_ACCEPTED,
@@ -318,11 +311,12 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
             txns
         } finally {
             release()
-        }
+        }*/
+        return emptyList()
     }
 
     fun acceptCommit(leader: Pairwise, propose: ProposeTransactionsMessage): Boolean {
-        var timeToLive: Int = this.timeToLiveSec
+     /*   var timeToLive: Int = this.timeToLiveSec
         if (propose.timeoutSec > 0) timeToLive = propose.timeoutSec
         leader(leader, propose.getThreadId(), timeToLive).also { co ->
             var ledger: AbstractMicroledger? = null
@@ -344,7 +338,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
                 if (ledger != null) ledger.resetUncommitted()
                 ex.printStackTrace()
             }
-        }
+        }*/
         return false
     }
 
@@ -353,7 +347,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
         for (did in patricipants) {
             if (did != me.did) {
                 if (!cachedP2P.containsKey(did)) {
-                    val p: Pairwise = context.getPairwiseList().loadForDid(did)
+                    val p: Pairwise = context.getPairwiseListi().loadForDid(did)
                         ?: throw SiriusValidationError("Unknown pairwise for DID: $did")
                     cachedP2P[did] = p
                 }
@@ -363,7 +357,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
 
     @Throws(StateMachineTerminatedWithError::class)
     private fun loadLedger(propose: ProposeTransactionsMessage): AbstractMicroledger {
-        try {
+      /*  try {
             bootstrap(propose.participants)
             propose.validate()
             if (propose.participants.size) < 2) {
@@ -380,8 +374,8 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
             }
         } catch (ex: SiriusValidationError) {
             throw StateMachineTerminatedWithError(RESPONSE_NOT_ACCEPTED, ex.message ?:"")
-        }
-        return context.getMicrolegders().getLedger(propose.state.name)
+        }*/
+        return context.getMicrolegdersi().getLedger(propose.state!!.name)!!
     }
 
     @Throws(StateMachineTerminatedWithError::class, SiriusInvalidMessage::class, SiriusInvalidPayloadStructure::class)
@@ -400,10 +394,10 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
         }
         try {
             // ===== STAGE-1: Process Propose, apply transactions and response ledger state on self-side
-            ledger.append(propose.transactions())
-            val ledgerState: MicroLedgerState = MicroLedgerState.fromLedger(ledger)
+            ledger!!.append(propose.transactions())
+            val ledgerState: MicroLedgerState = MicroLedgerState.fromLedger(ledger!!)
             val preCommit: PreCommitTransactionsMessage =
-                PreCommitTransactionsMessage.builder().setState(MicroLedgerState.fromLedger(ledger)).build()
+                PreCommitTransactionsMessage.builder().setState(MicroLedgerState.fromLedger(ledger!!)).build()
             preCommit.signState(context.crypto, me)
             log.info("10% - Send Pre-Commit")
             val (first1, second) = co.sendAndWait(preCommit)
@@ -435,10 +429,10 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
                                     postCommitAll.validate()
                                     val verkeys: MutableList<String> = ArrayList<String>()
                                     for (p in cachedP2P.values) {
-                                        verkeys.add(p.their.verkey)
+                                      //  verkeys.add(p.their.verkey)
                                     }
                                     postCommitAll.verifyCommits(context.crypto, commit, verkeys)
-                                    val uncommitted_size: Int = ledgerState.uncommittedSize - ledgerState.size
+                                    val uncommitted_size: Int = ledgerState.uncommittedSize!!
                                     log.info("90% - Flush transactions to Ledger storage")
                                     ledger.commit(uncommitted_size)
                                 } catch (ex: SiriusValidationError) {
@@ -451,9 +445,9 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
                             } else if (second1 is SimpleConsensusProblemReport) {
                                 problemReport = second1 as SimpleConsensusProblemReport
                                 throw StateMachineTerminatedWithError(
-                                    problemReport.problemCode,
+                                    problemReport!!.problemCode!!,
                                     "Stage-3: Problem report from leader" + leader.their.did
-                                        .toString() + " " + problemReport.explain
+                                        .toString() + " " + problemReport!!.explain
                                 )
                             }
                         } else {
@@ -472,12 +466,12 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
                 } else if (second is SimpleConsensusProblemReport) {
                     problemReport = second as SimpleConsensusProblemReport
                     val explain = "Stage-1: Problem report from leader" + leader.their.did
-                        .toString() + " " + problemReport.explain
-                    throw StateMachineTerminatedWithError(problemReport.problemCode, problemReport.explain)
+                        .toString() + " " + problemReport!!.explain
+                    throw StateMachineTerminatedWithError(problemReport!!.problemCode!!, problemReport!!.explain!!)
                 } else {
                     throw StateMachineTerminatedWithError(
                         REQUEST_NOT_ACCEPTED,
-                        "Unexpected message @type: " + second.getType()
+                        "Unexpected message @type: " + second!!.getType()
                     )
                 }
             } else {
@@ -540,13 +534,13 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
             log.info("30% - Received responses from all acceptors")
             var erroredAcceptorsDid: MutableList<String> = ArrayList<String>()
             for (r in results) {
-                if (!r.success) erroredAcceptorsDid.add(r.pairwise.their.did)
+               // if (!r.success) erroredAcceptorsDid.add(r.pairwise.their.did)
             }
             if (!erroredAcceptorsDid.isEmpty()) {
                 throw StateMachineTerminatedWithError(REQUEST_PROCESSING_ERROR, "Stage-1: Participants unreachable")
             }
             log.info("40% - Validate responses")
-            for (r in results) {
+         /*   for (r in results) {
                 if (r.message is InitResponseLedgerMessage) {
                     val response: InitResponseLedgerMessage = r.message as InitResponseLedgerMessage
                     response.validate()
@@ -557,7 +551,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
                     val response: SimpleConsensusProblemReport = r.message as SimpleConsensusProblemReport
                     throw StateMachineTerminatedWithError(response.problemCode, response.explain)
                 }
-            }
+            }*/
 
             // ============= STAGE 2: COMMIT ============
             log.info("60% - Send commit request")
@@ -565,7 +559,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
             log.info("70% - Received commit responses")
             erroredAcceptorsDid = ArrayList<String>()
             for (r in results) {
-                if (!r.success) erroredAcceptorsDid.add(r.pairwise.their.did)
+               // if (!r.success) erroredAcceptorsDid.add(r.pairwise.their.did)
             }
             if (!erroredAcceptorsDid.isEmpty()) {
                 throw StateMachineTerminatedWithError(REQUEST_PROCESSING_ERROR, "Stage-2: Participants unreachable")
@@ -576,7 +570,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
                     val response: SimpleConsensusProblemReport = r.message as SimpleConsensusProblemReport
                     throw StateMachineTerminatedWithError(
                         RESPONSE_PROCESSING_ERROR,
-                        "Participant DID: " + r.pairwise.their.did
+                        "Participant DID: " + r.pairwise!!.their!!.did
                             .toString() + " declined operation with error: " + response.explain
                     )
                 }
@@ -612,7 +606,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
             // =============== STAGE 1: PROPOSE ===============
             try {
                 propose.validate()
-                propose.checkSignatures(context.crypto, leader.their.did)
+               // propose.checkSignatures(context.crypto, leader.their.did)
                 if (propose.participants.size < 2) {
                     throw SiriusValidationError("Stage-1: participants less than 2")
                 }
@@ -620,15 +614,15 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
                 throw StateMachineTerminatedWithError(REQUEST_NOT_ACCEPTED, ex.message?:"")
             }
             val genesis: MutableList<Transaction> = ArrayList<Transaction>()
-            val genJsonArr: JSONArray = propose.ledger.getJSONArray("genesis")
+            val genJsonArr: JSONArray = propose!!.ledger!!.getJSONArray("genesis") ?: JSONArray()
             for (o in genJsonArr) {
                 genesis.add(Transaction(o as JSONObject))
             }
             log.info("10% - Initialize ledger")
-            val (ledger, txns) = context.getMicrolegders().create(propose.ledger.getString("name"), genesis)
+            val (ledger, txns) = context.getMicrolegdersi().create(propose.ledger.getString("name"), genesis)!!
             log.info("20% - Ledger initialized successfully")
-            if (!propose.ledger.optString("root_hash").equals(ledger.rootHash())) {
-                context.getMicrolegders().reset(ledger.name())
+            if (!propose.ledger.optString("root_hash").equals(ledger!!.rootHash())) {
+                context.getMicrolegdersi().reset(ledger!!.name())
                 throw StateMachineTerminatedWithError(REQUEST_PROCESSING_ERROR, "Stage-1: Non-consistent Root Hash")
             }
             val response: InitResponseLedgerMessage = InitResponseLedgerMessage.builder().setTimeoutSec(timeout).build()
@@ -648,7 +642,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
                         val hashes: JSONObject = requestCommit.checkSignatures(context.crypto)
                         for (theirDid in hashes.keySet()) {
                             val decoded: JSONObject? = hashes.getJSONObject(theirDid)
-                            if (!decoded.similar(commitLedgerHash)) {
+                            if (!decoded!!.similar(commitLedgerHash!!)) {
                                 throw SiriusValidationError("Stage-2: NonEqual Ledger hash with participant $theirDid")
                             }
                         }
@@ -660,7 +654,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
                     val signersSet: MutableSet<Any> = HashSet<Any>()
                     val signs: JSONArray = requestCommit.signatures()
                     for (sign in signs) {
-                        signersSet.add((sign as JSONObject).getString("participant"))
+                        signersSet.add((sign as JSONObject).getString("participant")!!)
                     }
                     var errorExplain: String? = null
                     if (proposeParticipantsSet != signersSet) {
@@ -700,7 +694,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
                     }
                 } else if (second is SimpleConsensusProblemReport) {
                     problemReport = second as SimpleConsensusProblemReport
-                    throw StateMachineTerminatedWithError(problemReport.problemCode, problemReport.explain)
+                    throw StateMachineTerminatedWithError(problemReport!!.problemCode!!, problemReport!!.explain!!)
                 }
             } else {
                 throw StateMachineTerminatedWithError(

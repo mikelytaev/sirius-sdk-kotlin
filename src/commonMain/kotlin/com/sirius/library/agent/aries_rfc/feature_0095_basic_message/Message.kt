@@ -17,12 +17,12 @@ class Message(msg: String) : AriesProtocolMessage(msg) {
     }
 
     val content: String?
-        get() = getMessageObj().optString("content")
+        get() = getMessageObjec().optString("content")
     val attaches: List<Attach>
         get() {
             val res: MutableList<Attach> = ArrayList<Attach>()
             if (messageObjectHasKey("~attach")) {
-                val arr: JSONArray = getMessageObj().getJSONArray("~attach") ?: JSONArray()
+                val arr: JSONArray = getMessageObjec().getJSONArray("~attach") ?: JSONArray()
                 for (o in arr) {
                     res.add(Attach(o as JSONObject))
                 }
@@ -32,9 +32,9 @@ class Message(msg: String) : AriesProtocolMessage(msg) {
 
     fun addAttach(att: Attach) {
         if (!messageObjectHasKey("~attach")) {
-            getMessageObj().put("~attach", JSONArray())
+            getMessageObjec().put("~attach", JSONArray())
         }
-        getMessageObj().getJSONArray("~attach")?.put(att)
+        getMessageObjec().getJSONArray("~attach")?.put(att)
     }
 
     abstract class Builder<B : Builder<B>> : AriesProtocolMessage.Builder<B>() {

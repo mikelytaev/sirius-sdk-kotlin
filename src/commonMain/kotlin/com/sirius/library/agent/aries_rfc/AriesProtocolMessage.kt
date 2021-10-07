@@ -4,7 +4,6 @@ import com.sirius.library.errors.sirius_exceptions.SiriusValidationError
 import com.sirius.library.messaging.Message
 import com.sirius.library.messaging.Type
 import com.sirius.library.utils.JSONObject
-import kotlinx.serialization.json.JsonObject
 import kotlin.reflect.KClass
 
 abstract class AriesProtocolMessage : Message {
@@ -30,35 +29,35 @@ abstract class AriesProtocolMessage : Message {
     }
 
     open fun hasPleaseAck(): Boolean {
-        return getMessageObj()?.has("~please_ack") ?: false
+        return getMessageObjec()?.has("~please_ack") ?: false
     }
 
     open fun setPleaseAck(flag: Boolean) {
         if (flag) {
             val pleaseAck = JSONObject()
             pleaseAck.put("message_id", this.getId())
-            getMessageObj()?.put("~please_ack", pleaseAck)
+            getMessageObjec()?.put("~please_ack", pleaseAck)
         } else {
-            getMessageObj()?.remove("~please_ack")
+            getMessageObjec()?.remove("~please_ack")
         }
     }
 
     open fun getThreadId(): String? {
-        return if (getMessageObj()?.has(THREAD_DECORATOR) == true && getMessageObj()?.optJSONObject(THREAD_DECORATOR)?.has("thid") ==true
+        return if (getMessageObjec()?.has(THREAD_DECORATOR) == true && getMessageObjec()?.optJSONObject(THREAD_DECORATOR)?.has("thid") ==true
         ) {
-            getMessageObj()?.optJSONObject(THREAD_DECORATOR)?.optString("thid")
+            getMessageObjec()?.optJSONObject(THREAD_DECORATOR)?.optString("thid")
         } else null
     }
 
     open fun setThreadId(thid: String?) {
         val thread: JSONObject?
-        if (getMessageObj()?.has(THREAD_DECORATOR) == true) {
-            thread = getMessageObj()?.optJSONObject(THREAD_DECORATOR)
+        if (getMessageObjec()?.has(THREAD_DECORATOR) == true) {
+            thread = getMessageObjec()?.optJSONObject(THREAD_DECORATOR)
         } else {
             thread = JSONObject()
         }
         thread?.put("thid", thid)
-        getMessageObj()?.put(THREAD_DECORATOR, thread)
+        getMessageObjec()?.put(THREAD_DECORATOR, thread)
     }
 
     abstract class Builder<B : Builder<B>> protected constructor() {

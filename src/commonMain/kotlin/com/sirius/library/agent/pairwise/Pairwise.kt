@@ -6,7 +6,7 @@ class Pairwise {
     var me: Me
     var their: Their
     var metadata: JSONObject?
-    fun getMetadata(): JSONObject? {
+    fun getMetadatai(): JSONObject? {
         return metadata
     }
 
@@ -43,11 +43,9 @@ class Pairwise {
             this.label = label
         }
 
-        fun getDidDoc(): JSONObject? {
-            return didDoc
-        }
 
-        fun setDidDoc(didDoc: JSONObject?) {
+
+        fun setDidDoci(didDoc: JSONObject?) {
             this.didDoc = didDoc
         }
     }
@@ -56,11 +54,9 @@ class Pairwise {
         var did: String?
         var verkey: String?
         var didDoc: JSONObject? = null
-        fun getDidDoc(): JSONObject? {
-            return didDoc
-        }
 
-        fun setDidDoc(didDoc: JSONObject?) {
+
+        fun setDidDoci(didDoc: JSONObject?) {
             this.didDoc = didDoc
         }
 

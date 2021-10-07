@@ -6,7 +6,6 @@ import com.sirius.library.agent.wallet.abstract_wallet.AbstractCrypto
 import com.sirius.library.errors.sirius_exceptions.SiriusContextError
 import com.sirius.library.errors.sirius_exceptions.SiriusValidationError
 import com.sirius.library.messaging.Message
-import com.sirius.library.utils.Base58
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 
@@ -22,15 +21,15 @@ open class BaseInitLedgerMessage(msg: String) : SimpleConsensusMessage(msg) {
     }
 
     fun ledgerHash(): JSONObject? {
-        return getMessageObj().optJSONObject("ledger~hash")
+        return getMessageObjec().optJSONObject("ledger~hash")
     }
 
     val ledger: JSONObject
-        get() = getMessageObj().optJSONObject("ledger")
+        get() = getMessageObjec().optJSONObject("ledger") ?: JSONObject()
 
     fun signatures(): JSONArray {
-        if (!getMessageObj().has("signatures")) getMessageObj().put("signatures", JSONArray())
-        return getMessageObj().optJSONArray("signatures")
+        if (!getMessageObjec().has("signatures")) getMessageObjec().put("signatures", JSONArray())
+        return getMessageObjec().optJSONArray("signatures") ?: JSONArray()
     }
 
     @Throws(SiriusContextError::class, SiriusValidationError::class)
@@ -55,15 +54,15 @@ open class BaseInitLedgerMessage(msg: String) : SimpleConsensusMessage(msg) {
         val response: JSONObject = JSONObject()
         for (o in signatures) {
             val item: JSONObject = o as JSONObject
-            val (first, second) = verifySigned(api, item.optJSONObject("signature"))
+            val (first, second) = verifySigned(api!!, item!!.optJSONObject("signature")!!)
             val signedLedgerHash: JSONObject = JSONObject(first)
             if (!second) {
                 throw SiriusValidationError("Invalid Sign for participant: " + item.optString("participant"))
             }
-            if (!signedLedgerHash.similar(ledgerHash())) {
+            if (!signedLedgerHash.similar(ledgerHash()!!)) {
                 throw SiriusValidationError("NonConsistent Ledger hash for participant: " + item.optString("participant"))
             }
-            response.put(item.optString("participant"), signedLedgerHash)
+            response.put(item.optString("participant")!!, signedLedgerHash)
         }
         return response
     }
@@ -111,13 +110,13 @@ open class BaseInitLedgerMessage(msg: String) : SimpleConsensusMessage(msg) {
             }
             if (!ledger.isEmpty()) {
                 jsonObject.put("ledger", ledger)
-                try {
+               /* try {
                     val digest: java.security.MessageDigest = java.security.MessageDigest.getInstance("SHA-256")
                     val base58: String = Base58.encode(digest.digest(Utils.serializeOrdering(ledger)))
                     jsonObject.put("ledger~hash", JSONObject().put("func", "sha256").put("base58", base58))
                 } catch (e: java.security.NoSuchAlgorithmException) {
                     e.printStackTrace()
-                }
+                }*/
             }
             return jsonObject
         }

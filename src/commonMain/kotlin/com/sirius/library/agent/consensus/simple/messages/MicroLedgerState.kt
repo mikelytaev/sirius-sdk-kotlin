@@ -48,14 +48,14 @@ class MicroLedgerState(obj: JSONObject) : JSONObject(obj.toString()) {
         }
     val hash: String?
         get() {
-            try {
+           /* try {
                 val md: java.security.MessageDigest = java.security.MessageDigest.getInstance("MD5")
                 md.update(JSONUtils.JSONObjectToString(this, true).getBytes())
                 val digest: ByteArray = md.digest()
                 return LazySodium.toHex(digest)
             } catch (e: java.security.NoSuchAlgorithmException) {
                 e.printStackTrace()
-            }
+            }*/
             return null
         }
 

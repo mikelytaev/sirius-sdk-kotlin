@@ -6,11 +6,9 @@ import com.sirius.library.rpc.AddressedTunnel
 class P2PModel(p2p: P2PConnection, tunnel: AddressedTunnel) {
     var p2p: P2PConnection
     var tunnel: AddressedTunnel
-    fun getP2p(): P2PConnection {
-        return p2p
-    }
 
-    fun getTunnel(): AddressedTunnel {
+
+    fun getTunneli(): AddressedTunnel {
         return tunnel
     }
 

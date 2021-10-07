@@ -8,6 +8,8 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
 import com.sirius.library.utils.StringCodec
+import kotlinx.coroutines.*
+import kotlinx.coroutines.*
 
 /**
  * Transport abstraction that help build tunnels (p2p pairwise relationships) over channel layer.
@@ -19,6 +21,9 @@ class AddressedTunnel(var address: String, input: ReadOnlyChannel, output: Write
     var output: WriteOnlyChannel
     var p2p: P2PConnection
     private var context: Context
+
+
+
 
     /**
      * Read message.
@@ -34,12 +39,12 @@ class AddressedTunnel(var address: String, input: ReadOnlyChannel, output: Write
     fun receive(timeout: Int): Message? {
         var payload = ByteArray(0)
         val codec = StringCodec()
-        payload = try {
+     /*   payload = try {
             input.read().get(timeout, java.util.concurrent.TimeUnit.SECONDS)
         } catch (e: Exception) {
             e.printStackTrace()
             return null
-        }
+        }*/
         return try {
             val payloadString = codec.fromByteArrayToASCIIString(payload)
             val jsonObject = JSONObject(payloadString)

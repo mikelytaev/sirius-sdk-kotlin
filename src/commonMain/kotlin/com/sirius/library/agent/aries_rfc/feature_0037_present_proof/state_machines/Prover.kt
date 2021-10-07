@@ -44,7 +44,7 @@ class Prover(context: Context, var verifier: Pairwise, masterSecretId: String?, 
                         extractCredentialsInfo(request.proofRequest() ?: JSONObject(), poolName)
 
                     // Step-2: Build proof
-                    val proof: JSONObject? = context.getAnonCreds().proverCreateProof(
+                    val proof: JSONObject? = context.getAnonCredsi().proverCreateProof(
                         request.proofRequest(), credInfoRes.credInfos, masterSecretId, credInfoRes.schemas,
                         credInfoRes.credentialDefs, credInfoRes.revStates
                     )
@@ -97,7 +97,7 @@ class Prover(context: Context, var verifier: Pairwise, masterSecretId: String?, 
     }
 
     private fun extractCredentialsInfo(proofRequest: JSONObject, poolName: String?): ExtractCredentialsInfoResult {
-        val proofResponse: JSONObject? = context.getAnonCreds().proverSearchCredentialsForProofReq(proofRequest, 1)
+        val proofResponse: JSONObject? = context.getAnonCredsi().proverSearchCredentialsForProofReq(proofRequest, 1)
         val res = ExtractCredentialsInfoResult()
         val opts = CacheOptions()
         res.credInfos.put("self_attested_attributes", JSONObject())
@@ -133,7 +133,7 @@ class Prover(context: Context, var verifier: Pairwise, masterSecretId: String?, 
             val credDefId: String? = credInfo.getString("cred_def_id")
             var schema: JSONObject? = null
             if (poolName != null) {
-                schema = JSONObject(context.getCache().getSchema(poolName, verifier?.me?.did, schemaId, opts))
+                schema = JSONObject(context.getCaches().getSchema(poolName, verifier?.me?.did, schemaId, opts))
             } else {
                 schema = SchemasNonSecretStorage.getCredSchemaNonSecret(context.nonSecrets, schemaId)
             }
@@ -143,7 +143,7 @@ class Prover(context: Context, var verifier: Pairwise, masterSecretId: String?, 
             var credDef: JSONObject? = null
             if (poolName != null) {
                 credDef =
-                    JSONObject(context.getCache().getCredDef(poolName, verifier?.me?.did, credDefId, opts))
+                    JSONObject(context.getCaches().getCredDef(poolName, verifier?.me?.did, credDefId, opts))
             } else {
                 credDef = SchemasNonSecretStorage.getCredDefNonSecret(context.nonSecrets, credDefId)
             }

@@ -25,7 +25,7 @@ abstract class ConnProtocolMessage(msg: String) : AriesProtocolMessage(msg) {
         }
         val service: JSONObject? = didDoc()!!.extractService()
         val theirEndpoint: String? = service?.optString("serviceEndpoint")
-        val publicKeys: JSONArray? = didDoc()!!.getPayload().getJSONArray("publicKey")
+        val publicKeys: JSONArray? = didDoc()!!.getPayloadi().getJSONArray("publicKey")
         val theirVk = extractKey(service?.getJSONArray("recipientKeys")?.getString(0) ?:"", publicKeys)
         val routingKeys: MutableList<String> = ArrayList<String>()
         if (service?.has("routingKeys")==true) {
@@ -68,7 +68,7 @@ abstract class ConnProtocolMessage(msg: String) : AriesProtocolMessage(msg) {
     }
 
     fun theirDid(): String {
-        val obj: JSONObject = getMessageObj()
+        val obj: JSONObject = getMessageObjec()
         if (obj.has("connection")) {
             if (obj.getJSONObject("connection")?.has("did")==true) {
                 return obj.getJSONObject("connection")!!.getString("did")!!
@@ -81,7 +81,7 @@ abstract class ConnProtocolMessage(msg: String) : AriesProtocolMessage(msg) {
     }
 
     fun didDoc(): DidDoc? {
-        val obj: JSONObject = getMessageObj()
+        val obj: JSONObject = getMessageObjec()
         if (obj.has("connection")) {
             if (obj.getJSONObject("connection")?.has("did_doc") ==true) {
                 return DidDoc(obj.getJSONObject("connection")!!.getJSONObject("did_doc")!!)

@@ -24,7 +24,7 @@ class ProposeTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) {
     }
 
     val timeoutSec: Int?
-        get() = getMessageObj().optInt("timeout_sec", null)
+        get() = getMessageObjec().optInt("timeout_sec", null)
 
     @Throws(SiriusValidationError::class)
     override fun validate() {

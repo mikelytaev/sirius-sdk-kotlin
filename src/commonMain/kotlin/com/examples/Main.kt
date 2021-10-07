@@ -1,3 +1,4 @@
+/*
 package com.examples
 
 import com.sirius.library.agent.aries_rfc.feature_0095_basic_message.Message
@@ -126,3 +127,4 @@ object Main {
         }
     }
 }
+*/

@@ -66,7 +66,7 @@ class Inviter(context: Context, me: Pairwise.Me, connectionKey: String, myEndpoi
                     if (second is Ack || second is Ping) {
                         // Step 3: store their did
                         log.info("90% - Step-3: Ack received, store their DID")
-                        context.getDid().storeTheirDid(theirInfo.did, theirInfo.verkey)
+                        context.getDidi().storeTheirDid(theirInfo.did, theirInfo.verkey)
                         // Step 4: create pairwise
                         val their = Pairwise.Their(
                             theirInfo.did,
@@ -75,11 +75,11 @@ class Inviter(context: Context, me: Pairwise.Me, connectionKey: String, myEndpoi
                             theirInfo.verkey,
                             theirInfo.routingKeys
                         )
-                        val theirDidDoc: JSONObject? = request.didDoc()?.getPayload()
+                        val theirDidDoc: JSONObject? = request.didDoc()?.getPayloadi()
                         val metadata: JSONObject = JSONObject().put(
                             "me",
                             JSONObject().put("did", me.did).put("verkey", me.verkey)
-                                .put("did_doc", myDidDoc?.getPayload())
+                                .put("did_doc", myDidDoc?.getPayloadi())
                         ).put(
                             "their",
                             JSONObject().put("did", theirInfo.did).put("verkey", theirInfo.verkey)
@@ -90,13 +90,13 @@ class Inviter(context: Context, me: Pairwise.Me, connectionKey: String, myEndpoi
                                 ).put("did_doc", theirDidDoc)
                         )
                         val pairwise = Pairwise(me, their, metadata)
-                        pairwise.me.setDidDoc(myDidDoc?.getPayload())
-                        pairwise.their.setDidDoc(theirDidDoc)
+                        pairwise.me.setDidDoci(myDidDoc?.getPayloadi())
+                        pairwise.their.setDidDoci(theirDidDoc)
                         log.info("100% - Pairwise established")
                         pairwise
                     } else if (second is ConnProblemReport) {
                         problemReport = second
-                        log.info("100% - Terminated with error. " + problemReport!!.getMessageObj().toString())
+                        log.info("100% - Terminated with error. " + problemReport!!.getMessageObjec().toString())
                         null
                     } else {
                         throw StateMachineTerminatedWithError(

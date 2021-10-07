@@ -26,12 +26,12 @@ class PreCommitTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) {
 
     fun signState(api: AbstractCrypto, me: Pairwise.Me) {
         val signed: JSONObject = Utils.sign(api, hash, me.verkey)
-        getMessageObj().put("hash~sig", signed)
-        getMessageObj().remove("state")
+        getMessageObjec().put("hash~sig", signed)
+        getMessageObjec().remove("state")
     }
 
     fun verifyState(api: AbstractCrypto, expectedVerkey: String): Pair<Boolean, String?> {
-        val hashSigned: JSONObject? = getMessageObj().optJSONObject("hash~sig")
+        val hashSigned: JSONObject? = getMessageObjec().optJSONObject("hash~sig")
         if (hashSigned != null) {
             if (hashSigned.optString("signer") == expectedVerkey) {
                 val (first, second) = Utils.verifySigned(api, hashSigned)

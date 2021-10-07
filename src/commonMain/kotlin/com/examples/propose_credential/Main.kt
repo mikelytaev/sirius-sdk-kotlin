@@ -1,3 +1,4 @@
+/*
 package com.examples.propose_credential
 
 import com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.messages.ProposeCredentialMessage
@@ -169,3 +170,4 @@ object Main {
             }
     }
 }
+*/

@@ -18,8 +18,8 @@ object Helpers {
         val me: Context = CloudContext(myConf)
         val their: Context = CloudContext(theirConf)
         run {
-            var pairwise: Pairwise? = me.getPairwiseList().loadForDid(theirEntity.did)
-            val isFilled = pairwise != null && pairwise.getMetadata() != null
+            var pairwise: Pairwise? = me.getPairwiseListi().loadForDid(theirEntity.did)
+            val isFilled = pairwise != null && pairwise.getMetadatai() != null
             if (!isFilled) {
                 val me_ = Pairwise.Me(myEntity.did, myEntity.verkey)
                 val their_ = Pairwise.Their(
@@ -39,13 +39,13 @@ object Helpers {
                         )
                 )
                 pairwise = Pairwise(me_, their_, metadata)
-                me.getDid().storeTheirDid(theirEntity.did, theirEntity.verkey)
-                me.getPairwiseList().ensureExists(pairwise)
+                me.getDidi().storeTheirDid(theirEntity.did, theirEntity.verkey)
+                me.getPairwiseListi().ensureExists(pairwise)
             }
         }
         run {
-            var pairwise: Pairwise? = their.getPairwiseList().loadForDid(theirEntity.did)
-            val isFilled = pairwise != null && pairwise?.getMetadata() != null
+            var pairwise: Pairwise? = their.getPairwiseListi().loadForDid(theirEntity.did)
+            val isFilled = pairwise != null && pairwise?.getMetadatai() != null
             if (!isFilled) {
                 val me_ = Pairwise.Me(theirEntity.did, theirEntity.verkey)
                 val their_ = Pairwise.Their(
@@ -65,11 +65,11 @@ object Helpers {
                         )
                 )
                 pairwise = Pairwise(me_, their_, metadata)
-                their.getDid().storeTheirDid(myEntity.did, myEntity.verkey)
-                their.getPairwiseList().ensureExists(pairwise!!)
+                their.getDidi().storeTheirDid(myEntity.did, myEntity.verkey)
+                their.getPairwiseListi().ensureExists(pairwise!!)
             }
         }
-        val res: Pairwise? = me.getPairwiseList().loadForDid(theirEntity.did)
+        val res: Pairwise? = me.getPairwiseListi().loadForDid(theirEntity.did)
         me.close()
         their.close()
         return res!!

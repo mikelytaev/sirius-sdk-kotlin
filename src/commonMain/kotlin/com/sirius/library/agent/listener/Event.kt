@@ -7,8 +7,8 @@ import com.sirius.library.utils.JSONObject
 class Event(pairwise: Pairwise?, message: String) : Message(message) {
     var pairwise: Pairwise?
     fun message(): Message? {
-        if (getMessageObj()?.has("message") ==true) {
-            val msgJson: JSONObject? = getMessageObj()?.getJSONObject("message")
+        if (getMessageObjec()?.has("message") ==true) {
+            val msgJson: JSONObject? = getMessageObjec()?.getJSONObject("message")
             var restored: Message? =restoreMessageInstance(msgJson.toString())?.second
             return restored
         }
@@ -16,11 +16,11 @@ class Event(pairwise: Pairwise?, message: String) : Message(message) {
     }
 
     val recipientVerkey: String?
-        get() = getMessageObj()?.optString("recipient_verkey")
+        get() = getMessageObjec()?.optString("recipient_verkey")
     val senderVerkey: String?
-        get() = getMessageObj()?.optString("sender_verkey")
+        get() = getMessageObjec()?.optString("sender_verkey")
 
-    fun getPairwise(): Pairwise? {
+    fun getPairwisei(): Pairwise? {
         return pairwise
     }
 

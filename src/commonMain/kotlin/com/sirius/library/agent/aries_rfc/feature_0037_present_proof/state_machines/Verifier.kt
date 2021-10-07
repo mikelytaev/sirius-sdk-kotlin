@@ -131,19 +131,19 @@ class Verifier : BaseVerifyStateMachine {
                         if (!schemaId.isEmpty() && !schemas.has(schemaId)) {
                             schemas.put(
                                 schemaId, JSONObject(
-                                    context.getCache().getSchema(poolname, prover?.me?.did, schemaId, opts)
+                                    context.getCaches().getSchema(poolname, prover?.me?.did, schemaId, opts)
                                 )
                             )
                         }
                         if (!credDefId.isEmpty() && !credentialDefs.has(credDefId)) {
                             credentialDefs.put(
                                 credDefId, JSONObject(
-                                    context.getCache().getCredDef(poolname, prover?.me?.did, credDefId, opts)
+                                    context.getCaches().getCredDef(poolname, prover?.me?.did, credDefId, opts)
                                 )
                             )
                         }
                     }
-                    val success: Boolean = context.getAnonCreds().verifierVerifyProof(
+                    val success: Boolean = context.getAnonCredsi().verifierVerifyProof(
                         params.proofRequest, presentationMessage.proof(), schemas, credentialDefs, revRegDefs, revRegs
                     )
                     return if (success) {
@@ -169,7 +169,5 @@ class Verifier : BaseVerifyStateMachine {
         return false
     }
 
-    fun getRequestedProof(): JSONObject? {
-        return requestedProof
-    }
+
 }

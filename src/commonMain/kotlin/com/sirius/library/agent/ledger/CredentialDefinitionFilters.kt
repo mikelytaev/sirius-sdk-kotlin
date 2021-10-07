@@ -1,31 +1,25 @@
 package com.sirius.library.agent.ledger
 
+import com.sirius.library.utils.JSONObject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 class CredentialDefinitionFilters {
     var tags: Tags
-    var extras: JsonObject
-    val tagsObject: JsonObject
+    var extras: JSONObject
+    val tagsObject: JSONObject
         get() {
-            val tagobj: JsonObject = GsonUtils.getDefaultGson().toJsonTree(tags, Tags::class.java).getAsJsonObject()
-            val entrySet: Set<Map.Entry<String?, JsonElement?>> = extras.entrySet()
+            val tagobj: JSONObject = JSONObject()//GsonUtils.getDefaultGson().toJsonTree(tags, Tags::class.java).getAsJsonObject()
+         /*   val entrySet: Set<Map.Entry<String?, JsonElement?>> = extras.entrySet()
             for ((key, value): Map.Entry<String?, JsonElement?> in entrySet) {
                 tagobj.add(key, value)
-            }
+            }*/
             return tagobj
         }
 
-    fun setExtras(extras: JsonObject) {
-        this.extras = extras
-    }
 
-    fun getExtras(): JsonObject {
-        return extras
-    }
-
-    fun addExtra(name: String?, value: String?) {
-        extras.addProperty(name, value)
+    fun addExtra(name: String, value: String?) {
+        extras.put(name, value)
     }
 
     var tag: String?
@@ -72,6 +66,6 @@ class CredentialDefinitionFilters {
 
     init {
         tags = Tags("cred_def")
-        extras = JsonObject()
+        extras = JSONObject()
     }
 }

@@ -20,8 +20,8 @@ class Invitation(msg: String) : ConnProtocolMessage(msg) {
 
     fun recipientKeys(): List<String> {
         val res: MutableList<String> = ArrayList<String>()
-        if (getMessageObj().has("recipientKeys")) {
-            val jsonArr: JSONArray? = getMessageObj().getJSONArray("recipientKeys")
+        if (getMessageObjec().has("recipientKeys")) {
+            val jsonArr: JSONArray? = getMessageObjec().getJSONArray("recipientKeys")
             jsonArr?.let {
                 for (obj in jsonArr) {
                     res.add(obj as String)
@@ -32,25 +32,25 @@ class Invitation(msg: String) : ConnProtocolMessage(msg) {
     }
 
     fun endpoint(): String? {
-        return getMessageObj().optString("serviceEndpoint")
+        return getMessageObjec().optString("serviceEndpoint")
     }
 
     fun label(): String? {
-        return getMessageObj().optString("label")
+        return getMessageObjec().optString("label")
     }
 
     @Throws(SiriusValidationError::class)
     override fun validate() {
         super.validate()
-        if (!(getMessageObj().has("label") &&
-                    getMessageObj().has("recipientKeys") &&
-                    getMessageObj().has("serviceEndpoint"))
+        if (!(getMessageObjec().has("label") &&
+                    getMessageObjec().has("recipientKeys") &&
+                    getMessageObjec().has("serviceEndpoint"))
         ) throw SiriusValidationError("Attribute is missing")
     }
 
     fun invitationUrl(): String {
         val codec = StringCodec()
-        val b64Invite = codec.fromByteArrayToASCIIString(Base64.getUrlEncoder().encode(codec.fromASCIIStringToByteArray(getMessageObj().toString())))
+        val b64Invite = codec.fromByteArrayToASCIIString(Base64.getUrlEncoder().encode(codec.fromASCIIStringToByteArray(getMessageObjec().toString())))
         return "?c_i=$b64Invite"
     }
 

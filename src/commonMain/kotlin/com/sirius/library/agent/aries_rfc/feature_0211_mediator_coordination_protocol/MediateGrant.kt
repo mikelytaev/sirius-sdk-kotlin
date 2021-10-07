@@ -16,12 +16,12 @@ class MediateGrant(message: String) : CoordinateMediationMessage(message) {
     }
 
     val endpointAddress: String?
-        get() = getMessageObj().optString("endpoint")
+        get() = getMessageObjec().optString("endpoint")
     val routingKeys: List<String>
         get() {
             val res: MutableList<String> = ArrayList<String>()
-            if (getMessageObj().has("routing_keys")) {
-                val keys: JSONArray = getMessageObj().optJSONArray("routing_keys") ?: JSONArray()
+            if (getMessageObjec().has("routing_keys")) {
+                val keys: JSONArray = getMessageObjec().optJSONArray("routing_keys") ?: JSONArray()
                 for (o in keys) res.add(o as String)
             }
             return res

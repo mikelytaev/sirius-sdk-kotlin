@@ -1,3 +1,4 @@
+/*
 package com.sirius.library.naclJava
 
 import kotlin.jvm.Volatile
@@ -75,3 +76,4 @@ class LibSodium private constructor() {
         }
     }
 }
+*/

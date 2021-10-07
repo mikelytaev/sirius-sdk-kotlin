@@ -6,8 +6,6 @@ import com.sirius.library.utils.Base64
 import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 
 class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(message) {
     companion object {
@@ -28,9 +26,9 @@ class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
 
     @Throws(SiriusValidationError::class)
     fun parse(): ParseResult {
-        var offerAttaches: JSONArray? = getMessageObj()?.getJSONArray("offers~attach")
+        var offerAttaches: JSONArray? = getMessageObjec()?.getJSONArray("offers~attach")
         if (offerAttaches == null) {
-            val att: JSONObject? = getMessageObj()?.optJSONObject("offers~attach")
+            val att: JSONObject? = getMessageObjec()?.optJSONObject("offers~attach")
             if (att != null) {
                 offerAttaches = JSONArray()
                 offerAttaches.put(att)
@@ -98,7 +96,7 @@ class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
     }
 
     fun schema(): JSONObject? {
-        val attaches: JSONArray = getMessageObj().getJSONArray("~attach") ?: JSONArray()
+        val attaches: JSONArray = getMessageObjec().getJSONArray("~attach") ?: JSONArray()
         for (o in attaches) {
             val item: JSONObject = o as JSONObject
             if (item.optString("@type") == ISSUER_SCHEMA_TYPE) {
@@ -111,7 +109,7 @@ class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
     val credentialPreview: List<ProposedAttrib>
         get() {
             val res: MutableList<ProposedAttrib> = ArrayList<ProposedAttrib>()
-            val credentialPreview: JSONObject? = getMessageObj().optJSONObject("credential_preview")
+            val credentialPreview: JSONObject? = getMessageObjec().optJSONObject("credential_preview")
             if (credentialPreview != null) {
                 if (credentialPreview.optString("@type") == CREDENTIAL_PREVIEW_TYPE) {
                     val attribs: JSONArray? = credentialPreview.optJSONArray("attributes")
@@ -202,7 +200,7 @@ class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
                 val data = JSONObject()
                 val transArr = JSONArray()
                 for (trans in translation!!) {
-                    transArr.put(trans.getDict())
+                    transArr.put(trans.getDicti())
                 }
                 data.put("json", transArr)
                 attach.put("data", data)

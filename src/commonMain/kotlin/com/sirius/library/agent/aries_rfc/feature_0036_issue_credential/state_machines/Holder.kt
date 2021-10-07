@@ -41,7 +41,7 @@ class Holder(context: Context, issuer: Pairwise, masterSecretId: String?, locale
                         throw StateMachineTerminatedWithError(REQUEST_NOT_ACCEPTED, e.message ?:"")
                     }
                     // Step-1: Process Issuer Offer
-                    val (credRequest, credMetadata) = context.getAnonCreds()?.proverCreateCredentialReq(
+                    val (credRequest, credMetadata) = context.getAnonCredsi()?.proverCreateCredentialReq(
                         issuer.me.did, offer.offer(), offer.credDef(), masterSecretId
                     ) ?:Pair(null,null)
 
@@ -105,14 +105,14 @@ class Holder(context: Context, issuer: Pairwise, masterSecretId: String?, locale
         var credId = credId
         val credOrder: String?
         credOrder = try {
-            context.getAnonCreds().proverGetCredential(credId)
+            context.getAnonCredsi().proverGetCredential(credId)
         } catch (ex: WalletItemNotFoundException) {
             null
         }
         if (credOrder != null) {
-            context.getAnonCreds().proverDeleteCredential(credId)
+            context.getAnonCredsi().proverDeleteCredential(credId)
         }
-        credId = context.getAnonCreds()?.proverStoreCredential(credId, credMetadata, cred, credDef, revRegDef) ?: credId
+        credId = context.getAnonCredsi()?.proverStoreCredential(credId, credMetadata, cred, credDef, revRegDef) ?: credId
         return credId
     }
 

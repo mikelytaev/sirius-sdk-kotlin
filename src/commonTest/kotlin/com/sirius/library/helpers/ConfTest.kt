@@ -5,11 +5,8 @@ import com.sirius.library.agent.microledgers.AbstractMicroledger
 import com.sirius.library.agent.model.Entity
 import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.encryption.Custom
-import com.sirius.library.encryption.P2PConnection
-import com.sirius.library.errors.sirius_exceptions.SiriusCryptoError
 import com.sirius.library.models.AgentParams
 import com.sirius.library.models.P2PModel
-import com.sirius.library.rpc.AddressedTunnel
 import com.sirius.library.utils.*
 
 class ConfTest {
@@ -37,7 +34,7 @@ class ConfTest {
     }
 
     fun createP2P(): Pair<P2PModel, P2PModel>? {
-        try {
+        /*try {
             val codec = StringCodec()
             val keysAgent: KeyPair =
                 custom.createKeypair(codec.fromASCIIStringToByteArray("000000000000000000000000000AGENT"))
@@ -62,9 +59,7 @@ class ConfTest {
             return Pair(agentModel, sdkModel)
         } catch (siriusCryptoError: SiriusCryptoError) {
             siriusCryptoError.printStackTrace()
-        } catch (e: SodiumException) {
-            e.printStackTrace()
-        }
+        } */
         return null
     }
 
@@ -82,7 +77,7 @@ class ConfTest {
         val codec = StringCodec()
         return CloudAgent(
             params.serverAddress, codec.fromASCIIStringToByteArray(params.credentials),
-            params.getConnection(), 60, null, name
+            params.getConnectioni(), 60, null, name
         )
     }
 
@@ -127,10 +122,11 @@ class ConfTest {
     }
 
     fun ledgerName(): String {
-        val codec = StringCodec()
+      /*  val codec = StringCodec()
         return "Ledger-" + LazySodium.toHex(
             codec.fromASCIIStringToByteArray(UUID.randomUUID.toString())
-        )
+        )*/
+        return ""
     }
 
     fun defaultNetwork(): String {
@@ -141,13 +137,13 @@ class ConfTest {
         val suite: ServerTestSuite = suiteSingleton
         val myParams: AgentParams = suite.getAgentParams(me.name?:"")
         val theirParams: AgentParams = suite.getAgentParams(their.name?:"")
-        val myEntity: Entity = myParams.getEntitiesList().get(0)
-        val theirEntity: Entity = theirParams.getEntitiesList().get(0)
+        val myEntity: Entity = myParams.getEntitiesListi().get(0)
+        val theirEntity: Entity = theirParams.getEntitiesListi().get(0)
         val myEndpointAddress: String = ServerTestSuite.getFirstEndpointAddressWIthEmptyRoutingKeys(me)
         val theirEndpointAddress: String = ServerTestSuite.getFirstEndpointAddressWIthEmptyRoutingKeys(their)
         run {
-            var pairwise: Pairwise? = me.getPairwiseList()?.loadForDid(theirEntity.did)
-            val isFilled = pairwise != null && pairwise.getMetadata() != null
+            var pairwise: Pairwise? = me.getPairwiseListi()?.loadForDid(theirEntity.did)
+            val isFilled = pairwise != null && pairwise.getMetadatai() != null
             if (!isFilled) {
                 val me_ = Pairwise.Me(myEntity.did, myEntity.verkey)
                 val their_ = Pairwise.Their(
@@ -170,13 +166,13 @@ class ConfTest {
                         )
                 )
                 pairwise = Pairwise(me_, their_, metadata)
-                me.getWallet()?.did?.storeTheirDid(theirEntity.did, theirEntity.verkey)
-                me.getPairwiseList()?.ensureExists(pairwise)
+                me.getWalleti()?.did?.storeTheirDid(theirEntity.did, theirEntity.verkey)
+                me.getPairwiseListi()?.ensureExists(pairwise)
             }
         }
         run {
-            var pairwise: Pairwise? = their.getPairwiseList()?.loadForDid(theirEntity.did)
-            val isFilled = pairwise != null && pairwise?.getMetadata() != null
+            var pairwise: Pairwise? = their.getPairwiseListi()?.loadForDid(theirEntity.did)
+            val isFilled = pairwise != null && pairwise?.getMetadatai() != null
             if (!isFilled) {
                 val me_ = Pairwise.Me(theirEntity.did, theirEntity.verkey)
                 val their_ = Pairwise.Their(
@@ -199,13 +195,13 @@ class ConfTest {
                         )
                 )
                 pairwise = Pairwise(me_, their_, metadata)
-                their.getWallet()?.did?.storeTheirDid(myEntity.did, myEntity.verkey)
+                their.getWalleti()?.did?.storeTheirDid(myEntity.did, myEntity.verkey)
                 pairwise?.let {
-                    their.getPairwiseList()?.ensureExists(it)
+                    their.getPairwiseListi()?.ensureExists(it)
                 }
             }
         }
-        return me.getPairwiseList()!!.loadForDid(theirEntity.did)!!
+        return me.getPairwiseListi()!!.loadForDid(theirEntity.did)!!
     }
 
     companion object {

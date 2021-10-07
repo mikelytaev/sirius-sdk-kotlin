@@ -11,11 +11,11 @@ class AgentParams(
 ) {
     var connection: P2PConnection
     var entitiesList: List<Entity>
-    fun getConnection(): P2PConnection {
+    fun getConnectioni(): P2PConnection {
         return connection
     }
 
-    fun getEntitiesList(): List<Entity> {
+    fun getEntitiesListi(): List<Entity> {
         return entitiesList
     }
 

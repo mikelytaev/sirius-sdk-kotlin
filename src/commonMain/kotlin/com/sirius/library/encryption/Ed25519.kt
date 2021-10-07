@@ -1,12 +1,15 @@
 package com.sirius.library.encryption
 
 import com.sirius.library.errors.sirius_exceptions.SiriusCryptoError
+import com.sirius.library.errors.sirius_exceptions.SiriusFieldValueError
 import com.sirius.library.utils.JSONArray
+import com.sirius.library.utils.JSONObject
+import com.sirius.library.utils.KeyPair
 
 class Ed25519 {
-    var custom: Custom = Custom()
+    var custom: Custom = Custom
     fun ensureIsBytes(b58_or_bytes: String?): ByteArray {
-        return custom.b58ToBytes(b58_or_bytes)
+        return custom.b58ToBytes(b58_or_bytes!!)
     }
 
     /**
@@ -17,13 +20,13 @@ class Ed25519 {
      * @param from_sigkey: Sender Sigkey needed to authcrypt package
      * @return A tuple of (json result, key)
      */
-    @Throws(SiriusCryptoError::class, SodiumException::class)
+
     fun prepare_pack_recipient_keys(
         to_verkeys: List<ByteArray?>,
         from_verkey: ByteArray?,
         from_sigkey: ByteArray?
-    ): Pair<String, Key> {
-        if (from_verkey != null && from_sigkey == null || from_verkey == null && from_sigkey != null) {
+    ): Pair<String, KeyPair.Key> {
+        /*if (from_verkey != null && from_sigkey == null || from_verkey == null && from_sigkey != null) {
             throw SiriusCryptoError("Both verkey and sigkey needed to authenticated encrypt message")
         }
         val cek: Key = LibSodium.getInstance().getLazySecretStream().cryptoSecretStreamKeygen()
@@ -71,8 +74,8 @@ class Ed25519 {
         } else {
             data.put("alg", "Anoncrypt")
         }
-        data.put("recipients", recips)
-        return Pair(data.toString(), cek)
+        data.put("recipients", recips)*/
+        return Pair("data.toString()", KeyPair.Key())
     }
 
     /**
@@ -84,10 +87,10 @@ class Ed25519 {
      * @return bytes, str, str A tuple of (cek, sender_vk, recip_vk_b58)
      * @throws SiriusFieldValueError: If no corresponding recipient key found
      */
-    @Throws(SiriusFieldValueError::class, SodiumException::class)
+
     fun locate_pack_recipient_key(recipients: List<JSONObject?>, keyPair: KeyPair): DecryptModel {
         val not_found: MutableList<String> = ArrayList<String>()
-        for (recip in recipients) {
+        /*for (recip in recipients) {
             if (recip == null || !recip.has("header") || !recip.has("encrypted_key")) {
                 throw SiriusFieldValueError("Invalid recipient header")
             }
@@ -129,8 +132,8 @@ class Ed25519 {
                 cek = CryptoAead().cryptoBoxSealOpen(encrypted_key, convertedKeyPair)
             }
             return DecryptModel(cek, sender_vk!!, recip_vk_b58)
-        }
-        throw SiriusFieldValueError(String.format("No corresponding recipient key found in %s", not_found))
+        }*/
+        throw SiriusFieldValueError()
     }
 
     /**
@@ -142,9 +145,9 @@ class Ed25519 {
      * @return A tuple of (ciphertext, nonce, tag)
      */
     fun encryptPlaintext(
-        message: String, add_data: String?, key: Key?
+        message: String, add_data: String?, key: KeyPair.Key?
     ): EncryptModel {
-        val nonce: ByteArray =
+      /*  val nonce: ByteArray =
             LibSodium.getInstance().getLazySodium().randomBytesBuf(AEAD.CHACHA20POLY1305_IETF_NPUBBYTES)
         val bytesOutput: ByteArray =
             CryptoAead().encrypt(message, add_data, nonce, key, AEAD.Method.CHACHA20_POLY1305_IETF)
@@ -173,9 +176,9 @@ class Ed25519 {
             }
             bObj2.write(byteOut.toInt())
         }
-        val tag: ByteArray = bObj2.toByteArray()
+        val tag: ByteArray = bObj2.toByteArray()*/
         //String tag = output.substring(mlen);
-        return EncryptModel(ciphertext, nonce, tag)
+        return EncryptModel(ByteArray(0), ByteArray(0), ByteArray(0))
     }
 
     /**
@@ -188,11 +191,12 @@ class Ed25519 {
      * @return The decrypted string
      */
     fun decryptPlaintext(ciphertext: ByteArray?, recips_bin: ByteArray?, nonce: ByteArray?, key: ByteArray?): String {
-        val keys: Key = Key.fromBytes(key)
+      /*  val keys: Key = Key.fromBytes(key)
         val output: ByteArray =
             CryptoAead().decrypt(ciphertext, recips_bin, nonce, keys, AEAD.Method.CHACHA20_POLY1305_IETF)
         //String output = LibSodium.getInstance().getLazyAaed().decrypt(ciphertext, new String(recips_bin,StandardCharsets.US_ASCII), nonce, keys, AEAD.Method.CHACHA20_POLY1305_IETF);
-        return String(output, java.nio.charset.StandardCharsets.US_ASCII)
+        return String(output, java.nio.charset.StandardCharsets.US_ASCII)*/
+        return ""
     }
 
     /**
@@ -213,14 +217,14 @@ class Ed25519 {
     ) -> bytes:
     */
     //toVerkeys - LIST?
-    @Throws(SiriusCryptoError::class, SodiumException::class)
+
     fun packMessage(
         message: String,
         toVerkeys: List<String?>,
         fromVerkey: String?,
         fromSigkey: String?
     ): String {
-        val toVerKeysBytes: MutableList<ByteArray?> = ArrayList<ByteArray>()
+      /*  val toVerKeysBytes: MutableList<ByteArray> = ArrayList<ByteArray>()
         for (vk in toVerkeys) {
             val to_verkeys = ensureIsBytes(vk)
             toVerKeysBytes.add(to_verkeys)
@@ -237,8 +241,8 @@ class Ed25519 {
         jsonObject.put("protected", recips_b64)
         jsonObject.put("iv", nonce64)
         jsonObject.put("ciphertext", ciphertext64)
-        jsonObject.put("tag", tag64)
-        return jsonObject.toString()
+        jsonObject.put("tag", tag64)*/
+        return "jsonObject.toString()"
     }
 
     /**
@@ -256,9 +260,9 @@ class Ed25519 {
      * @throws Exception If the pack algorithm is unsupported
      * @throws Exception If the sender's public key was not provided
      */
-    @Throws(SiriusInvalidType::class)
+
     fun unpackMessage(encMessage: String?, myVerkey: String?, mySigkey: String?): UnpackModel {
-        val my_verkey = ensureIsBytes(myVerkey)
+       /* val my_verkey = ensureIsBytes(myVerkey)
         val my_sigkey = ensureIsBytes(mySigkey)
         val keyPair = KeyPair(Key.fromBytes(my_verkey), Key.fromBytes(my_sigkey))
         var error = ""
@@ -310,8 +314,12 @@ class Ed25519 {
             e.printStackTrace()
             throw SiriusInvalidType(error)
         }
-
-
+*/
+return UnpackModel(
+    "message",
+   " String(decryptModel.sender_vk, java.nio.charset.StandardCharsets.US_ASCII)",
+    "decryptModel.recip_vk_b58"
+)
         //   return null;
     }
 }

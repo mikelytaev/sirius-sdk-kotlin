@@ -16,21 +16,21 @@ class ProposeCredentialMessage(message: String) : BaseIssueCredentialMessage(mes
     }
 
     val schemaIssuerDid: String?
-        get() = getMessageObj()?.optString("schema_issuer_did")
+        get() = getMessageObjec()?.optString("schema_issuer_did")
     val schemaId: String?
-        get() = getMessageObj()?.optString("schema_id")
+        get() = getMessageObjec()?.optString("schema_id")
     val schemaName: String?
-        get() = getMessageObj()?.optString("schema_name")
+        get() = getMessageObjec()?.optString("schema_name")
     val schemaVersion: String?
-        get() = getMessageObj()?.optString("schema_version")
+        get() = getMessageObjec()?.optString("schema_version")
     val credDefId: String?
-        get() = getMessageObj()?.optString("cred_def_id")
+        get() = getMessageObjec()?.optString("cred_def_id")
     val issuerDid: String?
-        get() = getMessageObj()?.optString("issuer_did")
+        get() = getMessageObjec()?.optString("issuer_did")
     val credentialProposal: List<Any>
         get() {
             val res: MutableList<ProposedAttrib> = ArrayList<ProposedAttrib>()
-            val credentialProposal: JSONObject? = getMessageObj()?.optJSONObject("credential_proposal")
+            val credentialProposal: JSONObject? = getMessageObjec()?.optJSONObject("credential_proposal")
             if (credentialProposal != null) {
                 if (credentialProposal.optString("@type") == CREDENTIAL_PREVIEW_TYPE) {
                     val attribs: JSONArray? = credentialProposal?.optJSONArray("attributes")

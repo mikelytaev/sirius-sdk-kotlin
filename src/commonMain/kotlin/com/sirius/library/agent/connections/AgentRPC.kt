@@ -26,7 +26,7 @@ class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnectio
     BaseAgentConnection(serverAddress, credentials, p2p, timeout) {
     var endpoints: List<Endpoint>
     var networks: List<String>
-    var websockets: Map<String, WebSocket>
+    var websockets: Map<String, String>
     var preferAgentSide: Boolean
     lateinit var tunnelRpc: AddressedTunnel
     lateinit var tunnelCoprotocols: AddressedTunnel
@@ -110,8 +110,8 @@ class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnectio
         if (channel_sub_protocol == null) {
             throw RuntimeException("sub-protocol channel is empty")
         }
-        tunnelRpc = AddressedTunnel(channel_rpc, connector, connector, p2p)
-        tunnelCoprotocols = AddressedTunnel(channel_sub_protocol, connector, connector, p2p)
+        tunnelRpc = AddressedTunnel(channel_rpc, connector!!, connector!!, p2p!!)
+        tunnelCoprotocols = AddressedTunnel(channel_sub_protocol, connector!!, connector!!, p2p!!)
         //Extract active endpoints
         val endpointsArray: JSONArray? = context.getJSONArrayFromJSON("~endpoints", null)
         val endpointsCollection: MutableList<Endpoint> = ArrayList<Endpoint>()
@@ -182,7 +182,7 @@ class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnectio
         coprotocol: Boolean
     ): Message? {
         var routingKeys = routingKeys
-        if (!connector.isOpen) {
+        if (!connector!!.isOpen) {
             throw SiriusConnectionClosed("Open agent connection at first")
         }
         val paramsBuilder: RemoteParams.RemoteParamsBuilder = RemoteParams.RemoteParamsBuilder.create()
@@ -215,7 +215,7 @@ class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnectio
                 siriusRPCError.printStackTrace()
             }
         }
-        val ok = (response as Pair?)!!.first as Boolean
+        val ok = (response as Pair<*,*>)!!.first as Boolean
         val body = response!!.second as String
         if (!ok) {
             throw SiriusRPCError(body)
@@ -229,7 +229,7 @@ class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnectio
 
     @Throws(SiriusConnectionClosed::class)
     fun sendMessageBatched(message: Message?, batches: List<RoutingBatch>?): List<Pair<Boolean, String?>> {
-        if (!connector.isOpen) {
+        if (!connector!!.isOpen) {
             throw SiriusConnectionClosed("Open agent connection at first")
         }
         val params: RemoteParams = RemoteParams.RemoteParamsBuilder.create().add("message", message).add(
@@ -238,8 +238,8 @@ class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnectio
         ).add("batches", batches).build()
         try {
             val response = remoteCall("did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sirius_rpc/1.0/send_message_batched", params)
-            val jsonArr: JSONArray? = response as JSONArray?
-            val res: MutableList<Pair<Boolean, String>> = .ArrayList<Pair<Boolean, String>>()
+            val jsonArr: JSONArray = response as JSONArray? ?: JSONArray()
+            val res: MutableList<Pair<Boolean, String>> = ArrayList<Pair<Boolean, String>>()
             for (o in jsonArr) {
                 val internalArr: JSONArray = o as JSONArray
                 res.add(Pair(internalArr.getBoolean(0), internalArr.get(1).toString()))
@@ -358,7 +358,7 @@ class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnectio
     init {
         endpoints = ArrayList<Endpoint>()
         networks = ArrayList<String>()
-        websockets = HashMap<String, WebSocket>()
+        websockets = HashMap<String, String>()
         preferAgentSide = true
 
         //self.__connector = aiohttp.TCPConnector(verify_ssl = False, keepalive_timeout = 60)

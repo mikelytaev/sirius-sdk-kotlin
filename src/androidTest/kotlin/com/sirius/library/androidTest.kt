@@ -1,7 +1,8 @@
 package com.sirius.library
 
-import assertTrue
-import Test
+import junit.framework.Assert.assertTrue
+import org.junit.Test
+
 
 class AndroidGreetingTest {
 

@@ -33,7 +33,7 @@ class CoProtocolP2P(context: Context, pairwise: Pairwise, propocols: List<String
         val response: Message? = res.second
         if (res.first) {
             if (response?.messageObjectHasKey(PLEASE_ACK_DECORATOR)==true) {
-                threadId = response?.getMessageObj()?.getJSONObject(PLEASE_ACK_DECORATOR)?.optString("message_id") ?: ""
+                threadId = response?.getMessageObjec()?.getJSONObject(PLEASE_ACK_DECORATOR)?.optString("message_id") ?: ""
                 if (threadId.isEmpty()) threadId = message?.getId() ?:""
             } else {
                 threadId = ""
@@ -47,7 +47,7 @@ class CoProtocolP2P(context: Context, pairwise: Pairwise, propocols: List<String
             if (transport == null) {
                 transport = context.currentHub?.agentConnectionLazy?.spawn(pairwise)
                 transport?.protocols = protocols
-                transport?.setTimeToLiveSec(timeToLiveSec)
+                transport?.setTimeToLiveSeci(timeToLiveSec)
                 transport?.start()
                 started = true
             }
@@ -57,15 +57,15 @@ class CoProtocolP2P(context: Context, pairwise: Pairwise, propocols: List<String
     private fun setup(message: Message, pleaseAck: Boolean) {
         if (pleaseAck) {
             if (!message.messageObjectHasKey(PLEASE_ACK_DECORATOR)) {
-                message.getMessageObj()?.put(PLEASE_ACK_DECORATOR, JSONObject().put("message_id", message.getId()))
+                message.getMessageObjec()?.put(PLEASE_ACK_DECORATOR, JSONObject().put("message_id", message.getId()))
             }
         }
         if (!threadId.isEmpty()) {
-            var thread: JSONObject? = message.getMessageObj()?.optJSONObject(THREAD_DECORATOR)
+            var thread: JSONObject? = message.getMessageObjec()?.optJSONObject(THREAD_DECORATOR)
             thread = if (thread != null) thread else JSONObject()
             if (!thread.has("thid")) {
                 thread.put("thid", threadId)
-                message.getMessageObj()?.put(THREAD_DECORATOR, thread)
+                message.getMessageObjec()?.put(THREAD_DECORATOR, thread)
             }
         }
     }

@@ -23,8 +23,8 @@ class TestWallet {
         val agent2: CloudAgent = confTest.agent2()
         agent1.open()
         agent2.open()
-        val walletSender: AbstractWallet? = agent1.getWallet()
-        val walletRecipient: AbstractWallet? = agent2.getWallet()
+        val walletSender: AbstractWallet? = agent1.getWalleti()
+        val walletRecipient: AbstractWallet? = agent2.getWalleti()
         val verkeySender: String? = walletSender?.crypto?.createKey()
         val verkeyRecipient: String?= walletRecipient?.crypto?.createKey()
         assertNotNull(verkeySender)
@@ -56,8 +56,8 @@ class TestWallet {
         val agent2: CloudAgent = confTest.agent2()
         agent1.open()
         agent2.open()
-        val walletSigner: AbstractWallet? = agent1.getWallet()
-        val walletVerifier: AbstractWallet? = agent2.getWallet()
+        val walletSigner: AbstractWallet? = agent1.getWalleti()
+        val walletVerifier: AbstractWallet? = agent2.getWalleti()
         val keySigner: String? = walletSigner?.crypto?.createKey()
         val codec = StringCodec()
         val message: JSONObject = JSONObject()
@@ -80,27 +80,27 @@ class TestWallet {
         agent1.open()
 
         //1: Create Key
-        val randomKey: String? = agent1.getWallet()?.did?.createKey()
+        val randomKey: String? = agent1.getWalleti()?.did?.createKey()
         assertNotNull(randomKey)
 
         // 2: Set metadata
         val metadataObject: JSONObject = JSONObject()
         metadataObject.put("key1", "value1")
         metadataObject.put("key2", "value2")
-        agent1.getWallet()?.did?.setKeyMetadata(randomKey, metadataObject.toString())
-        val actualMetadata: String? = agent1.getWallet()?.did?.getKeyMetadata(randomKey)
+        agent1.getWalleti()?.did?.setKeyMetadata(randomKey, metadataObject.toString())
+        val actualMetadata: String? = agent1.getWalleti()?.did?.getKeyMetadata(randomKey)
         assertEquals(metadataObject.toString(), actualMetadata)
 
         // 3:  Create DID + Verkey
-        val (first)  = agent1.getWallet()?.did?.createAndStoreMyDid() ?: Pair("","")
-        val fully: String = agent1.getWallet()?.did?.qualifyDid(first, "peer") ?:"1"
+        val (first)  = agent1.getWalleti()?.did?.createAndStoreMyDid() ?: Pair("","")
+        val fully: String = agent1.getWalleti()?.did?.qualifyDid(first, "peer") ?:"1"
         assertTrue(fully.contains(first))
 
 
         // 4:  Replace verkey
-        val verkeyNew: String? = agent1.getWallet()?.did?.replaceKeysStart(fully)
+        val verkeyNew: String? = agent1.getWalleti()?.did?.replaceKeysStart(fully)
         assertNotNull(verkeyNew)
-        val metadataList: List<Any?> = agent1.getWallet()?.did?.listMyDidsWithMeta() ?: listOf<Any?>()
+        val metadataList: List<Any?> = agent1.getWalleti()?.did?.listMyDidsWithMeta() ?: listOf<Any?>()
         println("metadataList=$metadataList")
         assertNotNull(metadataList)
         var anyTempVerkey = false
@@ -115,8 +115,8 @@ class TestWallet {
             println("m=$m")
         }
         assertTrue(anyTempVerkey)
-        agent1.getWallet()?.did?.replaceKeysApply(fully)
-        val metadataList2: List<Any?> = agent1.getWallet()?.did?.listMyDidsWithMeta() ?: listOf()
+        agent1.getWalleti()?.did?.replaceKeysApply(fully)
+        val metadataList2: List<Any?> = agent1.getWalleti()?.did?.listMyDidsWithMeta() ?: listOf()
 
         //  assert any([m['verkey'] == verkey_new for m in metadata_list])
         assertNotNull(metadataList2)
@@ -131,7 +131,7 @@ class TestWallet {
             }
         }
         assertTrue(anyTempVerkey2)
-        val actualVerkey: String? = agent1.getWallet()?.did?.keyForLocalDid(fully)
+        val actualVerkey: String? = agent1.getWalleti()?.did?.keyForLocalDid(fully)
         assertEquals(verkeyNew, actualVerkey)
         agent1.close()
     }
@@ -142,8 +142,8 @@ class TestWallet {
         val agent2: CloudAgent = confTest.agent2()
         agent1.open()
         agent2.open()
-        val walletMe: AbstractWallet? = agent1.getWallet()
-        val walletTheir: AbstractWallet? = agent2.getWallet()
+        val walletMe: AbstractWallet? = agent1.getWalleti()
+        val walletTheir: AbstractWallet? = agent2.getWalleti()
         val (first, second) = walletMe?.did?.createAndStoreMyDid() ?: Pair("","")
         val (first1, second1) = walletTheir?.did?.createAndStoreMyDid() ?: Pair("","")
         walletMe?.did?.storeTheirDid(first1, second1)
@@ -171,10 +171,10 @@ class TestWallet {
         agent1.open()
         val value = "my-value-" + UUID.randomUUID.toString()
         val myId = "my-id-" + UUID.randomUUID.toString()
-        agent1.getWallet()?.nonSecrets?.addWalletRecord("type", myId, value)
+        agent1.getWalleti()?.nonSecrets?.addWalletRecord("type", myId, value)
         val opts = RetrieveRecordOptions()
         opts.checkAll()
-        val valueInfo: String? = agent1.getWallet()?.nonSecrets?.getWalletRecord("type", myId, opts)
+        val valueInfo: String? = agent1.getWalleti()?.nonSecrets?.getWalletRecord("type", myId, opts)
         assertNotNull(valueInfo)
         val valueInfoObject: JSONObject = JSONObject(valueInfo)
         assertEquals(myId, valueInfoObject.getString("id"))
@@ -185,11 +185,11 @@ class TestWallet {
         assertEquals(value, valueInfoObject.getString("value"))
         assertEquals("type", valueInfoObject.getString("type"))
         val valueNew = "my-new-value-" + UUID.randomUUID.toString()
-        agent1.getWallet()?.nonSecrets?.updateWalletRecordValue("type", myId, valueNew)
-        val valueInfoNew: String? = agent1.getWallet()?.nonSecrets?.getWalletRecord("type", myId, opts)
+        agent1.getWalleti()?.nonSecrets?.updateWalletRecordValue("type", myId, valueNew)
+        val valueInfoNew: String? = agent1.getWalleti()?.nonSecrets?.getWalletRecord("type", myId, opts)
         val valueInfoObjectNew: JSONObject = JSONObject(valueInfoNew)
         assertEquals(valueNew, valueInfoObjectNew.getString("value"))
-        agent1.getWallet()?.nonSecrets?.deleteWalletRecord("type", myId)
+        agent1.getWalleti()?.nonSecrets?.deleteWalletRecord("type", myId)
         agent1.close()
     }
 
@@ -202,10 +202,10 @@ class TestWallet {
         val tags: JSONObject = JSONObject()
         tags.put("tag1", "val1")
         tags.put("~tag2", "val2")
-        agent1.getWallet()?.nonSecrets?.addWalletRecord("type", myId, value, tags.toString())
+        agent1.getWalleti()?.nonSecrets?.addWalletRecord("type", myId, value, tags.toString())
         val opts = RetrieveRecordOptions()
         opts.checkAll()
-        val valueInfo: String? = agent1.getWallet()?.nonSecrets?.getWalletRecord("type", myId, opts)
+        val valueInfo: String? = agent1.getWalleti()?.nonSecrets?.getWalletRecord("type", myId, opts)
         val valueInfoObject: JSONObject = JSONObject(valueInfo)
         assertEquals(myId, valueInfoObject.getString("id"))
         assertEquals(tags.toString(), valueInfoObject.optJSONObject("tags").toString())
@@ -213,20 +213,20 @@ class TestWallet {
         assertEquals("type", valueInfoObject.getString("type"))
         val updTags: JSONObject = JSONObject()
         updTags.put("ext-tag", "val3")
-        agent1.getWallet()?.nonSecrets?.updateWalletRecordTags("type", myId, updTags.toString())
-        val valueInfoNew: String? = agent1.getWallet()?.nonSecrets?.getWalletRecord("type", myId, opts)
+        agent1.getWalleti()?.nonSecrets?.updateWalletRecordTags("type", myId, updTags.toString())
+        val valueInfoNew: String? = agent1.getWalleti()?.nonSecrets?.getWalletRecord("type", myId, opts)
         val valueInfoNewObject: JSONObject = JSONObject(valueInfoNew)
         assertEquals(updTags.toString(), valueInfoNewObject.optJSONObject("tags").toString())
-        agent1.getWallet()?.nonSecrets?.addWalletRecordTags("type", myId, tags.toString())
-        val valueInfoNew2: String? = agent1.getWallet()?.nonSecrets?.getWalletRecord("type", myId, opts)
+        agent1.getWalleti()?.nonSecrets?.addWalletRecordTags("type", myId, tags.toString())
+        val valueInfoNew2: String? = agent1.getWalleti()?.nonSecrets?.getWalletRecord("type", myId, opts)
         val valueInfoNew2Object: JSONObject = JSONObject(valueInfoNew2)
         updTags.put("tag1", "val1")
         updTags.put("~tag2", "val2")
         assertEquals(updTags.toString(), valueInfoNew2Object.optJSONObject("tags").toString())
         val tagsList: MutableList<String> = ArrayList<String>()
         tagsList.add("ext-tag")
-        agent1.getWallet()?.nonSecrets?.deleteWalletRecord("type", myId, tagsList)
-        val valueInfoNew3: String? = agent1.getWallet()?.nonSecrets?.getWalletRecord("type", myId, opts)
+        agent1.getWalleti()?.nonSecrets?.deleteWalletRecord("type", myId, tagsList)
+        val valueInfoNew3: String? = agent1.getWalleti()?.nonSecrets?.getWalletRecord("type", myId, opts)
         val valueInfoNew3Object: JSONObject = JSONObject(valueInfoNew3)
         assertEquals(tags.toString(), valueInfoNew3Object.optJSONObject("tags").toString())
         agent1.close()
@@ -238,10 +238,10 @@ class TestWallet {
         agent1.open()
         val value = "my-value-" + UUID.randomUUID.toString()
         val myId = "my-id-" + UUID.randomUUID.toString()
-        agent1.getWallet()?.nonSecrets?.addWalletRecord("type", myId, value)
+        agent1.getWalleti()?.nonSecrets?.addWalletRecord("type", myId, value)
         val opts = RetrieveRecordOptions()
         opts.checkAll()
-        val valueInfo: String? = agent1.getWallet()?.nonSecrets?.getWalletRecord("type", myId, opts)
+        val valueInfo: String? = agent1.getWalleti()?.nonSecrets?.getWalletRecord("type", myId, opts)
         val valueInfoObject: JSONObject = JSONObject(valueInfo)
         assertEquals(myId, valueInfoObject.getString("id"))
         assertEquals(
@@ -253,14 +253,14 @@ class TestWallet {
         val tags1: JSONObject = JSONObject()
         tags1.put("tag1", "val1")
         tags1.put("~tag2", "val2")
-        agent1.getWallet()?.nonSecrets?.updateWalletRecordTags("type", myId, tags1.toString())
-        val valueInfo1: String? = agent1.getWallet()?.nonSecrets?.getWalletRecord("type", myId, opts)
+        agent1.getWalleti()?.nonSecrets?.updateWalletRecordTags("type", myId, tags1.toString())
+        val valueInfo1: String? = agent1.getWalleti()?.nonSecrets?.getWalletRecord("type", myId, opts)
         val valueInfo1Object: JSONObject = JSONObject(valueInfo1)
         assertEquals(tags1.toString(), valueInfo1Object.optJSONObject("tags").toString())
         val tags2: JSONObject = JSONObject()
         tags1.put("tag3", "val3")
-        agent1.getWallet()?.nonSecrets?.updateWalletRecordTags("type", myId, tags2.toString())
-        val valueInfo2: String? = agent1.getWallet()?.nonSecrets?.getWalletRecord("type", myId, opts)
+        agent1.getWalleti()?.nonSecrets?.updateWalletRecordTags("type", myId, tags2.toString())
+        val valueInfo2: String? = agent1.getWalleti()?.nonSecrets?.getWalletRecord("type", myId, opts)
         val valueInfo2Object: JSONObject = JSONObject(valueInfo2)
         assertEquals(tags2.toString(), valueInfo2Object.optJSONObject("tags").toString())
         agent1.close()
@@ -286,11 +286,11 @@ class TestWallet {
         tags2.put("tag3", "val3")
         tags2.put("~tag4", value2)
         tags2.put("marker", markerB)
-        agent1.getWallet()?.nonSecrets?.addWalletRecord("type", id1, "value1", tags1.toString())
-        agent1.getWallet()?.nonSecrets?.addWalletRecord("type", id2, "value2", tags2.toString())
+        agent1.getWalleti()?.nonSecrets?.addWalletRecord("type", id1, "value1", tags1.toString())
+        agent1.getWalleti()?.nonSecrets?.addWalletRecord("type", id2, "value2", tags2.toString())
         val query: JSONObject = JSONObject()
         query.put("tag1", value1)
-        val (searchList, second) = agent1.getWallet()?.nonSecrets?.walletSearch("type", query.toString(), opts) ?: Pair(
+        val (searchList, second) = agent1.getWalleti()?.nonSecrets?.walletSearch("type", query.toString(), opts) ?: Pair(
             listOf(),0)
         println("searchList=$searchList")
         println("recordsTotal.second=$second")
@@ -307,11 +307,11 @@ class TestWallet {
         queryArr.put(querytag1)
         queryArr.put(querytag2)
         queryNew.put("\$or", queryArr)
-        val (searchList2, second1) = agent1.getWallet()?.nonSecrets?.walletSearch("type", queryNew.toString(), opts) ?: Pair(
+        val (searchList2, second1) = agent1.getWalleti()?.nonSecrets?.walletSearch("type", queryNew.toString(), opts) ?: Pair(
             listOf(),0)
         assertEquals(searchList2.size, 1)
         assertEquals(second1, 2)
-        val (first, second2) = agent1.getWallet()?.nonSecrets?.walletSearch("type", queryNew.toString(), opts, 1000) ?: Pair(
+        val (first, second2) = agent1.getWalleti()?.nonSecrets?.walletSearch("type", queryNew.toString(), opts, 1000) ?: Pair(
             listOf(), 0)
         assertEquals(first.size, 2)
         assertEquals(second2, 2)
@@ -322,7 +322,7 @@ class TestWallet {
         queryArr1.put(markerB)
         queryArg.put("\$in", queryArr1)
         queryNew1.put("marker", queryArg)
-        val (_, second3) = agent1.getWallet()?.nonSecrets?.walletSearch("type", queryNew1.toString(), opts, 1000) ?:Pair(
+        val (_, second3) = agent1.getWalleti()?.nonSecrets?.walletSearch("type", queryNew1.toString(), opts, 1000) ?:Pair(
             listOf(),0)
         assertEquals(second3 , 2)
         agent1.close()
@@ -333,17 +333,17 @@ class TestWallet {
         val agent2: CloudAgent = confTest.agent2()
         agent2.open()
         val seed = "000000000000000000000000Trustee1"
-        val (first) = agent2.getWallet()?.did?.createAndStoreMyDid(null, seed) ?: Pair("","")
+        val (first) = agent2.getWalleti()?.did?.createAndStoreMyDid(null, seed) ?: Pair("","")
         val schema_name = "schema_" + UUID.randomUUID.toString()
         val attibutes: MutableList<String> = ArrayList<String>()
         attibutes.add("attr1")
         attibutes.add("attr2")
         attibutes.add("attr3")
-        val schemaIdSchema: Pair<String?, AnonCredSchema?> = agent2.getWallet()?.anoncreds?.issuerCreateSchema(
+        val schemaIdSchema: Pair<String?, AnonCredSchema?> = agent2.getWalleti()?.anoncreds?.issuerCreateSchema(
             first, schema_name, "1.0", attibutes
         )  ?: Pair(null,null)
         println("schemaIdSchema=$schemaIdSchema")
-        val response: Pair<Boolean?, String?> = agent2.getWallet()?.ledger?.registerSchema(
+        val response: Pair<Boolean?, String?> = agent2.getWalleti()?.ledger?.registerSchema(
             confTest.defaultNetwork(),
             first, schemaIdSchema.second
         )?: Pair(null,null)
@@ -358,25 +358,25 @@ class TestWallet {
         val defaultNetwork: String = confTest.defaultNetwork()
         agent2.open()
         val seed = "000000000000000000000000Trustee1"
-        val (first) = agent2.getWallet()?.did?.createAndStoreMyDid(null, seed) ?: Pair("","")
+        val (first) = agent2.getWalleti()?.did?.createAndStoreMyDid(null, seed) ?: Pair("","")
         val schemaName = "schema_" + UUID.randomUUID.toString()
-        val (first1, second) = agent2.getWallet()?.anoncreds?.issuerCreateSchema(
+        val (first1, second) = agent2.getWalleti()?.anoncreds?.issuerCreateSchema(
             first, schemaName, "1.0", "attr1", "attr2", "attr3"
         ) ?: Pair(null,null)
-        val (first2) = agent2.getWallet()?.ledger?.registerSchema(
+        val (first2) = agent2.getWalleti()?.ledger?.registerSchema(
             defaultNetwork,
             first, second
         )?: Pair(null,null)
         assertTrue(first2==true)
         val opt = CacheOptions()
-        val schemaForLedger: String? = agent2.getWallet()?.cache?.getSchema(
+        val schemaForLedger: String? = agent2.getWalleti()?.cache?.getSchema(
             defaultNetwork,
             first, first1, opt
         )
-        val (_, second1) = agent2.getWallet()?.anoncreds?.issuerCreateAndStoreCredentialDef(
+        val (_, second1) = agent2.getWalleti()?.anoncreds?.issuerCreateAndStoreCredentialDef(
             first, JSONObject(schemaForLedger), "TAG"
         )?: Pair(null,null)
-        val (first3) = agent2.getWallet()?.ledger?.registerCredDef(
+        val (first3) = agent2.getWalleti()?.ledger?.registerCredDef(
             defaultNetwork,
             first, JSONObject(second1)
         )?: Pair(null,null)
@@ -391,8 +391,8 @@ class TestWallet {
         agent1.open()
         agent2.open()
         try {
-            val steward: AbstractWallet? = agent1.getWallet()
-            val actor: AbstractWallet? = agent2.getWallet()
+            val steward: AbstractWallet? = agent1.getWalleti()
+            val actor: AbstractWallet? = agent2.getWalleti()
             val seed = "000000000000000000000000Steward1"
             val (first) = steward?.did?.createAndStoreMyDid(null, seed) ?: Pair("","")
             val (first1, second) = actor?.did?.createAndStoreMyDid()?: Pair("","")
@@ -460,8 +460,8 @@ class TestWallet {
         val agent2: CloudAgent = confTest.agent2()
         agent1.open()
         agent2.open()
-        val steward: AbstractWallet? = agent1.getWallet()
-        val actor: AbstractWallet? = agent2.getWallet()
+        val steward: AbstractWallet? = agent1.getWalleti()
+        val actor: AbstractWallet? = agent2.getWalleti()
         val seed = "000000000000000000000000Steward1"
         val (first) = steward?.did?.createAndStoreMyDid(null, seed) ?: Pair("","")
         val (first1, second) = actor?.did?.createAndStoreMyDid()?: Pair("","")

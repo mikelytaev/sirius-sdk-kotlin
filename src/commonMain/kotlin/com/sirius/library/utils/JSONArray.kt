@@ -74,4 +74,13 @@ open class JSONArray : Iterable<Any> {
 
 
     }
+
+    fun getBoolean(i: Int): Boolean {
+        return false
+    }
+
+    fun remove(i: Int) {
+
+
+    }
 }

@@ -13,7 +13,7 @@ object Utils {
     }
 
     fun sign(crypto: AbstractCrypto, value: Any?, verkey: String?, excludeSigData: Boolean): JSONObject {
-        val codec = StringCodec()
+       /* val codec = StringCodec()
         val timestampBytes: ByteArray =
             java.nio.ByteBuffer.allocate(8).putLong(Date().time / 1000).array()
 
@@ -27,7 +27,9 @@ object Utils {
                 .put("signer", verkey).put("signature", signature)
         if (!excludeSigData) {
             data.put("sig_data", sigSata)
-        }
+        }*/
+        val data: JSONObject =
+            JSONObject()
         return data
     }
 
@@ -38,13 +40,13 @@ object Utils {
     fun verifySigned(crypto: AbstractCrypto, signed: JSONObject): Pair<String, Boolean> {
         val codec = StringCodec()
 
-        val signatureBytes: ByteArray = Base64.getUrlDecoder()
+      /*  val signatureBytes: ByteArray = Base64.getUrlDecoder()
             .decode(codec.fromASCIIStringToByteArray(signed.optString("signature")))
         val sigDataBytes: ByteArray = Base64.getUrlDecoder()
             .decode(codec.fromASCIIStringToByteArray(signed.optString("sig_data")))
         val sigVerified: Boolean = crypto.cryptoVerify(signed.optString("signer"), sigDataBytes, signatureBytes)
         val dataBytes: ByteArray = Base64.getUrlDecoder().decode(signed.optString("sig_data")?:"")
-        val field = codec.fromByteArrayToASCIIString(java.util.Arrays.copyOfRange(dataBytes, 8, dataBytes.size))
-        return Pair(field, sigVerified)
+        val field = codec.fromByteArrayToASCIIString(java.util.Arrays.copyOfRange(dataBytes, 8, dataBytes.size))*/
+        return Pair("field", false)
     }
 }

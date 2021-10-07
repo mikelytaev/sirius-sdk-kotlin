@@ -13,7 +13,7 @@ open class BaseTransactionsMessage(msg: String) : SimpleConsensusMessage(msg) {
     }
 
     fun transactions(): List<Transaction>? {
-        val trArr: JSONArray? = getMessageObj().optJSONArray("transactions")
+        val trArr: JSONArray? = getMessageObjec().optJSONArray("transactions")
         if (trArr != null) {
             val res: MutableList<Transaction> = ArrayList<Transaction>()
             for (o in trArr) {
@@ -26,7 +26,7 @@ open class BaseTransactionsMessage(msg: String) : SimpleConsensusMessage(msg) {
 
     val state: MicroLedgerState?
         get() {
-            val jsonState: JSONObject? = getMessageObj().optJSONObject("state")
+            val jsonState: JSONObject? = getMessageObjec().optJSONObject("state")
             if (jsonState != null) {
                 val state = MicroLedgerState(jsonState)
                 if (state.isFilled) return state
@@ -34,7 +34,7 @@ open class BaseTransactionsMessage(msg: String) : SimpleConsensusMessage(msg) {
             return null
         }
     val hash: String?
-        get() = getMessageObj().optString("hash", null)
+        get() = getMessageObjec().optString("hash", null)
 
     abstract class Builder<B : Builder<B>> protected constructor() :
         SimpleConsensusMessage.Builder<B>() {

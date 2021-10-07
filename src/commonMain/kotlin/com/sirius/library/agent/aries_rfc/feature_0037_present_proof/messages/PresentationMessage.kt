@@ -18,7 +18,7 @@ class PresentationMessage(msg: String) : BasePresentProofMessage(msg) {
     }
 
     fun proof(): JSONObject {
-        val obj: Any? = getMessageObj().get("presentations~attach")
+        val obj: Any? = getMessageObjec().get("presentations~attach")
         var attach: JSONObject? = null
         if (obj is JSONArray && !(obj as JSONArray).isEmpty()) {
             attach = (obj as JSONArray).getJSONObject(0)

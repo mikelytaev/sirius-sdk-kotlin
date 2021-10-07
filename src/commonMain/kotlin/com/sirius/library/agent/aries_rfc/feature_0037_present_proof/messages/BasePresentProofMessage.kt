@@ -5,7 +5,7 @@ import com.sirius.library.utils.JSONObject
 
 open class BasePresentProofMessage(msg: String) : AriesProtocolMessage(msg) {
     val comment: String?
-        get() = this.getMessageObj()?.getString("comment")
+        get() = this.getMessageObjec()?.getString("comment")
 
     abstract class Builder<B : Builder<B>> protected constructor() :
         AriesProtocolMessage.Builder<B>() {

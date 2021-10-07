@@ -1,3 +1,4 @@
+/*
 package com.examples.covid
 
 import com.sirius.library.agent.model.Entity
@@ -160,3 +161,4 @@ object Main {
         )
     }
 }
+*/

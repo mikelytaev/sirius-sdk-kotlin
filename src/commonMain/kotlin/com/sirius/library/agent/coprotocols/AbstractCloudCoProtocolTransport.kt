@@ -5,7 +5,6 @@ import com.sirius.library.agent.connections.RoutingBatch
 import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.errors.sirius_exceptions.*
 import com.sirius.library.messaging.Message
-import com.sirius.library.messaging.Type
 import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONObject
 
@@ -87,14 +86,14 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
 
     private fun cleanupContext(message: Message) {
         if (message.messageObjectHasKey(PLEASE_ACK_DECORATOR)) {
-            val ackMessageId: String
+          /*  val ackMessageId: String
             ackMessageId =
                 if (message.getJSONOBJECTFromJSON(PLEASE_ACK_DECORATOR)?.has("message_id")
                 ) message.getJSONOBJECTFromJSON(
                     PLEASE_ACK_DECORATOR
                 ).getString("message_id") else message.getId()
             rpc.stopProtocolWithThreads(pleaseAckIds, true)
-            pleaseAckIds.removeIf(java.util.function.Predicate<String> { ackId: String -> ackId == ackMessageId })
+            pleaseAckIds.removeIf(java.util.function.Predicate<String> { ackId: String -> ackId == ackMessageId })*/
         }
     }
 
@@ -105,7 +104,7 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
 
     private fun setupContext(message: Message) {
         if (message.messageObjectHasKey(PLEASE_ACK_DECORATOR)) {
-            val ackMessageId: String
+          /*  val ackMessageId: String
             ackMessageId =
                 if (message.getJSONOBJECTFromJSON(PLEASE_ACK_DECORATOR)
                         .has("message_id")
@@ -114,20 +113,20 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
                 ).getString("message_id") else message.getId()
             val ttl: Int = this.timeToLiveSec
             rpc.startProtocolWithThreads(listOf(ackMessageId), ttl)
-            pleaseAckIds.add(ackMessageId)
+            pleaseAckIds.add(ackMessageId)*/
         }
     }
 
     @Throws(SiriusPendingOperation::class, SiriusInvalidPayloadStructure::class, SiriusInvalidMessage::class)
-    override fun sendAndWait(message: Message): Pair<Boolean, Message> {
+    override fun sendAndWait(message: Message): Pair<Boolean, Message?> {
         if (!isSetup) {
             throw SiriusPendingOperation("You must Setup protocol instance at first")
         }
-        rpc.setTimeout(timeToLiveSec)
+        rpc.setTimeouti(timeToLiveSec)
         setupContext(message)
         var event: Message? = null
         try {
-            event = rpc.sendMessage(message, listOf(theirVK), endpoint, myVerkey, routingKeys, true)
+            event = rpc.sendMessage(message, listOf(theirVK), endpoint!!, myVerkey, routingKeys, true)
         } catch (siriusConnectionClosed: SiriusConnectionClosed) {
             siriusConnectionClosed.printStackTrace()
         } catch (siriusRPCError: SiriusRPCError) {
@@ -136,8 +135,8 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
             cleanupContext(message)
         }
         if (checkVerkeys) {
-            val recipientVerkey: String = event.getStringFromJSON("recipient_verkey")
-            val senderVerkey: String = event.getStringFromJSON("sender_verkey")
+            val recipientVerkey: String? = event?.getStringFromJSON("recipient_verkey")
+            val senderVerkey: String? = event?.getStringFromJSON("sender_verkey")
             if (recipientVerkey != myVerkey) {
                 throw SiriusInvalidPayloadStructure("Unexpected recipient_verkey: $recipientVerkey")
             }
@@ -146,17 +145,11 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
             }
         }
         val payload: JSONObject? = event?.getJSONOBJECTFromJSON("message")
-        return if (payload != null) {
-            var okMsg: Pair<Boolean, Message> = Pair(false, null)
+      /*  return if (payload != null) {
+            var okMsg: Pair<Boolean, Message?> = Pair(false, null)
             try {
                 okMsg = Message.restoreMessageInstance(payload.toString())
-            } catch (e: java.lang.NoSuchMethodException) {
-                e.printStackTrace()
-            } catch (e: java.lang.IllegalAccessException) {
-                e.printStackTrace()
-            } catch (e: java.lang.reflect.InvocationTargetException) {
-                e.printStackTrace()
-            } catch (e: java.lang.InstantiationException) {
+            } catch (e:Exception) {
                 e.printStackTrace()
             }
             if (!okMsg.first) {
@@ -176,42 +169,43 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
             okMsg
         } else {
             Pair(false, null)
-        }
+        }*/
+        return   Pair(false, null)
     }
 
     @get:Throws(SiriusInvalidPayloadStructure::class)
-    val one: GetOneResult
+    override val one: GetOneResult
         get() {
-            val event: Message = rpc.readProtocolMessage()
+            val event: Message? = rpc.readProtocolMessage()
             var message: Message? = null
-            if (event.messageObjectHasKey("message")) {
+            if (event?.messageObjectHasKey("message")==true) {
                 try {
                     val (first, second) = Message.restoreMessageInstance(
-                        event.getMessageObj().get("message").toString()
+                        event.getMessageObjec().get("message").toString()
                     )
                     if (first) {
                         message = second
                     } else {
-                        message = Message(event.getMessageObj().getJSONObject("message"))
+                        //message = Message(event?.getMessageObj()?.getJSONObject("message")?:"")
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
-            val senderVerkey: String? = event.getMessageObj().optString("sender_verkey", null)
-            val recipientVerkey: String? = event.getMessageObj().optString("recipient_verkey", null)
-            return GetOneResult(message, senderVerkey, recipientVerkey)
+            val senderVerkey: String? = event?.getMessageObjec()?.optString("sender_verkey", null)
+            val recipientVerkey: String? = event?.getMessageObjec()?.optString("recipient_verkey", null)
+            return GetOneResult(message!!, senderVerkey!!, recipientVerkey!!)
         }
 
     @Throws(SiriusPendingOperation::class)
-    open fun send(message: Message) {
+    override fun send(message: Message) {
         if (!isSetup) {
             throw SiriusPendingOperation("You must Setup protocol instance at first")
         }
-        rpc.setTimeout(timeToLiveSec)
+        rpc.setTimeouti(timeToLiveSec)
         setupContext(message)
         try {
-            rpc.sendMessage(message, listOf(theirVK), endpoint, myVerkey, routingKeys, false)
+            rpc.sendMessage(message, listOf(theirVK), endpoint!!, myVerkey, routingKeys, false)
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
@@ -235,7 +229,7 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
         if (!isSetup) {
             throw SiriusPendingOperation("You must Setup protocol instance at first")
         }
-        rpc.setTimeout(timeToLiveSec)
+        rpc.setTimeouti(timeToLiveSec)
         setupContext(message)
         try {
             return rpc.sendMessageBatched(message, batches)

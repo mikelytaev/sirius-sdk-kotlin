@@ -18,14 +18,14 @@ class Ledger(
     var storage: AbstractImmutableCollection
     var db: String
     fun loadSchema(id: String?, submitterDid: String?): Schema {
-        val schemaString: String = cache.getSchema(name, submitterDid, id, CacheOptions())
+        val schemaString: String = cache.getSchema(name, submitterDid, id, CacheOptions())  ?:""
         return Schema(schemaString)
     }
 
     fun loadCredDef(id: String?, submitterDid: String?): CredentialDefinition? {
-        val credDef: String = cache.getCredDef(name, submitterDid, id, CacheOptions())
+        val credDef: String = cache.getCredDef(name, submitterDid, id, CacheOptions()) ?:""
         val credentialDefinition = CredentialDefinition().deserialize(credDef)
-        val tag: String = credentialDefinition.tag
+        val tag: String? = credentialDefinition.tag
         return null
     }
 
@@ -69,7 +69,7 @@ class Ledger(
 
    */
     fun registerSchema(schema: AnonCredSchema?, submitterDid: String?): Pair<Boolean, Schema?> {
-        val (first, second) = api.registerSchema(name, submitterDid, schema)
+      /*  val (first, second) = api.registerSchema(name, submitterDid, schema)
         val txnResponse: JsonObject = GsonUtils.toJsonObject(second)
         if (first && "REPLY" == txnResponse.get("op").getAsString()) {
             val body: String = schema.serialize()
@@ -87,13 +87,13 @@ class Ledger(
                     java.util.logging.Logger.getGlobal().log(java.util.logging.Level.WARNING, reasonStr)
                 }
             }
-        }
+        }*/
         return Pair(false, null)
     }
 
     fun ensureExistInStorage(entity: Schema, submitter_did: String?) {
         //   await self._storage.select_db(self.__db)
-        storage.selectDb(db)
+      /*  storage.selectDb(db)
         val tagObject = JsonObject()
         tagObject.addProperty("id", entity.getId())
         tagObject.addProperty("category", "schema")
@@ -106,11 +106,11 @@ class Ledger(
             tagUpdate.addProperty("submitter_did", submitter_did)
             GsonUtils.updateJsonObject(tagObject, tagUpdate)
             storage.add(entity.serializeToJsonObject().toString(), tagObject.toString())
-        }
+        }*/
     }
 
-    fun ensureExistInStorage(entity: CredentialDefinition, searchTags: JsonObject?) {
-        storage.selectDb(db)
+    fun ensureExistInStorage(entity: CredentialDefinition, searchTags: JSONObject?) {
+      /*  storage.selectDb(db)
         val tagObject = JsonObject()
         tagObject.addProperty("id", entity.getId())
         tagObject.addProperty("seq_no", java.lang.String.valueOf(entity.getSeqNo()))
@@ -127,15 +127,15 @@ class Ledger(
                 GsonUtils.updateJsonObject(tagObject, searchTags)
             }
             storage.add(entity.serialize(), tagObject.toString())
-        }
+        }*/
     }
 
-    fun ensureExistInStorage(entity: CredentialDefinition?) {
+    fun ensureExistInStorage(entity: CredentialDefinition) {
         ensureExistInStorage(entity, null)
     }
 
     fun ensureSchemaExists(schema: AnonCredSchema, submitterDid: String?): Schema? {
-        try {
+     /*   try {
             val schemaString: String = cache.getSchema(name, submitterDid, schema.getId(), CacheOptions())
             val ledgerSchema = Schema(schemaString)
             ensureExistInStorage(ledgerSchema, submitterDid)
@@ -146,19 +146,19 @@ class Ledger(
             if (first) {
                 return second
             }
-        }
+        }*/
         return null
     }
 
     fun fetchSchemas(id: String?, name: String?, version: String?, submitterDid: String?): List<Schema> {
-        val filters = SchemaFilters()
+     /*   val filters = SchemaFilters()
         filters.setId(id)
         filters.setName(name)
         filters.setVersion(version)
-        filters.setSubmitterDid(submitterDid)
-        val results: Pair<List<Any>, Int> = storage.fetch(filters.getTags().serialize())
+        filters.setSubmitterDid(submitterDid)*/
+       // val results: Pair<List<Any>, Int> = storage.fetch(filters.getTags().serialize())
         val schemaList: MutableList<Schema> = ArrayList<Schema>()
-        if (results != null) {
+      /*  if (results != null) {
             val objects = results.first
             for (i in objects.indices) {
                 val ob = objects[i]
@@ -167,7 +167,7 @@ class Ledger(
                     schemaList.add(schema)
                 }
             }
-        }
+        }*/
         return schemaList
     }
 
@@ -192,7 +192,7 @@ class Ledger(
         submitterDid: String?,
         tags: JSONObject?
     ): Pair<Boolean, CredentialDefinition?> {
-        val (_, body) = issuer.issuerCreateAndStoreCredentialDef(
+       /* val (_, body) = issuer.issuerCreateAndStoreCredentialDef(
             submitterDid,
             credDef.getSchema().serializeToJSONObject(),
             credDef.getTag(),
@@ -213,8 +213,8 @@ class Ledger(
             Gson().fromJson(body, JsonObject::class.java),
             respJson.getJSONObject("result").getJSONObject("txnMetadata").getInt("seqNo")
         )
-        ensureExistInStorage(legderCredDef, tags)
-        return Pair(true, legderCredDef)
+        ensureExistInStorage(legderCredDef, tags)*/
+        return Pair(true, null)
     }
 
     fun registerCredDef(credDef: CredentialDefinition, submitterDid: String?): Pair<Boolean, CredentialDefinition?> {

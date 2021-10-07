@@ -30,15 +30,15 @@ open class InitRequestLedgerMessage(msg: String) : BaseInitLedgerMessage(msg) {
             throw SiriusContextError("Signer must be a participant")
         }
         if (ledgerHash() != null) {
-            val hashSignature: JSONObject = Utils.sign(api, ledgerHash().toString(), me.verkey)
+            val hashSignature: JSONObject = Utils.sign(api!!, ledgerHash().toString(), me.verkey)
             val signatures: JSONArray = signatures()
             for (i in signatures.length() - 1 downTo 0) {
-                if (signatures.getJSONObject(i).optString("participant") == me.did) {
+                if (signatures.getJSONObject(i)?.optString("participant") == me.did) {
                     signatures.remove(i)
                 }
             }
             signatures.put(JSONObject().put("participant", me.did).put("signature", hashSignature))
-            getMessageObj().put("signatures", signatures)
+            getMessageObjec().put("signatures", signatures)
         } else {
             throw SiriusContextError("Ledger Hash description is empty")
         }
@@ -51,7 +51,7 @@ open class InitRequestLedgerMessage(msg: String) : BaseInitLedgerMessage(msg) {
     }
 
     val timeoutSec: Int?
-        get() = getMessageObj().optInt("timeout_sec")
+        get() = getMessageObjec().optInt("timeout_sec")
 
     @Throws(SiriusValidationError::class)
     override fun validate() {
@@ -61,7 +61,7 @@ open class InitRequestLedgerMessage(msg: String) : BaseInitLedgerMessage(msg) {
                 .containsAll(listOf("root_hash", "name", "genesis"))
         ) throw SiriusValidationError("Expected field does not exists in Ledger container")
         if (ledgerHash() == null) throw SiriusValidationError("Ledger hash is empty")
-        if (!ledgerHash().keySet()
+        if (!ledgerHash()!!.keySet()
                 .containsAll(listOf("func", "base58"))
         ) throw SiriusValidationError("Expected field does not exists in Ledger Hash")
     }
@@ -82,7 +82,7 @@ open class InitRequestLedgerMessage(msg: String) : BaseInitLedgerMessage(msg) {
             return jsonObject
         }
 
-        fun build(): InitRequestLedgerMessage {
+       open fun build(): InitRequestLedgerMessage {
             return InitRequestLedgerMessage(generateJSON().toString())
         }
     }

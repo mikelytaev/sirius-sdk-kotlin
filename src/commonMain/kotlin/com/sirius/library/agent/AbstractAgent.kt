@@ -13,9 +13,7 @@ import com.sirius.library.storage.abstract_storage.AbstractImmutableCollection
 
 abstract class AbstractAgent : TransportLayer() {
     var endpoints: List<Endpoint> = ArrayList<Endpoint>()
-    fun setEndpoints(endpoints: List<Endpoint>) {
-        this.endpoints = endpoints
-    }
+
 
     var ledgers: MutableMap<String, Ledger> = HashMap<String, Ledger>()
     var pairwiseList: WalletPairwiseList? = null
@@ -62,27 +60,27 @@ abstract class AbstractAgent : TransportLayer() {
     abstract fun subscribe(): Listener?
     abstract fun unsubscribe(listener: Listener?)
     abstract fun generateQrCode(value: String?): String?
-    fun getWallet(): AbstractWallet? {
+    fun getWalleti(): AbstractWallet? {
         checkIsOpen()
         return wallet
     }
 
-    fun getEndpoints(): List<Endpoint> {
+    fun getEndpointsi(): List<Endpoint> {
         checkIsOpen()
         return endpoints
     }
 
-    fun getLedgers(): Map<String, Ledger> {
+    fun getLedgersi(): Map<String, Ledger> {
         checkIsOpen()
         return ledgers
     }
 
-    fun getMicroledgers(): AbstractMicroledgerList? {
+    fun getMicroledgersi(): AbstractMicroledgerList? {
         checkIsOpen()
         return microledgers
     }
 
-    fun getPairwiseList(): WalletPairwiseList? {
+    fun getPairwiseListi(): WalletPairwiseList? {
         checkIsOpen()
         return pairwiseList
     }

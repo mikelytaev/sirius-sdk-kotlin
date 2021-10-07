@@ -16,13 +16,13 @@ class AnswerMessage(msg: String) : AriesProtocolMessage(msg) {
     }
 
     val response: String?
-        get() = getMessageObj().optString("response")
+        get() = getMessageObjec().optString("response")
 
     fun setOutTime() {
-        var timing: JSONObject? = getMessageObj().optJSONObject("~timing")
+        var timing: JSONObject? = getMessageObjec().optJSONObject("~timing")
         if (timing == null) {
             timing = JSONObject()
-            getMessageObj().put("~timing", timing)
+            getMessageObjec().put("~timing", timing)
         }
         val timeIso: String = ""
         //TODO java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC).format(java.time.format.DateTimeFormatter.ISO_INSTANT)

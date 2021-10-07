@@ -8,8 +8,8 @@ open class SimpleConsensusMessage(msg: String) : AriesProtocolMessage(msg) {
     val participants: List<String>
         get() {
             val res: MutableList<String> = ArrayList<String>()
-            if (getMessageObj().has("participants")) {
-                val jArr: JSONArray = getMessageObj().optJSONArray("participants") ?: JSONArray()
+            if (getMessageObjec().has("participants")) {
+                val jArr: JSONArray = getMessageObjec().optJSONArray("participants") ?: JSONArray()
                 for (o in jArr) {
                     if (o is String) res.add(o as String)
                 }

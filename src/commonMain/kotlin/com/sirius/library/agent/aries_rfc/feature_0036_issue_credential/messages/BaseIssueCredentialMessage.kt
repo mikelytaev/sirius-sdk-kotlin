@@ -2,11 +2,10 @@ package com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.message
 
 import com.sirius.library.agent.aries_rfc.AriesProtocolMessage
 import com.sirius.library.utils.JSONObject
-import kotlinx.serialization.json.JsonObject
 
 open class BaseIssueCredentialMessage(message: String) : AriesProtocolMessage(message) {
     val comment: String?
-        get() = this.getMessageObj()?.optString("comment")
+        get() = this.getMessageObjec()?.optString("comment")
 
     abstract class Builder<B : Builder<B>> protected constructor() :
         AriesProtocolMessage.Builder<B>() {

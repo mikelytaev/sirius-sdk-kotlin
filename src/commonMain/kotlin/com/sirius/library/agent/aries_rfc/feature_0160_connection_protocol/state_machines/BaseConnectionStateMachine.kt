@@ -15,9 +15,7 @@ abstract class BaseConnectionStateMachine(context: Context, val me: Pairwise.Me,
         return listOf(ConnProtocolMessage.PROTOCOL, Ack.PROTOCOL, Ping.PROTOCOL)
     }
 
-    fun getProblemReport(): ConnProblemReport? {
-        return problemReport
-    }
+
 
     companion object {
         const val REQUEST_NOT_ACCEPTED = "request_not_accepted"

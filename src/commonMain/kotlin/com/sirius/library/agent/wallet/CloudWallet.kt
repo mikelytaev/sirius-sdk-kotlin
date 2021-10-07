@@ -15,33 +15,7 @@ class CloudWallet(agentRPC: AgentRPC) : AbstractWallet {
     override val nonSecrets: AbstractNonSecrets
     var rpc: AgentRPC
 
-    fun getDid(): AbstractDID {
-        return did
-    }
 
-    fun getCrypto(): AbstractCrypto {
-        return crypto
-    }
-
-    fun getCache(): AbstractCache {
-        return cache
-    }
-
-    fun getLedger(): AbstractLedger {
-        return ledger
-    }
-
-    fun getPairwise(): AbstractPairwise {
-        return pairwise
-    }
-
-    fun getAnoncreds(): AbstractAnonCreds {
-        return anoncreds
-    }
-
-    fun getNonSecrets(): AbstractNonSecrets {
-        return nonSecrets
-    }
 
     fun generateWalletKey(seed: String): Any? {
         val params: RemoteParams = RemoteParams.RemoteParamsBuilder.create()

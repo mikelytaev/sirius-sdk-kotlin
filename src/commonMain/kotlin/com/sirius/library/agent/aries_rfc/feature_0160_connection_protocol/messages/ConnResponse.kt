@@ -30,15 +30,15 @@ class ConnResponse(msg: String) : ConnProtocolMessage(msg) {
     }
 
     fun signConnection(crypto: AbstractCrypto, key: String) {
-        val obj: JSONObject? = getMessageObj()
+        val obj: JSONObject? = getMessageObjec()
         obj?.put("connection~sig", signField(crypto, obj?.getJSONObject("connection") ?: JSONObject(), key))
         obj?.remove("connection")
     }
 
     fun verifyConnection(crypto: AbstractCrypto): Boolean {
-        val connection: JSONObject? = verifySignedField(crypto, getMessageObj()?.optJSONObject("connection~sig") ?: JSONObject())
+        val connection: JSONObject? = verifySignedField(crypto, getMessageObjec()?.optJSONObject("connection~sig") ?: JSONObject())
         if (connection != null) {
-            getMessageObj()?.put("connection", connection)
+            getMessageObjec()?.put("connection", connection)
             return true
         }
         return false

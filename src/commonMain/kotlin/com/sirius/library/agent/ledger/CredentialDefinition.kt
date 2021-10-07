@@ -5,20 +5,15 @@ import com.sirius.library.utils.JSONObject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-class CredentialDefinition : JsonSerializable<CredentialDefinition?> {
+class CredentialDefinition : JsonSerializable<CredentialDefinition> {
     constructor() {}
 
-    fun getSchema(): Schema? {
-        return schema
-    }
 
-    fun getBody(): JSONObject? {
+    fun getBodyi(): JSONObject? {
         return body
     }
 
-    fun getSeqNo(): Int {
-        return seqNo!!
-    }
+
 
 
     var tag: String? = null
@@ -42,51 +37,44 @@ class CredentialDefinition : JsonSerializable<CredentialDefinition?> {
     constructor(tag: String?, schema: Schema?, config: Config?, seqNo: Int?) : this(tag, schema, config, null, seqNo) {}
 
     @Serializable
-    class Config : JsonSerializable<Config?> {
+    class Config : JsonSerializable<Config> {
         @SerialName("support_revocation")
         var supportRevocation = false
-        fun serialize(): String {
-            return GsonUtils.getDefaultGson().toJson(this, Config::class.java)
+        override fun serialize(): String {
+            return "GsonUtils.getDefaultGson().toJson(this, Config::class.java)"
         }
 
-        fun serializeToJSONObject(): JSONObject {
+        override fun serializeToJSONObject(): JSONObject {
             val jsonObject: JSONObject = JSONObject()
             jsonObject.put("support_revocation", supportRevocation)
             return jsonObject
         }
 
-        fun deserialize(string: String?): Config {
-            return Gson().fromJson(string, Config::class.java)
-        }
 
-        fun serializeToJsonObject(): JsonObject? {
-            return null
+
+
+        override fun deserialize(string: String): Config {
+            return Config()
         }
     }
 
-    fun serialize(): String {
-        return Gson().toJson(this, CredentialDefinition::class.java)
+    override fun serialize(): String {
+        return "Gson().toJson(this, CredentialDefinition::class.java)"
     }
 
-    fun serializeToJSONObject(): JSONObject {
+    override fun serializeToJSONObject(): JSONObject {
         val jsonObject: JSONObject = JSONObject()
         jsonObject.put("support_revocation", true)
         return jsonObject
     }
 
-    fun deserialize(string: String?): CredentialDefinition {
-        return Gson().fromJson(string, CredentialDefinition::class.java)
-    }
 
-    fun serializeToJsonObject(): JsonObject? {
-        return null
-    }
 
     val id: String?
         get() {
             if (body != null) {
-                if (body.has("id")) {
-                    return body.getAsJsonPrimitive("id").getAsString()
+                if (body!!.has("id")) {
+                    return body!!.getString("id")
                 }
             }
             return null
@@ -96,5 +84,9 @@ class CredentialDefinition : JsonSerializable<CredentialDefinition?> {
             val id = id
             return id?.split(":")?.toTypedArray()?.get(0)
         }
+
+    override fun deserialize(string: String): CredentialDefinition {
+        return CredentialDefinition()
+    }
 }
 

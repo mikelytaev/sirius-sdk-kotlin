@@ -5,7 +5,7 @@ import kotlin.jvm.JvmOverloads
 object JSONUtils {
     @JvmOverloads
     fun JSONObjectToString(obj: JSONObject?, sortKeys: Boolean = false): String {
-        val keys: List<String> = ArrayList(obj.keySet())
+       /* val keys: List<String> = ArrayList(obj.keySet())
         if (sortKeys) java.util.Collections.sort<String>(keys)
         val stringBuilder: StringBuilder = StringBuilder()
         stringBuilder.append("{")
@@ -17,12 +17,12 @@ object JSONUtils {
         if (stringBuilder.get(stringBuilder.length - 1) == ',') {
             stringBuilder.deleteCharAt(stringBuilder.length - 1)
         }
-        stringBuilder.append("}")
-        return stringBuilder.toString()
+        stringBuilder.append("}")*/
+        return "stringBuilder.toString()"
     }
 
     private fun JSONArrayToString(arr: JSONArray): String {
-        val stringBuilder: StringBuilder = StringBuilder()
+   /*     val stringBuilder: StringBuilder = StringBuilder()
         stringBuilder.append("[")
         for (o in arr) {
             stringBuilder.append(JSONFieldToString(o)).append(',')
@@ -30,8 +30,8 @@ object JSONUtils {
         if (stringBuilder.get(stringBuilder.length - 1) == ',') {
             stringBuilder.deleteCharAt(stringBuilder.length - 1)
         }
-        stringBuilder.append("]")
-        return stringBuilder.toString()
+        stringBuilder.append("]")*/
+        return "stringBuilder.toString()"
     }
 
     private fun JSONFieldToString(o: Any?): String {
@@ -41,7 +41,7 @@ object JSONUtils {
         if (!(o is JSONObject || o is JSONArray)) {
             val needQuotes = !(o is Number || o is Boolean)
             return if (needQuotes) {
-                JSONObject.quote(o.toString())
+              ""
             } else {
                 o.toString()
             }

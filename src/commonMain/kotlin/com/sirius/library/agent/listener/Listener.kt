@@ -3,15 +3,15 @@ package com.sirius.library.agent.listener
 import com.sirius.library.agent.AbstractAgent
 import com.sirius.library.agent.connections.AgentEvents
 import com.sirius.library.agent.pairwise.AbstractPairwiseList
-import com.sirius.library.agent.pairwise.Pairwise
+import com.sirius.library.utils.CompletableFuture
 
 class Listener(source: AgentEvents, agent: AbstractAgent) {
     var source: AgentEvents
     var pairwiseResolver: AbstractPairwiseList?
     var agent: AbstractAgent
-    val one: java.util.concurrent.CompletableFuture<Event>?
+    val one: CompletableFuture<Event>?
         get() {
-            try {
+           /* try {
                 return source.pull().thenApply { msg ->
                     val theirVerkey: String = msg.getStringFromJSON("sender_verkey")
                     var pairwise: Pairwise? = null
@@ -22,7 +22,7 @@ class Listener(source: AgentEvents, agent: AbstractAgent) {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-            }
+            }*/
             return null
         }
 
@@ -32,7 +32,7 @@ class Listener(source: AgentEvents, agent: AbstractAgent) {
 
     init {
         this.source = source
-        pairwiseResolver = agent.getPairwiseList()
+        pairwiseResolver = agent.getPairwiseListi()
         this.agent = agent
     }
 }

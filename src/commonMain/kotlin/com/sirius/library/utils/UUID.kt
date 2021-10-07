@@ -1,7 +1,7 @@
 package com.sirius.library.utils
 
-expect class UUID() {
+ class UUID() {
     companion object {
-        val randomUUID: UUID
+        val randomUUID: UUID get() {  return UUID()}
     }
 }

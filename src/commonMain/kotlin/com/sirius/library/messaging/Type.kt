@@ -5,9 +5,7 @@ import com.sirius.library.errors.sirius_exceptions.SiriusInvalidType
 class Type {
     var docUri: String
 
-    fun getVersionInfo(): Semver {
-        return versionInfo
-    }
+
 
     var protocol: String
     var version: String? = null

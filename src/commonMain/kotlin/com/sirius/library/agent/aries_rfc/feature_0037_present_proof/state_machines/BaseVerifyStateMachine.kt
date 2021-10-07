@@ -8,9 +8,7 @@ import com.sirius.library.hub.Context
 
 abstract class BaseVerifyStateMachine(context: Context) : AbstractStateMachine(context) {
     var problemReport: PresentProofProblemReport? = null
-    fun getProblemReport(): PresentProofProblemReport? {
-        return problemReport
-    }
+
 
     override fun protocols(): List<String> {
         return listOf(BasePresentProofMessage.PROTOCOL, Ack.PROTOCOL)

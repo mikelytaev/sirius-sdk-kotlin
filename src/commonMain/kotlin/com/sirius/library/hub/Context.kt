@@ -22,7 +22,7 @@ abstract class Context internal constructor(hub: AbstractHub) : Closeable {
     companion object {
         // loading all Message classes to force their registration in static block
         init {
-            val reflections = Reflections(
+          /*  val reflections = Reflections(
                 ConfigurationBuilder()
                     .setUrls(ClasspathHelper.forPackage("com.sirius.sdk"))
                     .setScanners(SubTypesScanner())
@@ -33,7 +33,7 @@ abstract class Context internal constructor(hub: AbstractHub) : Closeable {
                 } catch (e: java.lang.ClassNotFoundException) {
                     e.printStackTrace()
                 }
-            }
+            }*/
         }
     }
 
@@ -524,37 +524,33 @@ abstract class Context internal constructor(hub: AbstractHub) : Closeable {
             }
     }
 
-    fun getNonSecrets(): AbstractNonSecrets {
-        return nonSecrets
-    }
+
 
     val endpoints: List<Endpoint>
-        get() = currentHub?.agentConnectionLazy?.getEndpoints().orEmpty()
+        get() = currentHub?.agentConnectionLazy?.getEndpointsi().orEmpty()
 
-    fun getCrypto(): AbstractCrypto {
-        return crypto
-    }
 
-    fun getDid(): AbstractDID {
+
+    fun getDidi(): AbstractDID {
         return did
     }
 
-    fun getPairwiseList(): AbstractPairwiseList {
+    fun getPairwiseListi(): AbstractPairwiseList {
         return pairwiseList
     }
 
-    fun getAnonCreds(): AbstractAnonCreds {
+    fun getAnonCredsi(): AbstractAnonCreds {
         return anonCreds
     }
 
-    fun getCache(): AbstractCache {
+    fun getCaches(): AbstractCache {
         return cache
     }
 
     val ledgers: Map<String, Ledger>?
-        get() = currentHub.agentConnectionLazy?.getLedgers()
+        get() = currentHub.agentConnectionLazy?.getLedgersi()
 
-    fun getMicrolegders(): AbstractMicroledgerList {
+    fun getMicrolegdersi(): AbstractMicroledgerList {
         return microlegders
     }
 

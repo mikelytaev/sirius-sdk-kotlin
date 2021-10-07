@@ -30,7 +30,7 @@ object Base58 {
      * Encodes the given bytes in base58. No checksum is appended.
      */
     fun encode(input: ByteArray): String {
-        var input = input
+       /* var input = input
         if (input.size == 0) {
             return ""
         }
@@ -65,11 +65,11 @@ object Base58 {
         var string = codec.fromByteArrayToASCIIString(output)
         if (string.length > 22 && string.startsWith("1")) {
             string = string.substring(1)
-        }
-        return string
+        }*/
+        return "string"
     }
 
-    @Throws(java.lang.IllegalArgumentException::class)
+    @Throws(Exception::class)
     fun decode(input: String): ByteArray {
         if (input.length == 0) {
             return ByteArray(0)
@@ -83,12 +83,12 @@ object Base58 {
                 digit58 = INDEXES[c.code]
             }
             if (digit58 < 0) {
-                throw java.lang.IllegalArgumentException("Illegal character $c at $i")
+                throw Exception("Illegal character $c at $i")
             }
             input58[i] = digit58.toByte()
         }
         // Count leading zeroes
-        var zeroCount = 0
+    /*    var zeroCount = 0
         while (zeroCount < input58.size && input58[zeroCount] == 0) {
             ++zeroCount
         }
@@ -106,13 +106,13 @@ object Base58 {
         // Do no add extra leading zeroes, move j to first non null byte.
         while (j < temp.size && temp[j] == 0) {
             ++j
-        }
-        return copyOfRange(temp, j - zeroCount, temp.size)
+        }*/
+        return copyOfRange(ByteArray(0), 0, 0)
     }
 
-    @Throws(java.lang.IllegalArgumentException::class)
-    fun decodeToBigInteger(input: String): java.math.BigInteger {
-        return java.math.BigInteger(1, decode(input))
+    @Throws(Exception::class)
+    fun decodeToBigInteger(input: String): Int {
+        return 0
     }
 
     /**
@@ -165,7 +165,7 @@ object Base58 {
 
     private fun copyOfRange(source: ByteArray, from: Int, to: Int): ByteArray {
         val range = ByteArray(to - from)
-        java.lang.System.arraycopy(source, from, range, 0, range.size)
+      //  java.lang.System.arraycopy(source, from, range, 0, range.size)
         return range
     }
 

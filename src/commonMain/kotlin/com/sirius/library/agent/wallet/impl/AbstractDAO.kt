@@ -1,24 +1,29 @@
+/*
 package com.sirius.library.agent.wallet.impl
 
 abstract class AbstractDAO<T> {
-    /**
+    */
+/**
      * Method returns class implementing EntityInterface which was used in class
      * extending AbstractDAO
      *
      * @return Class<T extends EntityInterface>
-    </T> */
+    </T> *//*
+
     fun returnedClass(): java.lang.Class<T> {
         return getTypeArguments(AbstractDAO::class.java, javaClass)[0] as java.lang.Class<T>
     }
 
     companion object {
-        /**
+        */
+/**
          * Get the underlying class for a type, or null if the type is a variable
          * type.
          *
          * @param type the type
          * @return the underlying class
-         */
+         *//*
+
         fun getClass(type: java.lang.reflect.Type?): java.lang.Class<*>? {
             return if (type is java.lang.Class) {
                 type as java.lang.Class?
@@ -38,14 +43,16 @@ abstract class AbstractDAO<T> {
             }
         }
 
-        /**
+        */
+/**
          * Get the actual type arguments a child class has used to extend a generic
          * base class.
          *
          * @param baseClass the base class
          * @param childClass the child class
          * @return a list of the raw classes for the actual type arguments.
-         */
+         *//*
+
         fun <T> getTypeArguments(
             baseClass: java.lang.Class<T>, childClass: java.lang.Class<out T>
         ): List<java.lang.Class<*>> {
@@ -91,4 +98,4 @@ abstract class AbstractDAO<T> {
             return typeArgumentsAsClasses
         }
     }
-}
+}*/

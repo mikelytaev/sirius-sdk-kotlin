@@ -1,6 +1,5 @@
 package com.sirius.library.hub.coprotocols
 
-import com.sirius.library.agent.coprotocols.AbstractCloudCoProtocolTransport
 import com.sirius.library.agent.coprotocols.AbstractCoProtocolTransport
 import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.errors.sirius_exceptions.SiriusContextError
@@ -21,9 +20,7 @@ class CoProtocolThreadedTheirs(
     var theirs: List<Pairwise>
     var pthid: String? = null
     var dids: MutableList<String> = ArrayList<String>()
-    fun getTheirs(): List<Pairwise> {
-        return theirs
-    }
+
 
     class SendResult(pairwise: Pairwise, success: Boolean, body: String?) {
         var pairwise: Pairwise
@@ -135,7 +132,7 @@ class CoProtocolThreadedTheirs(
                 } else {
                     context.currentHub?.agentConnectionLazy?.spawn(thid, pthid!!)
                 }
-                transport?.setTimeToLiveSec(timeToLiveSec)
+                transport?.setTimeToLiveSeci(timeToLiveSec)
                 transport?.start()
                 started = true
             }

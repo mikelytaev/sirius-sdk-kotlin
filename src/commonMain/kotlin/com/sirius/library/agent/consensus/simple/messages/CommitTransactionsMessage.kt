@@ -28,18 +28,18 @@ class CommitTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) {
 
     val preCommits: JSONObject
         get() {
-            val preCommits: JSONObject? = getMessageObj().optJSONObject("pre_commits")
+            val preCommits: JSONObject? = getMessageObjec().optJSONObject("pre_commits")
             return if (preCommits != null) preCommits else JSONObject()
         }
 
     fun addPreCommit(participant: String, preCommit: PreCommitTransactionsMessage) {
-        if (!preCommit.getMessageObj().has("hash~sig")) {
+        if (!preCommit.getMessageObjec().has("hash~sig")) {
             SiriusContextError("Pre-Commit for participant" + participant + "does not have hash~sig attribute").printStackTrace()
             return
         }
         val preCommits: JSONObject = preCommits
-        preCommits.put(participant, preCommit.getMessageObj().get("hash~sig"))
-        getMessageObj().put("pre_commits", preCommits)
+        preCommits.put(participant, preCommit.getMessageObjec().get("hash~sig"))
+        getMessageObjec().put("pre_commits", preCommits)
     }
 
     @Throws(SiriusValidationError::class)

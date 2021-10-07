@@ -1,3 +1,4 @@
+/*
 package com.examples.covid
 
 import com.sirius.library.agent.pairwise.Pairwise
@@ -54,3 +55,4 @@ abstract class BaseParticipant(
         }
     }
 }
+*/

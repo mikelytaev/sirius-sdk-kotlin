@@ -46,7 +46,7 @@ class Invitee(context: Context, me: Pairwise.Me, myEndpoint: Endpoint) : BaseCon
                         ConnRequest.builder().setLabel(myLabel)!!.setDid(me.did)!!
                             .setVerkey(me.verkey)!!.setEndpoint(myEndpoint.address)!!
                             .setDocUri(docUri!!)!!
-                            .setDidDocExtra(didDoc?.getPayload())!!
+                            .setDidDocExtra(didDoc?.getPayloadi())!!
                     if (additionalConnectiion != null) {
                         for (i in 0 until additionalConnectiion.length()) {
                             val connectionObject: JSONObject? = additionalConnectiion.optJSONObject(i)
@@ -68,13 +68,13 @@ class Invitee(context: Context, me: Pairwise.Me, myEndpoint: Endpoint) : BaseCon
                                 throw StateMachineTerminatedWithError(RESPONSE_NOT_ACCEPTED, e.message ?: "")
                             }
                             val success = response.verifyConnection(context.crypto)
-                            if (success && response.getMessageObj().getJSONObject("connection~sig")!!
+                            if (success && response.getMessageObjec().getJSONObject("connection~sig")!!
                                     .optString("signer").equals(connectionKey)
                             ) {
                                 // Step 3: extract Inviter info and store did
                                 log.info("70% - Step-3: extract Inviter info and store DID")
                                 val theirInfo: ConnProtocolMessage.ExtractTheirInfoRes = response.extractTheirInfo()
-                                context.getDid().storeTheirDid(theirInfo.did, theirInfo.verkey)
+                                context.getDidi().storeTheirDid(theirInfo.did, theirInfo.verkey)
 
                                 // Step 4: Send ack to Inviter
                                 if (response.hasPleaseAck()) {
@@ -95,8 +95,8 @@ class Invitee(context: Context, me: Pairwise.Me, myEndpoint: Endpoint) : BaseCon
                                     theirInfo.did,
                                     invitation.label(), theirInfo.endpoint, theirInfo.verkey, theirInfo.routingKeys
                                 )
-                                val myDidDoc: JSONObject? = request.didDoc()?.getPayload()
-                                val theirDidDoc: JSONObject? = response.didDoc()?.getPayload()
+                                val myDidDoc: JSONObject? = request.didDoc()?.getPayloadi()
+                                val theirDidDoc: JSONObject? = response.didDoc()?.getPayloadi()
                                 val metadata: JSONObject? = JSONObject().put(
                                     "me",
                                     JSONObject().put("did", me.did)
@@ -112,8 +112,8 @@ class Invitee(context: Context, me: Pairwise.Me, myEndpoint: Endpoint) : BaseCon
                                         )
                                 )
                                 val pairwise = Pairwise(me, their, metadata)
-                                pairwise.me.setDidDoc(myDidDoc)
-                                pairwise.their.setDidDoc(theirDidDoc)
+                                pairwise.me.setDidDoci(myDidDoc)
+                                pairwise.their.setDidDoci(theirDidDoc)
                                 log.info("100% - Pairwise established")
                                 pairwise
                             } else {
@@ -124,7 +124,7 @@ class Invitee(context: Context, me: Pairwise.Me, myEndpoint: Endpoint) : BaseCon
                             }
                         } else if (second is ConnProblemReport) {
                             problemReport = second
-                            log.info("100% - Terminated with error. " + problemReport!!.getMessageObj())
+                            log.info("100% - Terminated with error. " + problemReport!!.getMessageObjec())
                             null
                         } else {
                             throw StateMachineTerminatedWithError(

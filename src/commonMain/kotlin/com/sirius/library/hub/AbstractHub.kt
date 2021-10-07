@@ -24,14 +24,14 @@ abstract class AbstractHub : Closeable {
         get() = if (config?.nonSecrets != null) {
             config!!.nonSecrets
         } else {
-            agent?.getWallet()?.nonSecrets
+            agent?.getWalleti()?.nonSecrets
         }
     val crypto: AbstractCrypto?
         get() {
             return if (config?.crypto != null) {
                 config!!.crypto
             } else {
-                agent?.getWallet()?.crypto
+                agent?.getWalleti()?.crypto
             }
         }
     val did: AbstractDID?
@@ -39,7 +39,7 @@ abstract class AbstractHub : Closeable {
             return if (config?.did != null) {
                 config!!.did
             } else {
-                agentConnectionLazy?.getWallet()?.did
+                agentConnectionLazy?.getWalleti()?.did
             }
         }
     val pairwiseList: AbstractPairwiseList?
@@ -47,7 +47,7 @@ abstract class AbstractHub : Closeable {
             return if (config?.pairwiseStorage != null) {
                 config!!.pairwiseStorage
             } else {
-                agentConnectionLazy?.getPairwiseList()
+                agentConnectionLazy?.getPairwiseListi()
             }
         }
     val anonCreds: AbstractAnonCreds?
@@ -55,7 +55,7 @@ abstract class AbstractHub : Closeable {
             return if (config?.anoncreds != null) {
                 config!!.anoncreds
             } else {
-                agentConnectionLazy?.getWallet()?.anoncreds
+                agentConnectionLazy?.getWalleti()?.anoncreds
             }
         }
     val cache: AbstractCache?
@@ -63,7 +63,7 @@ abstract class AbstractHub : Closeable {
             return if (config?.cache != null) {
                 config!!.cache
             } else {
-                agentConnectionLazy?.getWallet()?.cache
+                agentConnectionLazy?.getWalleti()?.cache
             }
         }
     val microledgers: AbstractMicroledgerList?
@@ -71,7 +71,7 @@ abstract class AbstractHub : Closeable {
             return if (config?.microledgers != null) {
                 config!!.microledgers
             } else {
-                agentConnectionLazy?.getMicroledgers()
+                agentConnectionLazy?.getMicroledgersi()
             }
         }
     val agentConnectionLazy: AbstractAgent?
@@ -82,7 +82,7 @@ abstract class AbstractHub : Closeable {
             return agent
         }
 
-    fun getAgent(): AbstractAgent? {
+    fun getAgenti(): AbstractAgent? {
         return agent
     }
 

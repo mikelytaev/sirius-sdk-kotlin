@@ -82,10 +82,10 @@ class Issuer(context: Context, holder: Pairwise, timeToLiveSec: Int) : BaseIssui
                     // Step-1: Send offer to holder
                     val expiresTime: Date =
                         Date(Date().time + timeToLiveSec * 1000L)
-                    val offer: JSONObject? = context.getAnonCreds().issuerCreateCredentialOffer(params.credDef?.id)
+                    val offer: JSONObject? = context.getAnonCredsi().issuerCreateCredentialOffer(params.credDef?.id)
                     val offerMsg: OfferCredentialMessage =
                         OfferCredentialMessage.builder().setComment(params.comment).setLocale(params.locale)
-                            .setOffer(offer).setCredDef(JSONObject(params.credDef?.getBody().toString()))
+                            .setOffer(offer).setCredDef(JSONObject(params.credDef?.getBodyi().toString()))
                             .setPreview(params.preview).setIssuerSchema(params.schema?.body)
                             .setTranslation(params.translation).build() //setExpiresTime(expiresTime).
                     log.log(Logger.Level.INFO, "20% - Send offer")
@@ -109,7 +109,7 @@ class Issuer(context: Context, holder: Pairwise, timeToLiveSec: Int) : BaseIssui
                         encodedCredValues.put(key, encCredVal)
                     }
                     log.log(Logger.Level.INFO, "70% - Build credential with values")
-                    val (cred) = context.getAnonCreds().issuerCreateCredential(
+                    val (cred) = context.getAnonCredsi().issuerCreateCredential(
                         offer, requestMsg.credRequest(), encodedCredValues
                     )
 

@@ -1,6 +1,7 @@
 package com.sirius.library.base
 
 import com.sirius.library.messaging.Message
+import com.sirius.library.utils.CompletableFuture
 import com.sirius.library.utils.Logger
 import com.sirius.library.utils.StringCodec
 
@@ -83,17 +84,17 @@ class ListenerConnector : BaseConnector {
         }*/
     }
 
-    var readFuture: java.util.concurrent.CompletableFuture<ByteArray> =
-        java.util.concurrent.CompletableFuture<ByteArray>()
+    var readFuture: CompletableFuture<ByteArray?> =
+        CompletableFuture<ByteArray?>()
 
-    fun read(): java.util.concurrent.CompletableFuture<ByteArray> {
-        readFuture = java.util.concurrent.CompletableFuture<ByteArray>()
+    override fun read(): CompletableFuture<ByteArray?> {
+        readFuture = CompletableFuture<ByteArray?>()
         return readFuture
     }
 
     private fun read(byteArray: ByteArray?, timeout: Int): ByteArray? {
         if (byteArray != null) {
-            readFuture.complete(byteArray)
+           // readFuture.complete(byteArray)
             return byteArray
         }
         return null
@@ -111,8 +112,8 @@ class ListenerConnector : BaseConnector {
         raise SiriusIOError()*/
     }
 
-    fun write(data: ByteArray?): Boolean {
-        val httpclient: CloseableHttpClient = HttpClients.createDefault()
+    override fun write(data: ByteArray?): Boolean {
+       /* val httpclient: CloseableHttpClient = HttpClients.createDefault()
         val httpPost = HttpPost(serverAddress)
         val nvps: MutableList<NameValuePair> = ArrayList<NameValuePair>()
         nvps.add(BasicNameValuePair("name", data.decodeToString()))
@@ -144,12 +145,12 @@ class ListenerConnector : BaseConnector {
             } catch (e: java.io.IOException) {
                 e.printStackTrace()
             }
-        }
+        }*/
         return true
     }
 
     fun write(message: Message): Boolean {
-        val payload: String = message.serialize()
+      /*  val payload: String = message.serialize()
         val httpclient: CloseableHttpClient = HttpClients.createDefault()
         val httpPost = HttpPost(serverAddress)
         val nvps: MutableList<NameValuePair> = ArrayList<NameValuePair>()
@@ -182,7 +183,7 @@ class ListenerConnector : BaseConnector {
             } catch (e: java.io.IOException) {
                 e.printStackTrace()
             }
-        }
+        }*/
         return true
     }
 }

@@ -1,11 +1,12 @@
 package com.sirius.library.base
 
 import com.sirius.library.messaging.Message
+import com.sirius.library.utils.CompletableFuture
 import com.sirius.library.utils.Logger
 import com.sirius.library.utils.StringCodec
 
-class WebSocketConnector : BaseConnector {
-    var log: Logger = Logger.getLogger(WebSocketConnector::class.simpleName)
+class WebSocketConnector(override val isOpen: Boolean) : BaseConnector() {
+    /* var log: Logger = Logger.getLogger(WebSocketConnector::class.simpleName)
     var defTimeout = 30
     var encoding: String = StringCodec.UTF_8
     var serverAddress: String
@@ -232,5 +233,20 @@ class WebSocketConnector : BaseConnector {
         //log.log(Level.INFO, "Sending message");
         webSocket.sendText(payload)
         return true
+    }*/
+    override fun open() {
+
+    }
+
+    override fun close() {
+
+    }
+
+    override fun read(): CompletableFuture<ByteArray?>? {
+        return null
+    }
+
+    override fun write(data: ByteArray?): Boolean {
+       return false
     }
 }

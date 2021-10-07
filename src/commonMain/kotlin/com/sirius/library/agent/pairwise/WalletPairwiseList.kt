@@ -13,13 +13,13 @@ class WalletPairwiseList(apiPairwise: AbstractPairwise, apiDid: AbstractDID) : A
         apiPairwise.createPairwise(
             pairwise.their.did,
             pairwise.me.did,
-            pairwise.getMetadata(),
+            pairwise.getMetadatai(),
             buildTags(pairwise)
         )
     }
 
     override fun update(pairwise: Pairwise) {
-        apiPairwise.setPairwiseMetadata(pairwise.their.did, pairwise.getMetadata(), buildTags(pairwise))
+        apiPairwise.setPairwiseMetadata(pairwise.their.did, pairwise.getMetadatai(), buildTags(pairwise))
     }
 
     override fun isExists(theirDid: String): Boolean {
@@ -80,7 +80,7 @@ class WalletPairwiseList(apiPairwise: AbstractPairwise, apiDid: AbstractDID) : A
             }
             val me = Pairwise.Me(meDid, meVerKey)
             if (meObj != null) {
-                me.setDidDoc(meObj.optJSONObject("did_doc"))
+                me.setDidDoci(meObj.optJSONObject("did_doc"))
             }
             var theirObj: JSONObject? = metadata.optJSONObject("their")
             if (theirObj == null && meObj != null) {
@@ -111,7 +111,7 @@ class WalletPairwiseList(apiPairwise: AbstractPairwise, apiDid: AbstractDID) : A
             }
             val their = Pairwise.Their(theirDid, theirLabel, theirEndpoint, theirVerKey, theirRoutingKeys)
             if (theirObj != null) {
-                their.setDidDoc(theirObj.optJSONObject("did_doc"))
+                their.setDidDoci(theirObj.optJSONObject("did_doc"))
             }
             return Pairwise(me, their, metadata)
         }

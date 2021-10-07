@@ -1,6 +1,5 @@
 package com.sirius.library.rpc
 
-import com.sirius.library.agent.wallet.abstract_wallet.model.AnonCredSchema
 import com.sirius.library.base.JsonSerializable
 import com.sirius.library.errors.IndyException
 import com.sirius.library.errors.sirius_exceptions.SiriusInvalidPayloadStructure
@@ -34,7 +33,7 @@ import kotlinx.serialization.json.Json
 class Future(var tunnel: AddressedTunnel) {
     var expirationTime: Long = 0
     var id: String
-    var value: Any? = null
+    var value1: Any? = null
     var readOk = false
     var exception: JSONObject? = null
 
@@ -88,21 +87,21 @@ class Future(var tunnel: AddressedTunnel) {
                     val is_bytes: Boolean = message?.getBooleanFromJSON("is_bytes") ?: false
                     if (is_tuple) {
                         if ((value as JSONArray).length() == 2) {
-                            this.value = Pair<Any?, Any?>((value as JSONArray).get(0), (value as JSONArray).get(1))
+                            this.value1 = Pair<Any?, Any?>((value as JSONArray).get(0), (value as JSONArray).get(1))
                         } else if ((value as JSONArray).length() == 3) {
-                            this.value = Triple<Any?, Any?, Any?>(
+                            this.value1 = Triple<Any?, Any?, Any?>(
                                 (value as JSONArray).get(0),
                                 (value as JSONArray).get(1),
                                 (value as JSONArray).get(2)
                             )
                         } else {
-                            this.value = value
+                            this.value1 = value
                         }
                     } else if (is_bytes) {
                         val custom = com.sirius.library.encryption.Custom
-                        this.value = custom.b64ToBytes(value.toString(), false)
+                        this.value1 = custom.b64ToBytes(value.toString(), false)
                     } else {
-                        this.value = value
+                        this.value1 = value
                     }
                 } else {
                     this.exception = exception
@@ -127,7 +126,7 @@ class Future(var tunnel: AddressedTunnel) {
     @Throws(SiriusPendingOperation::class)
     fun getValue(): Any? {
         return if (readOk) {
-            value
+            value1
         } else {
             throw SiriusPendingOperation()
         }
