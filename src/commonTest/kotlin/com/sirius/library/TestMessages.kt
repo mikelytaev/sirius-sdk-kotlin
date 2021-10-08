@@ -4,16 +4,23 @@ import com.sirius.library.agent.aries_rfc.concept_0017_attachments.Attach
 import com.sirius.library.agent.aries_rfc.feature_0048_trust_ping.Ping
 import com.sirius.library.agent.aries_rfc.feature_0048_trust_ping.Pong
 import com.sirius.library.messaging.Message
+import com.sirius.library.messaging.MessageFabric
 import com.sirius.library.models.TestMessage1
 import com.sirius.library.models.TestMessage2
 import com.sirius.library.utils.JSONObject
 import kotlin.test.*
 
 class TestMessages {
+    @BeforeTest
+    fun registerMessage(){
+        MessageFabric.registerAllMessagesClass()
+    }
     @Test
     fun testRegisterProtocolMessageSuccess() {
         try {
-            Message.registerMessageClass(TestMessage1::class, "test-protocol")
+            Message.registerMessageClass(TestMessage1::class, "test-protocol"){
+                TestMessage1(it)
+            }
             val messObject: JSONObject = JSONObject()
             messObject.put("@type", "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/test-protocol/1.0/name")
             val (first, second) = Message.restoreMessageInstance(messObject.toString())
@@ -21,12 +28,17 @@ class TestMessages {
             assertTrue(second is TestMessage1)
         } catch (e: Exception) {
             e.printStackTrace()
+            fail(e.message)
+
         }
     }
 
     @Test
     fun testRegisterProtocolMessageFail() {
-        Message.registerMessageClass(TestMessage1::class, "test-protocol")
+        Message.registerMessageClass(TestMessage1::class, "test-protocol"){
+            TestMessage1(it)
+        }
+
         val messObject: JSONObject = JSONObject()
         messObject.put("@type", "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/fake-protocol/1.0/name")
         try {
@@ -35,13 +47,18 @@ class TestMessages {
             assertNull(second)
         } catch (e: Exception) {
             e.printStackTrace()
+            fail()
         }
     }
 
     @Test
     fun testRegisterProtocolMessageMultipleName() {
-        Message.registerMessageClass(TestMessage1::class, "test-protocol")
-        Message.registerMessageClass(TestMessage2::class, "test-protocol", "test-name")
+        Message.registerMessageClass(TestMessage1::class, "test-protocol"){
+            TestMessage1(it)
+        }
+        Message.registerMessageClass(TestMessage2::class, "test-protocol", "test-name"){
+            TestMessage2(it)
+        }
         try {
             val messObject: JSONObject = JSONObject()
             messObject.put("@type", "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/test-protocol/1.0/name")
@@ -50,6 +67,7 @@ class TestMessages {
             assertTrue(second is TestMessage1)
         } catch (e: Exception) {
             e.printStackTrace()
+            fail()
         }
         try {
             val messObject: JSONObject = JSONObject()
@@ -59,6 +77,7 @@ class TestMessages {
             assertTrue(second is TestMessage2)
         } catch (e: Exception) {
             e.printStackTrace()
+            fail()
         }
     }
 
@@ -78,6 +97,7 @@ class TestMessages {
             assertTrue((second as Ping).responseRequested?:false)
         } catch (e: Exception) {
             e.printStackTrace()
+
         }
         val pongObject: JSONObject = JSONObject()
         pongObject.put("@id", "trust-ping_response-message-id")

@@ -4,15 +4,12 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.utils.Base64
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class RequestCredentialMessage(message: String) : BaseIssueCredentialMessage(message) {
     companion object {
         fun builder(): Builder<*> {
             return RequestCredentialMessageBuilder()
-        }
-
-        init {
-            Message.registerMessageClass(RequestCredentialMessage::class, PROTOCOL, "request-credential")
         }
     }
 
@@ -68,6 +65,10 @@ class RequestCredentialMessage(message: String) : BaseIssueCredentialMessage(mes
         Builder<RequestCredentialMessageBuilder>() {
         override fun self(): RequestCredentialMessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return RequestCredentialMessage::class
         }
     }
 }

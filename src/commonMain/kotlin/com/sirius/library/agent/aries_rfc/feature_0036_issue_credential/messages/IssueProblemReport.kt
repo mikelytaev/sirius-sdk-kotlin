@@ -3,6 +3,7 @@ package com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.message
 import com.sirius.library.agent.aries_rfc.AriesProblemReport
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class IssueProblemReport(message: String) : AriesProblemReport(message) {
     companion object {
@@ -10,13 +11,7 @@ class IssueProblemReport(message: String) : AriesProblemReport(message) {
             return IssueProblemReportBuilder()
         }
 
-        init {
-            Message.registerMessageClass(
-                IssueProblemReport::class,
-                BaseIssueCredentialMessage.PROTOCOL,
-                "problem_report"
-            )
-        }
+
     }
 
     abstract class Builder<B : Builder<B>> : AriesProblemReport.Builder<B>() {
@@ -32,6 +27,10 @@ class IssueProblemReport(message: String) : AriesProblemReport(message) {
     private class IssueProblemReportBuilder : Builder<IssueProblemReportBuilder>() {
         protected override fun self(): IssueProblemReportBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return IssueProblemReport::class
         }
     }
 }

@@ -2,6 +2,7 @@ package com.sirius.library.agent.consensus.simple.messages
 
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class InitResponseLedgerMessage(msg: String) : InitRequestLedgerMessage(msg) {
     companion object {
@@ -9,13 +10,7 @@ class InitResponseLedgerMessage(msg: String) : InitRequestLedgerMessage(msg) {
             return InitResponseLedgerMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(
-                InitResponseLedgerMessage::class,
-                SimpleConsensusMessage.PROTOCOL,
-                "initialize-response"
-            )
-        }
+
     }
 
     fun assignFrom(source: BaseInitLedgerMessage) {
@@ -49,6 +44,10 @@ class InitResponseLedgerMessage(msg: String) : InitRequestLedgerMessage(msg) {
         Builder<InitResponseLedgerMessageBuilder>() {
         protected override fun self(): InitResponseLedgerMessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return InitResponseLedgerMessage::class
         }
     }
 }

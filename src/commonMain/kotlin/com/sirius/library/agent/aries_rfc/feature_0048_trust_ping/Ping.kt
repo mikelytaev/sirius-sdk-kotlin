@@ -1,8 +1,10 @@
 package com.sirius.library.agent.aries_rfc.feature_0048_trust_ping
 
 import com.sirius.library.agent.aries_rfc.AriesProtocolMessage
+import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages.RequestPresentationMessage
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 /**Implementation of Ping part for trust_ping protocol
  * https://github.com/hyperledger/aries-rfcs/tree/master/features/0048-trust-ping
@@ -14,9 +16,7 @@ class Ping(message: String) : AriesProtocolMessage(message) {
             return PingBuilder()
         }
 
-        init {
-            Message.registerMessageClass(Ping::class, PROTOCOL, "ping")
-        }
+
     }
 
     val comment: String?
@@ -56,6 +56,10 @@ class Ping(message: String) : AriesProtocolMessage(message) {
     private class PingBuilder : Builder<PingBuilder>() {
         protected override fun self(): PingBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return Ping::class
         }
     }
 }

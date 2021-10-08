@@ -207,7 +207,7 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
         }
         return try {
             val df: java.text.DateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-            val txnTime: String = df.format(java.util.Date(java.lang.System.currentTimeMillis()))
+            val txnTime: String = df.format(java.android.util.Date(java.lang.System.currentTimeMillis()))
             val (_, _, txns) = ledger.append(transactions, txnTime)
             val propose: ProposeTransactionsMessage =
                 ProposeTransactionsMessage.builder().setTransactions(txns).setState(MicroLedgerState.fromLedger(ledger))

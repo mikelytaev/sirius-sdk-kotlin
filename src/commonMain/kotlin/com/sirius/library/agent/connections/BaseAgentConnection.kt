@@ -64,11 +64,11 @@ abstract class BaseAgentConnection {
 
     @Throws(SiriusFieldValueError::class)
     open fun create() {
-        // val feat: java.util.concurrent.CompletableFuture<ByteArray> = connector.read()
+        // val feat: java.android.util.concurrent.CompletableFuture<ByteArray> = connector.read()
         connector!!.open()
         var payload = ByteArray(0)
         try {
-            //  payload = feat.get(getTimeout().toLong(), java.util.concurrent.TimeUnit.SECONDS)
+            //  payload = feat.get(getTimeout().toLong(), java.android.util.concurrent.TimeUnit.SECONDS)
         } catch (e: Exception) {
             e.printStackTrace()
         }

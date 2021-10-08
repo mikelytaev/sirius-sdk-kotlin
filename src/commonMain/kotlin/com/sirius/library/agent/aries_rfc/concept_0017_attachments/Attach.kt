@@ -2,9 +2,11 @@ package com.sirius.library.agent.aries_rfc.concept_0017_attachments
 
 import com.sirius.library.utils.Base64
 import com.sirius.library.utils.JSONObject
+import kotlinx.serialization.json.JsonObject
 
 class Attach : JSONObject {
     constructor(obj: JSONObject) : super(obj.toString()) {}
+    constructor(obj: JsonObject) : super(obj) {}
     constructor() : super() {}
 
     val id: String?

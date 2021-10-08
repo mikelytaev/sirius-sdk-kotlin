@@ -5,6 +5,7 @@ import com.sirius.library.utils.Base64
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.UUID
+import kotlin.reflect.KClass
 
 class PresentationMessage(msg: String) : BasePresentProofMessage(msg) {
     companion object {
@@ -12,9 +13,6 @@ class PresentationMessage(msg: String) : BasePresentProofMessage(msg) {
             return PresentationMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(PresentationMessage::class, PROTOCOL, "presentation")
-        }
     }
 
     fun proof(): JSONObject {
@@ -74,6 +72,9 @@ class PresentationMessage(msg: String) : BasePresentProofMessage(msg) {
     private class PresentationMessageBuilder : Builder<PresentationMessageBuilder>() {
         protected override fun self(): PresentationMessageBuilder {
             return this
+        }
+        override fun getClass(): KClass<out Message> {
+            return PresentationMessage::class
         }
     }
 }

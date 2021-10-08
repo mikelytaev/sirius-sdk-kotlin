@@ -1,12 +1,14 @@
 package com.sirius.library.agent.consensus.simple.messages
 
 import com.sirius.library.agent.aries_rfc.Utils
+import com.sirius.library.agent.aries_rfc.feature_0211_mediator_coordination_protocol.MediateRequest
 import com.sirius.library.agent.wallet.abstract_wallet.AbstractCrypto
 import com.sirius.library.errors.sirius_exceptions.SiriusContextError
 import com.sirius.library.errors.sirius_exceptions.SiriusValidationError
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 /**
  * Message to commit transactions list
@@ -17,13 +19,7 @@ class CommitTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) {
             return CommitTransactionsMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(
-                CommitTransactionsMessage::class,
-                SimpleConsensusMessage.PROTOCOL,
-                "stage-commit"
-            )
-        }
+
     }
 
     val preCommits: JSONObject
@@ -85,6 +81,10 @@ class CommitTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) {
         Builder<CommitTransactionsMessageBuilder>() {
         protected override fun self(): CommitTransactionsMessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return CommitTransactionsMessage::class
         }
     }
 }

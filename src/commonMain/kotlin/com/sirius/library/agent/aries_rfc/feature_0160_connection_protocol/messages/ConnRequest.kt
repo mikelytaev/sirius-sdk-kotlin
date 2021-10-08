@@ -2,6 +2,7 @@ package com.sirius.library.agent.aries_rfc.feature_0160_connection_protocol.mess
 
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class ConnRequest(msg: String) : ConnProtocolMessage(msg) {
     companion object {
@@ -9,9 +10,7 @@ class ConnRequest(msg: String) : ConnProtocolMessage(msg) {
             return ConnRequestBuilder()
         }
 
-        init {
-            Message.registerMessageClass(ConnRequest::class, ConnProtocolMessage.PROTOCOL, "request")
-        }
+
     }
 
     val label: String?
@@ -83,6 +82,10 @@ class ConnRequest(msg: String) : ConnProtocolMessage(msg) {
     private class ConnRequestBuilder : Builder<ConnRequestBuilder>() {
         protected override fun self(): ConnRequestBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return ConnRequest::class
         }
     }
 }

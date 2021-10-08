@@ -2,45 +2,27 @@ package com.sirius.library.utils
 
 import kotlinx.coroutines.*
 
-class Base64 {
+expect class Base64 {
 
     companion object{
-        fun getUrlDecoder() : Decoder{
-           return Decoder()
-        }
+        fun getUrlDecoder() : Decoder
 
-        fun getDecoder() : Decoder{
-            return Decoder()
-        }
+        fun getDecoder() : Decoder
 
-        fun getUrlEncoder() : Encoder{
-            return Encoder()
-        }
+        fun getUrlEncoder() : Encoder
 
-        fun getEncoder() : Encoder{
-            return Encoder()
-        }
+        fun getEncoder() : Encoder
     }
 
-    class Decoder(){
+    class Decoder(isUrl : Boolean){
 
+        fun decode(byteArray : ByteArray) : ByteArray
 
-        fun decode(byteArray : ByteArray) : ByteArray{
-            return ByteArray(0)
-        }
-
-        fun decode(string: String) : ByteArray{
-            return ByteArray(0)
-        }
+        fun decode(string: String) : ByteArray
     }
 
-    class Encoder(){
-        fun encode(byteArray : ByteArray?) : ByteArray{
-            if(byteArray == null){
-                return ByteArray(0)
-            }
-            return ByteArray(0)
-        }
+     class Encoder(isUrl : Boolean){
+         fun encode(byteArray : ByteArray?) : ByteArray
     }
 
 }

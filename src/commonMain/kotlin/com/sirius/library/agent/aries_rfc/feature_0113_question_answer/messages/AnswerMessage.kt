@@ -1,8 +1,10 @@
 package com.sirius.library.agent.aries_rfc.feature_0113_question_answer.messages
 
 import com.sirius.library.agent.aries_rfc.AriesProtocolMessage
+import com.sirius.library.agent.aries_rfc.feature_0048_trust_ping.Pong
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class AnswerMessage(msg: String) : AriesProtocolMessage(msg) {
     companion object {
@@ -10,9 +12,6 @@ class AnswerMessage(msg: String) : AriesProtocolMessage(msg) {
             return MessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(AnswerMessage::class, "questionanswer", "answer")
-        }
     }
 
     val response: String?
@@ -52,6 +51,10 @@ class AnswerMessage(msg: String) : AriesProtocolMessage(msg) {
     private class MessageBuilder : Builder<MessageBuilder>() {
         protected override fun self(): MessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return AnswerMessage::class
         }
     }
 }

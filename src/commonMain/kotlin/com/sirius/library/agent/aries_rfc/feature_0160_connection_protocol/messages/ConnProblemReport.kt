@@ -1,7 +1,10 @@
 package com.sirius.library.agent.aries_rfc.feature_0160_connection_protocol.messages
 
 import com.sirius.library.agent.aries_rfc.AriesProblemReport
+import com.sirius.library.agent.aries_rfc.feature_0113_question_answer.messages.QuestionMessage
+import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class ConnProblemReport(message: String) : AriesProblemReport(message) {
     companion object {
@@ -9,9 +12,7 @@ class ConnProblemReport(message: String) : AriesProblemReport(message) {
             return ConnProblemReportBuilder()
         }
 
-        init {
-            registerMessageClass(ConnProblemReport::class, ConnProtocolMessage.PROTOCOL, "problem_report")
-        }
+
     }
 
     abstract class Builder<B : Builder<B>> : AriesProblemReport.Builder<B>() {
@@ -27,6 +28,10 @@ class ConnProblemReport(message: String) : AriesProblemReport(message) {
     private class ConnProblemReportBuilder : Builder<ConnProblemReportBuilder>() {
         override fun self(): ConnProblemReportBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return ConnProblemReport::class
         }
     }
 }

@@ -7,6 +7,7 @@ import com.sirius.library.errors.sirius_exceptions.SiriusValidationError
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 /**
  * Message to commit transactions list
@@ -17,13 +18,7 @@ class PostCommitTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) 
             return PostCommitTransactionsMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(
-                PostCommitTransactionsMessage::class,
-                SimpleConsensusMessage.PROTOCOL,
-                "stage-post-commit"
-            )
-        }
+
     }
 
     val commits: JSONArray
@@ -94,6 +89,10 @@ class PostCommitTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) 
         Builder<PostCommitTransactionsMessageBuilder>() {
         protected override fun self(): PostCommitTransactionsMessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return PostCommitTransactionsMessage::class
         }
     }
 }

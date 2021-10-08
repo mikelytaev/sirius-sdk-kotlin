@@ -4,6 +4,7 @@ import com.sirius.library.agent.microledgers.Transaction
 import com.sirius.library.errors.sirius_exceptions.SiriusValidationError
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 /**
  * Message to process transactions propose by Actor
@@ -14,13 +15,6 @@ class ProposeTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) {
             return ProposeTransactionsMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(
-                ProposeTransactionsMessage::class,
-                SimpleConsensusMessage.PROTOCOL,
-                "stage-propose"
-            )
-        }
     }
 
     val timeoutSec: Int?
@@ -69,6 +63,10 @@ class ProposeTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) {
         Builder<ProposeTransactionsMessageBuilder>() {
         protected override fun self(): ProposeTransactionsMessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return ProposeTransactionsMessage::class
         }
     }
 }

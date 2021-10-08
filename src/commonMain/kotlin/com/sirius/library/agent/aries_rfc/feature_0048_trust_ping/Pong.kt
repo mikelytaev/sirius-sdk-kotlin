@@ -4,6 +4,7 @@ import com.sirius.library.agent.aries_rfc.AriesProtocolMessage
 import com.sirius.library.agent.coprotocols.AbstractCloudCoProtocolTransport.Companion.THREAD_DECORATOR
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 /**
  * Implementation of Pong part for trust_ping protocol
@@ -16,9 +17,7 @@ class Pong(message: String) : AriesProtocolMessage(message) {
             return PongBuilder()
         }
 
-        init {
-            Message.registerMessageClass(Pong::class, PROTOCOL, "ping_response")
-        }
+
     }
 
     val comment: String?
@@ -59,6 +58,10 @@ class Pong(message: String) : AriesProtocolMessage(message) {
     private class PongBuilder : Builder<PongBuilder>() {
         protected override fun self(): PongBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return Pong::class
         }
     }
 }

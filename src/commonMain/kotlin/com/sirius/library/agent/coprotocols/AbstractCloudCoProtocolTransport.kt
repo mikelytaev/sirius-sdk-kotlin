@@ -93,7 +93,7 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
                     PLEASE_ACK_DECORATOR
                 ).getString("message_id") else message.getId()
             rpc.stopProtocolWithThreads(pleaseAckIds, true)
-            pleaseAckIds.removeIf(java.util.function.Predicate<String> { ackId: String -> ackId == ackMessageId })*/
+            pleaseAckIds.removeIf(java.android.util.function.Predicate<String> { ackId: String -> ackId == ackMessageId })*/
         }
     }
 

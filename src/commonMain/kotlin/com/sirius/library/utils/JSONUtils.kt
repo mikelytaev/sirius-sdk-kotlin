@@ -6,7 +6,7 @@ object JSONUtils {
     @JvmOverloads
     fun JSONObjectToString(obj: JSONObject?, sortKeys: Boolean = false): String {
        /* val keys: List<String> = ArrayList(obj.keySet())
-        if (sortKeys) java.util.Collections.sort<String>(keys)
+        if (sortKeys) java.android.util.Collections.sort<String>(keys)
         val stringBuilder: StringBuilder = StringBuilder()
         stringBuilder.append("{")
         for (key in keys) {

@@ -7,9 +7,7 @@ import com.sirius.library.utils.JSONObject
 
 open class BaseTransactionsMessage(msg: String) : SimpleConsensusMessage(msg) {
     companion object {
-        init {
-            Message.registerMessageClass(BaseTransactionsMessage::class, SimpleConsensusMessage.PROTOCOL, "stage")
-        }
+
     }
 
     fun transactions(): List<Transaction>? {

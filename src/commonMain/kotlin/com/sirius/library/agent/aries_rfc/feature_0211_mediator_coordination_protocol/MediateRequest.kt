@@ -2,6 +2,7 @@ package com.sirius.library.agent.aries_rfc.feature_0211_mediator_coordination_pr
 
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class MediateRequest(message: String) : CoordinateMediationMessage(message) {
     companion object {
@@ -9,9 +10,6 @@ class MediateRequest(message: String) : CoordinateMediationMessage(message) {
             return MediateRequestMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(MediateRequest::class, PROTOCOL, "mediate-request")
-        }
     }
 
     abstract class Builder<B : Builder<B>> : CoordinateMediationMessage.Builder<B>() {
@@ -27,6 +25,10 @@ class MediateRequest(message: String) : CoordinateMediationMessage(message) {
     private class MediateRequestMessageBuilder : Builder<MediateRequestMessageBuilder>() {
         protected override fun self(): MediateRequestMessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return MediateRequest::class
         }
     }
 }

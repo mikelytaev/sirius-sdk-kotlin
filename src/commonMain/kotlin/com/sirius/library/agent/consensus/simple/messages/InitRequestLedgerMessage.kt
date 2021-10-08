@@ -8,6 +8,7 @@ import com.sirius.library.errors.sirius_exceptions.SiriusValidationError
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 open class InitRequestLedgerMessage(msg: String) : BaseInitLedgerMessage(msg) {
     companion object {
@@ -15,13 +16,7 @@ open class InitRequestLedgerMessage(msg: String) : BaseInitLedgerMessage(msg) {
             return InitRequestLedgerMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(
-                InitRequestLedgerMessage::class,
-                SimpleConsensusMessage.PROTOCOL,
-                "initialize-request"
-            )
-        }
+
     }
 
     @Throws(SiriusContextError::class)
@@ -91,6 +86,9 @@ open class InitRequestLedgerMessage(msg: String) : BaseInitLedgerMessage(msg) {
         Builder<InitRequestLedgerMessageBuilder>() {
          override fun self(): InitRequestLedgerMessageBuilder {
             return this
+        }
+        override fun getClass(): KClass<out Message> {
+            return InitRequestLedgerMessage::class
         }
     }
 }

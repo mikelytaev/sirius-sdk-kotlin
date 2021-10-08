@@ -6,6 +6,7 @@ import com.sirius.library.utils.Base64
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.StringCodec
+import kotlin.reflect.KClass
 
 class Invitation(msg: String) : ConnProtocolMessage(msg) {
     companion object {
@@ -13,9 +14,7 @@ class Invitation(msg: String) : ConnProtocolMessage(msg) {
             return InvitationBuilder()
         }
 
-        init {
-            Message.registerMessageClass(Invitation::class, ConnProtocolMessage.PROTOCOL, "invitation")
-        }
+
     }
 
     fun recipientKeys(): List<String> {
@@ -114,6 +113,10 @@ class Invitation(msg: String) : ConnProtocolMessage(msg) {
     private class InvitationBuilder : Builder<InvitationBuilder>() {
         override fun self(): InvitationBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return Invitation::class
         }
     }
 }

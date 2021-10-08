@@ -3,6 +3,7 @@ package com.sirius.library.agent.consensus.simple.messages
 import com.sirius.library.agent.aries_rfc.AriesProblemReport
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class SimpleConsensusProblemReport(message: String) : AriesProblemReport(message) {
     companion object {
@@ -10,13 +11,6 @@ class SimpleConsensusProblemReport(message: String) : AriesProblemReport(message
             return SimpleConsensusProblemReportBuilder()
         }
 
-        init {
-            Message.registerMessageClass(
-                SimpleConsensusProblemReport::class,
-                SimpleConsensusMessage.PROTOCOL,
-                "problem_report"
-            )
-        }
     }
 
     abstract class Builder<B : Builder<B>> :
@@ -34,6 +28,10 @@ class SimpleConsensusProblemReport(message: String) : AriesProblemReport(message
         Builder<SimpleConsensusProblemReportBuilder>() {
         protected override fun self(): SimpleConsensusProblemReportBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return SimpleConsensusProblemReport::class
         }
     }
 }

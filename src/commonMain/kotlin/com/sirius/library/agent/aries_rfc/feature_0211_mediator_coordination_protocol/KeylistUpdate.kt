@@ -1,8 +1,10 @@
 package com.sirius.library.agent.aries_rfc.feature_0211_mediator_coordination_protocol
 
+import com.sirius.library.agent.aries_rfc.feature_0160_connection_protocol.messages.Invitation
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class KeylistUpdate(message: String) : CoordinateMediationMessage(message) {
     companion object {
@@ -10,9 +12,7 @@ class KeylistUpdate(message: String) : CoordinateMediationMessage(message) {
             return KeylistUpdateMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(KeylistUpdate::class, PROTOCOL, "keylist-update")
-        }
+
     }
 
     abstract class Builder<B : Builder<B>> : CoordinateMediationMessage.Builder<B>() {
@@ -46,6 +46,10 @@ class KeylistUpdate(message: String) : CoordinateMediationMessage(message) {
     private class KeylistUpdateMessageBuilder : Builder<KeylistUpdateMessageBuilder>() {
         protected override fun self(): KeylistUpdateMessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return KeylistUpdate::class
         }
     }
 }

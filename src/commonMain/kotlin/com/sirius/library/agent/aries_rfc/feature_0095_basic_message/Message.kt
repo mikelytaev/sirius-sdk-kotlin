@@ -4,6 +4,8 @@ import com.sirius.library.agent.aries_rfc.AriesProtocolMessage
 import com.sirius.library.agent.aries_rfc.concept_0017_attachments.Attach
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
+import kotlinx.serialization.json.JsonObject
+import kotlin.reflect.KClass
 
 class Message(msg: String) : AriesProtocolMessage(msg) {
     companion object {
@@ -11,9 +13,6 @@ class Message(msg: String) : AriesProtocolMessage(msg) {
             return MessageBuilder()
         }
 
-        init {
-            com.sirius.library.messaging.Message.registerMessageClass(Message::class, "basicmessage", "message")
-        }
     }
 
     val content: String?
@@ -24,7 +23,7 @@ class Message(msg: String) : AriesProtocolMessage(msg) {
             if (messageObjectHasKey("~attach")) {
                 val arr: JSONArray = getMessageObjec().getJSONArray("~attach") ?: JSONArray()
                 for (o in arr) {
-                    res.add(Attach(o as JSONObject))
+                    res.add(Attach(o as JsonObject))
                 }
             }
             return res
@@ -34,7 +33,10 @@ class Message(msg: String) : AriesProtocolMessage(msg) {
         if (!messageObjectHasKey("~attach")) {
             getMessageObjec().put("~attach", JSONArray())
         }
-        getMessageObjec().getJSONArray("~attach")?.put(att)
+        println("getMessageObjec()1="+getMessageObjec())
+        val array = getMessageObjec().getJSONArray("~attach")?.put(att)
+        println("getMessageObjec()2="+array)
+        println("getMessageObjec()2="+getMessageObjec())
     }
 
     abstract class Builder<B : Builder<B>> : AriesProtocolMessage.Builder<B>() {
@@ -70,6 +72,10 @@ class Message(msg: String) : AriesProtocolMessage(msg) {
     private class MessageBuilder : Builder<MessageBuilder>() {
         protected override fun self(): MessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out com.sirius.library.messaging.Message> {
+            return Message::class
         }
     }
 }

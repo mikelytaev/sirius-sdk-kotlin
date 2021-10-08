@@ -5,6 +5,8 @@ import kotlinx.serialization.json.*
 open class JSONArray : Iterable<Any> {
 
     var jsonArray : JsonArray = buildJsonArray {  }
+    var parentObject : JSONObject? = null
+    var parentKey : String? = null
     constructor(list: List<String>?) : this(){
         if(list==null){
             jsonArray  = buildJsonArray {  }
@@ -19,8 +21,10 @@ open class JSONArray : Iterable<Any> {
     constructor(){
         jsonArray  = buildJsonArray {  }
     }
-    constructor(jsonArray : JsonArray){
+    constructor(jsonArray : JsonArray, parentObject : JSONObject? =null,parentKey : String? =  null ){
         this.jsonArray = jsonArray
+        this.parentObject = parentObject
+        this.parentKey = parentKey
     }
 
     constructor(optString: String?): this(){
@@ -42,7 +46,22 @@ open class JSONArray : Iterable<Any> {
     }
 
     fun put(credAttach: JSONObject): JSONArray {
-
+        jsonArray = buildJsonArray {
+            jsonArray.forEach {
+                this.add(it)
+            }
+            this.add(credAttach.jsonObject)
+        }
+        parentObject?.let {
+            it.jsonObject = buildJsonObject {
+                it.jsonObject.entries.forEach {
+                    put(it.key,it.value)
+                }
+                parentKey?.let {
+                    put(it, jsonArray)
+                }
+            }
+        }
         return this
     }
 
@@ -82,5 +101,9 @@ open class JSONArray : Iterable<Any> {
     fun remove(i: Int) {
 
 
+    }
+
+    override fun toString(): String {
+        return jsonArray.toString()
     }
 }

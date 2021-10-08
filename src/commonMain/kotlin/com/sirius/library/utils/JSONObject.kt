@@ -15,7 +15,9 @@ open class JSONObject {
 
     var message: String? = null
     var jsonMap: Map<String, JsonElement> = HashMap()
-    var jsonObject: JsonObject = buildJsonObject { }
+    var jsonObject: JsonObject = buildJsonObject {
+
+    }
 
     constructor() {
 
@@ -36,6 +38,9 @@ open class JSONObject {
     constructor(message: String?) {
         message?.let {
             this.message = message
+            println("message="+message)
+            val element = Json.parseToJsonElement(message)
+            println("element="+element)
             jsonObject = Json.parseToJsonElement(message).jsonObject
 
         }
@@ -51,11 +56,11 @@ open class JSONObject {
     }
 
     fun optString(key: String, default : String? = null): String? {
-        return null
+        return jsonObject.get(key)?.jsonPrimitive?.content ?: default
     }
 
     fun getString(key: String): String? {
-        return null
+        return jsonObject.get(key)?.jsonPrimitive?.content
     }
 
     fun has(key: String): Boolean {
@@ -63,6 +68,34 @@ open class JSONObject {
     }
 
     fun put(key: String, value: Any?): JSONObject {
+        jsonObject = buildJsonObject {
+            jsonObject.entries.forEach {
+                put(it.key, it.value)
+            }
+            if(value ==null){
+                put(key, JsonNull)
+            }else if(value is String){
+                put(key, value)
+            }else if(value is JSONArray){
+                putJsonArray(key){
+                    value.jsonArray.forEach {
+                        this.add(it)
+                    }
+                }
+            }else if(value is JSONObject){
+                putJsonObject(key) {
+                    value.jsonObject.entries.forEach {
+                        put(it.key, it.value)
+                    }
+                }
+            }else if(value is Number ){
+                put(key,value)
+            }else if(value is String){
+                put(key,value)
+            }else if(value is Boolean){
+                put(key,value)
+            }
+        }
 
         return this
     }
@@ -99,7 +132,7 @@ open class JSONObject {
         if (jsonObject.get(key)?.jsonArray == null) {
             return null
         }
-        return JSONArray(jsonObject.get(key)!!.jsonArray)
+        return JSONArray(jsonObject.get(key)!!.jsonArray, this, key)
     }
 
     fun getInt(key: String): Int? {
@@ -111,7 +144,7 @@ open class JSONObject {
     }
 
     override fun toString(): String {
-        return super.toString()
+        return jsonObject.toString()
     }
 
     fun optBoolean(s: String, b: Boolean): Boolean {

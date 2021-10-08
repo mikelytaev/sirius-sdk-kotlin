@@ -64,6 +64,7 @@ abstract class AriesProtocolMessage : Message {
         var version = DEF_VERSION
         var docUri = ARIES_DOC_URI
         var id: String? = null
+        abstract fun getClass() : KClass<out Message>
         fun setVersion(version: String): B {
             this.version = version
             return self()
@@ -82,8 +83,8 @@ abstract class AriesProtocolMessage : Message {
         protected abstract fun self(): B
         open fun generateJSON(): JSONObject {
             val jsonObject = JSONObject()
-            val (first, second) = Message.getProtocolAndName(this::class as KClass<out Message>)
-            jsonObject.put("@type", Type(docUri, first?:"", version, second?:""))
+            val (first, second) = Message.getProtocolAndName(getClass())
+            jsonObject.put("@type", Type(docUri, first?:"", version, second?:"").typeString)
             jsonObject.put("@id", if (id == null) generateId() else id)
             return jsonObject
         }

@@ -3,6 +3,7 @@ package com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.message
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class ProposeCredentialMessage(message: String) : BaseIssueCredentialMessage(message) {
     companion object {
@@ -10,9 +11,6 @@ class ProposeCredentialMessage(message: String) : BaseIssueCredentialMessage(mes
             return ProposeCredentialMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(ProposeCredentialMessage::class, PROTOCOL, "propose-credential")
-        }
     }
 
     val schemaIssuerDid: String?
@@ -127,6 +125,10 @@ class ProposeCredentialMessage(message: String) : BaseIssueCredentialMessage(mes
         Builder<ProposeCredentialMessageBuilder>() {
         override fun self(): ProposeCredentialMessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return ProposeCredentialMessage::class
         }
     }
 }

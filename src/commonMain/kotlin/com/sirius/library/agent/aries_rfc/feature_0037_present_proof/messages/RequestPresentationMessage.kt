@@ -3,6 +3,7 @@ package com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages
 import com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.messages.AttribTranslation
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.*
+import kotlin.reflect.KClass
 
 class RequestPresentationMessage(msg: String) : BasePresentProofMessage(msg) {
     companion object {
@@ -11,9 +12,6 @@ class RequestPresentationMessage(msg: String) : BasePresentProofMessage(msg) {
             return RequestPresentationMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(RequestPresentationMessage::class, PROTOCOL, "request-presentation")
-        }
     }
 
     fun proofRequest(): JSONObject? {
@@ -114,6 +112,9 @@ class RequestPresentationMessage(msg: String) : BasePresentProofMessage(msg) {
         Builder<RequestPresentationMessageBuilder>() {
         protected override fun self(): RequestPresentationMessageBuilder {
             return this
+        }
+        override fun getClass(): KClass<out Message> {
+            return RequestPresentationMessage::class
         }
     }
 }

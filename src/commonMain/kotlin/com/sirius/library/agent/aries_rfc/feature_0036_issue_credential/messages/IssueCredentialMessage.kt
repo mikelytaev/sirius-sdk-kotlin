@@ -6,6 +6,7 @@ import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import kotlin.reflect.KClass
 
 class IssueCredentialMessage(message: String) : BaseIssueCredentialMessage(message) {
     companion object {
@@ -13,9 +14,6 @@ class IssueCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
             return IssueCredentialMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(IssueCredentialMessage::class, PROTOCOL, "issue-credential")
-        }
     }
 
     fun cred(): JSONObject? {
@@ -87,6 +85,10 @@ class IssueCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
         Builder<IssueCredentialMessageBuilder>() {
         override fun self(): IssueCredentialMessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return IssueCredentialMessage::class
         }
     }
 }

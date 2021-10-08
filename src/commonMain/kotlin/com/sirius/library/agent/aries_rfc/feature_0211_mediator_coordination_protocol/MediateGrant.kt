@@ -3,6 +3,7 @@ package com.sirius.library.agent.aries_rfc.feature_0211_mediator_coordination_pr
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class MediateGrant(message: String) : CoordinateMediationMessage(message) {
     companion object {
@@ -10,9 +11,7 @@ class MediateGrant(message: String) : CoordinateMediationMessage(message) {
             return MediateGrantMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(MediateGrant::class, PROTOCOL, "mediate-grant")
-        }
+
     }
 
     val endpointAddress: String?
@@ -40,6 +39,10 @@ class MediateGrant(message: String) : CoordinateMediationMessage(message) {
     private class MediateGrantMessageBuilder : Builder<MediateGrantMessageBuilder>() {
         protected override fun self(): MediateGrantMessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return MediateGrant::class
         }
     }
 }

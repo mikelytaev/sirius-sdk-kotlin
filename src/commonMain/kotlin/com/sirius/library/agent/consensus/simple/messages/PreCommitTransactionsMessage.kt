@@ -5,6 +5,7 @@ import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.agent.wallet.abstract_wallet.AbstractCrypto
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 /**
  * Message to accumulate participants signed accepts for transactions list
@@ -15,13 +16,7 @@ class PreCommitTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) {
             return PreCommitTransactionsMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(
-                PreCommitTransactionsMessage::class,
-                SimpleConsensusMessage.PROTOCOL,
-                "stage-pre-commit"
-            )
-        }
+
     }
 
     fun signState(api: AbstractCrypto, me: Pairwise.Me) {
@@ -56,6 +51,10 @@ class PreCommitTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) {
         Builder<PreCommitTransactionsMessageBuilder>() {
         protected override fun self(): PreCommitTransactionsMessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return PreCommitTransactionsMessage::class
         }
     }
 }

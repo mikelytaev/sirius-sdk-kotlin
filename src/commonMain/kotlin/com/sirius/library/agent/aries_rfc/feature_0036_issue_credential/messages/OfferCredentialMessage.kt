@@ -6,6 +6,7 @@ import com.sirius.library.utils.Base64
 import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(message) {
     companion object {
@@ -13,9 +14,7 @@ class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
             return OfferCredentialMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(OfferCredentialMessage::class, PROTOCOL, "offer-credential")
-        }
+
     }
 
     class ParseResult {
@@ -236,6 +235,10 @@ class OfferCredentialMessage(message: String) : BaseIssueCredentialMessage(messa
         Builder<OfferCredentialMessageBuilder>() {
         override fun self(): OfferCredentialMessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return OfferCredentialMessage::class
         }
     }
 }

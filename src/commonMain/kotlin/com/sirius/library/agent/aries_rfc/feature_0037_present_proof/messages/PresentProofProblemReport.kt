@@ -1,8 +1,10 @@
 package com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages
 
 import com.sirius.library.agent.aries_rfc.AriesProblemReport
+import com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.messages.RequestCredentialMessage
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class PresentProofProblemReport(message: String) : AriesProblemReport(message) {
     companion object {
@@ -10,13 +12,6 @@ class PresentProofProblemReport(message: String) : AriesProblemReport(message) {
             return PresentProofProblemReportBuilder()
         }
 
-        init {
-            Message.registerMessageClass(
-                PresentProofProblemReport::class,
-                BasePresentProofMessage.PROTOCOL,
-                "problem_report"
-            )
-        }
     }
 
     abstract class Builder<B : Builder<B>> :
@@ -34,6 +29,10 @@ class PresentProofProblemReport(message: String) : AriesProblemReport(message) {
         Builder<PresentProofProblemReportBuilder>() {
         protected override fun self(): PresentProofProblemReportBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return PresentProofProblemReport::class
         }
     }
 }

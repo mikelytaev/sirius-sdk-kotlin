@@ -11,13 +11,7 @@ import com.sirius.library.utils.JSONObject
 
 open class BaseInitLedgerMessage(msg: String) : SimpleConsensusMessage(msg) {
     companion object {
-        init {
-            Message.registerMessageClass(
-                BaseInitLedgerMessage::class,
-                SimpleConsensusMessage.PROTOCOL,
-                "initialize"
-            )
-        }
+
     }
 
     fun ledgerHash(): JSONObject? {

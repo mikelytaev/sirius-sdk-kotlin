@@ -181,7 +181,9 @@ class TestCloudAgent {
         }
 
         //Bind Message class to protocol
-        Message.registerMessageClass(TrustPingMessageUnderTest::class, "trust_ping_test")
+        Message.registerMessageClass(TrustPingMessageUnderTest::class, "trust_ping_test"){
+            TrustPingMessageUnderTest(it)
+        }
         //Prepare message
         val trust_ping = Message(
             JSONObject().put("@type", "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/trust_ping_test/1.0/ping")

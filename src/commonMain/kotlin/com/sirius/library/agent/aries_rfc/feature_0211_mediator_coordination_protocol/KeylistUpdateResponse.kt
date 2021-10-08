@@ -2,6 +2,7 @@ package com.sirius.library.agent.aries_rfc.feature_0211_mediator_coordination_pr
 
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class KeylistUpdateResponse(message: String) : CoordinateMediationMessage(message) {
     companion object {
@@ -9,9 +10,6 @@ class KeylistUpdateResponse(message: String) : CoordinateMediationMessage(messag
             return KeylistResponseMessageBuilder()
         }
 
-        init {
-            Message.registerMessageClass(KeylistUpdateResponse::class, PROTOCOL, "keylist-update-response")
-        }
     }
 
     abstract class Builder<B : Builder<B>> :
@@ -29,6 +27,10 @@ class KeylistUpdateResponse(message: String) : CoordinateMediationMessage(messag
         Builder<KeylistResponseMessageBuilder>() {
         protected override fun self(): KeylistResponseMessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return KeylistUpdateResponse::class
         }
     }
 }

@@ -5,6 +5,7 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class QuestionMessage(msg: String) : AriesProtocolMessage(msg) {
     companion object {
@@ -12,13 +13,7 @@ class QuestionMessage(msg: String) : AriesProtocolMessage(msg) {
             return MessageBuilder()
         }
 
-        init {
-           Message.registerMessageClass(
-                QuestionMessage::class,
-                "questionanswer",
-                "question"
-            )
-        }
+
     }
 
     val questionText: String?
@@ -147,6 +142,10 @@ class QuestionMessage(msg: String) : AriesProtocolMessage(msg) {
     private class MessageBuilder : Builder<MessageBuilder>() {
         protected override fun self(): MessageBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return QuestionMessage::class
         }
     }
 }

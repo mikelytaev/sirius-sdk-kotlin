@@ -4,6 +4,7 @@ import com.sirius.library.agent.aries_rfc.Utils
 import com.sirius.library.agent.wallet.abstract_wallet.AbstractCrypto
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
+import kotlin.reflect.KClass
 
 class ConnResponse(msg: String) : ConnProtocolMessage(msg) {
     companion object {
@@ -24,9 +25,7 @@ class ConnResponse(msg: String) : ConnProtocolMessage(msg) {
             return ConnResponseBuilder()
         }
 
-        init {
-            Message.registerMessageClass(ConnResponse::class, ConnProtocolMessage.PROTOCOL, "response")
-        }
+
     }
 
     fun signConnection(crypto: AbstractCrypto, key: String) {
@@ -90,6 +89,10 @@ class ConnResponse(msg: String) : ConnProtocolMessage(msg) {
     private class ConnResponseBuilder : Builder<ConnResponseBuilder>() {
         override fun self(): ConnResponseBuilder {
             return this
+        }
+
+        override fun getClass(): KClass<out Message> {
+            return ConnResponse::class
         }
     }
 }
