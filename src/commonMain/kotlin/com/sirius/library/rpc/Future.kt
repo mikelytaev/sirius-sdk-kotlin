@@ -10,6 +10,8 @@ import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
 import com.sirius.library.utils.UUID
+import kotlinx.coroutines.*
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -80,7 +82,7 @@ class Future(var tunnel: AddressedTunnel) {
             val isType = MSG_TYPE == message?.getType()
             val isTypeId = id == threadId
             if (MSG_TYPE == message?.getType() && id == threadId) {
-                val exception: JSONObject? = message.getJSONOBJECTFromJSON("exception")
+                val exception: JSONObject? = message!!.getJSONOBJECTFromJSON("exception")
                 if (exception == null) {
                     val value: Any? = message?.getObjectFromJSON("value")
                     val is_tuple: Boolean = message?.getBooleanFromJSON("is_tuple") ?: false
@@ -256,7 +258,7 @@ class Future(var tunnel: AddressedTunnel) {
             siriusPendingOperation.printStackTrace()
         }
     }
-
+    @Serializable
     class FuturePromise(var id: String, var channel_address: String, var expiration_stamp: Long) :
         JsonSerializable<FuturePromise> {
 

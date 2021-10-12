@@ -1,11 +1,23 @@
 package com.sirius.library.base
 
-import com.sirius.library.messaging.Message
-import com.sirius.library.utils.CompletableFuture
-import com.sirius.library.utils.Logger
-import com.sirius.library.utils.StringCodec
+import com.sirius.library.utils.CompletableFutureKotlin
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
 
-class WebSocketConnector(override val isOpen: Boolean) : BaseConnector() {
+expect class WebSocketConnector()  {
+
+
+
+    constructor(
+        defTimeout: Int,
+        encoding: String,
+        serverAddress: String,
+        path: String,
+        credentials: ByteArray?
+    )
+
+    constructor(serverAddress: String, path: String, credentials: ByteArray?)
+
     /* var log: Logger = Logger.getLogger(WebSocketConnector::class.simpleName)
     var defTimeout = 30
     var encoding: String = StringCodec.UTF_8
@@ -234,19 +246,18 @@ class WebSocketConnector(override val isOpen: Boolean) : BaseConnector() {
         webSocket.sendText(payload)
         return true
     }*/
-    override fun open() {
+     fun open()
 
-    }
+     fun close()
 
-    override fun close() {
+     val isOpen: Boolean
 
-    }
 
-    override fun read(): CompletableFuture<ByteArray?>? {
-        return null
-    }
+    suspend fun read(): Deferred<ByteArray?>
 
-    override fun write(data: ByteArray?): Boolean {
-       return false
-    }
+     fun write(data: ByteArray?): Boolean
+
+    suspend fun openConnector()
+
+    suspend fun readBytes(): ByteArray?
 }

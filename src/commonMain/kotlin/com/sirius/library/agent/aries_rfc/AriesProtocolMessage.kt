@@ -84,6 +84,7 @@ abstract class AriesProtocolMessage : Message {
         open fun generateJSON(): JSONObject {
             val jsonObject = JSONObject()
             val (first, second) = Message.getProtocolAndName(getClass())
+            println("generateJSON()="+"docUri="+docUri+" first="+first)
             jsonObject.put("@type", Type(docUri, first?:"", version, second?:"").typeString)
             jsonObject.put("@id", if (id == null) generateId() else id)
             return jsonObject

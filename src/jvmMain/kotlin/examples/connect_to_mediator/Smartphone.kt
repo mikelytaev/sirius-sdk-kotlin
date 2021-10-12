@@ -1,5 +1,5 @@
 /*
-package com.examples.connect_to_mediator
+package examples.connect_to_mediator
 
 import com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.messages.OfferCredentialMessage
 import com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.state_machines.Holder

@@ -1,5 +1,5 @@
 /*
-package com.examples.covid
+package examples.covid
 
 import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.state_machines.Verifier
 import com.sirius.library.agent.aries_rfc.feature_0095_basic_message.Message

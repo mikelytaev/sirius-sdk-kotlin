@@ -1,4 +1,4 @@
-package com.examples.covid
+package examples.covid
 
 import com.sirius.library.agent.ledger.CredentialDefinition
 import com.sirius.library.agent.ledger.Schema

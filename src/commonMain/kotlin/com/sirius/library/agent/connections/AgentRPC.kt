@@ -43,7 +43,7 @@ class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnectio
      * @return
      */
     @Throws(Exception::class)
-    fun remoteCall(msgType: String, params: RemoteParams?, waitResponse: Boolean): Any? {
+     fun remoteCall(msgType: String, params: RemoteParams?, waitResponse: Boolean): Any? {
         if (!connector!!.isOpen) {
             throw SiriusConnectionClosed("Open agent connection at first")
         }
@@ -78,7 +78,7 @@ class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnectio
 
     @JvmOverloads
     @Throws(Exception::class)
-    fun remoteCall(msgType: String, params: RemoteParams? = null): Any? {
+     fun remoteCall(msgType: String, params: RemoteParams? = null): Any? {
         return remoteCall(msgType, params, true)
     }
 
@@ -87,8 +87,10 @@ class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnectio
         //Extract proxy info
         val proxies: MutableList<JSONObject> = ArrayList<JSONObject>()
         val proxiesArray: JSONArray? = context.getJSONArrayFromJSON("~proxy", null)
+        println("proxiesArray="+proxiesArray)
         if (proxiesArray != null) {
             for (i in 0 until proxiesArray.length()) {
+                println("proxiesArray get i ="+   proxiesArray.getJSONObject(i))
                 proxiesArray.getJSONObject(i)?.let {
                     proxies.add(it)
                 }
@@ -97,6 +99,7 @@ class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnectio
         }
         var channel_rpc: String? = null
         var channel_sub_protocol: String? = null
+        println("proxies="+proxies)
         for (proxy in proxies) {
             if ("reverse" == proxy.getString("id")) {
                 channel_rpc = proxy.getJSONObject("data")?.getJSONObject("json")?.getString("address")

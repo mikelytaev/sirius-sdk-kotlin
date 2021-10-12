@@ -1,5 +1,5 @@
 /*
-package com.examples.covid
+package examples.covid
 
 import com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.messages.AttribTranslation
 import com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.messages.ProposedAttrib

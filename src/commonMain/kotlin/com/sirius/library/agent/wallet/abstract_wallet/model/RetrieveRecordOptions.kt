@@ -2,10 +2,12 @@ package com.sirius.library.agent.wallet.abstract_wallet.model
 
 import com.sirius.library.base.JsonSerializable
 import com.sirius.library.utils.JSONObject
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+@Serializable
 class RetrieveRecordOptions : JsonSerializable<RetrieveRecordOptions?> {
     var retrieveType = false
     var retrieveValue = false

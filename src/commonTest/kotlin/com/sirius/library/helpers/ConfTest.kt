@@ -8,6 +8,7 @@ import com.sirius.library.encryption.Custom
 import com.sirius.library.models.AgentParams
 import com.sirius.library.models.P2PModel
 import com.sirius.library.utils.*
+import kotlin.time.ExperimentalTime
 
 class ConfTest {
     var test_suite_baseurl: String? =null
@@ -63,10 +64,14 @@ class ConfTest {
         return null
     }
 
+    @OptIn(ExperimentalTime::class)
     val suiteSingleton: ServerTestSuite
         get() {
+            println("get suiteSingleton")
             val serverTestSuite: ServerTestSuite = ServerTestSuite.newInstance()
+            println("get suiteSingleton ensureIsAlive")
             serverTestSuite.ensureIsAlive()
+            println("get suiteSingleton ensureIsAlive END")
             return serverTestSuite
         }
     val indyAgentSingleton: IndyAgent

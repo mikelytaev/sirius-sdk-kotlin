@@ -14,10 +14,12 @@ class TestLocks {
         confTest = ConfTest.newInstance()
     }
 
+
     @Test
     @Throws(Exception::class)
     fun testSameAccount() {
         val testSuite: ServerTestSuite = confTest.suiteSingleton
+
         val params: AgentParams = testSuite.getAgentParams("agent1")
         val session1 = CloudAgent(
             params.serverAddress,

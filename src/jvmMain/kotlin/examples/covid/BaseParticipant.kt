@@ -1,5 +1,5 @@
 /*
-package com.examples.covid
+package examples.covid
 
 import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.hub.CloudHub

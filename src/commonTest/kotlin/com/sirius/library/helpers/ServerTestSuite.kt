@@ -7,6 +7,17 @@ import com.sirius.library.encryption.P2PConnection
 import com.sirius.library.models.AgentParams
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.System
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlin.coroutines.suspendCoroutine
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
 
 class ServerTestSuite {
     var SETUP_TIMEOUT = 60
@@ -50,19 +61,64 @@ class ServerTestSuite {
 
     }
 
+    @ExperimentalTime
     fun ensureIsAlive() {
-        val (first, second) = httpGet(url)
-        if (first) {
-            metadata = second
-        } else {
-            if (testSuiteExistsLocally) {
-                runSuiteLocally()
+
+        CoroutineScope(Dispatchers.Default).launch{
+            val time = measureTime {
+                println("The answer is ${concurrentSum()}")
             }
+            println("Completed in $time ms")
+           // concurrentSum()
         }
+
+            val (first, second) = httpGet(url)
+            if (first) {
+                metadata = second
+            } else {
+                if (testSuiteExistsLocally) {
+                    runSuiteLocally()
+                }
+            }
+
+    }
+
+
+    suspend fun concurrentSum(): Int = coroutineScope {
+        val one = async { doSomethingUsefulOne() }
+        val two = async { doSomethingUsefulTwo() }
+        one.await() + two.await()
+    }
+
+    suspend fun doSomethingUsefulOne(): Int {
+        delay(1000L) // pretend we are doing something useful here
+        return 13
+    }
+
+    suspend fun doSomethingUsefulTwo(): Int {
+        delay(1000L) // pretend we are doing something useful here, too
+        return 29
     }
 
     fun runSuiteLocally() {}
-    fun httpGet(url: String?): Pair<Boolean, String> {
+      fun httpGet(url: String?): Pair<Boolean, String> {
+          println("httpGet url="+url)
+         GlobalScope.launch {
+              val client = HttpClient()
+              println("httpGet client="+client)
+              val response: HttpResponse = client.request("https://ktor.io/") {
+                  // Configure request parameters exposed by HttpRequestBuilder
+              }
+              println("httpGet response="+response)
+              val byteArrayBody: ByteArray = response.receive()
+              val string = byteArrayBody.decodeToString()
+              println("httpGet string="+string)
+              client.close()
+
+          }
+
+         return Pair(false,  "byteArrayBody.decodeToString()")
+
     /*    return try {
             val httpclient: CloseableHttpClient = HttpClients.createDefault()
             val httpGet = HttpGet(url)

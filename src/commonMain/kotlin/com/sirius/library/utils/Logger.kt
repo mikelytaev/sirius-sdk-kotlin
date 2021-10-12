@@ -20,7 +20,7 @@ class Logger {
     }
 
     fun log(level : Level, string: String){
-
+        println(string)
     }
 
     fun info(string: String){

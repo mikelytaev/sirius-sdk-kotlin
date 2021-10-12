@@ -39,11 +39,11 @@ class CloudAgentEvents(serverAddress: String, credentials: ByteArray?, p2p: P2PC
     }
 
     @Throws(SiriusConnectionClosed::class, SiriusInvalidPayloadStructure::class)
-    override fun pull(): CompletableFuture<Message?> {
+    override fun pull(): CompletableFutureKotlin<Message?> {
         if (!connector!!.isOpen) {
             throw SiriusConnectionClosed("Open agent connection at first")
         }
-        return CompletableFuture()
+        return CompletableFutureKotlin()
        /* return connector?.read().thenApply { data ->
             try {
                 val codec = StringCodec()

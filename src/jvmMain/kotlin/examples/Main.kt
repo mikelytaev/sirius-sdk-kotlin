@@ -1,4 +1,4 @@
-/*
+
 package com.examples
 
 import com.sirius.library.agent.aries_rfc.feature_0095_basic_message.Message
@@ -14,6 +14,7 @@ import com.sirius.library.encryption.P2PConnection
 import com.sirius.library.hub.CloudContext
 import com.sirius.library.hub.CloudHub
 import com.sirius.library.hub.Context
+import com.sirius.library.messaging.MessageFabric
 import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
@@ -74,6 +75,7 @@ object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
+        MessageFabric.registerAllMessagesClass()
         val config: CloudHub.Config = CloudHub.Config()
         config.serverUri = "https://demo.socialsirius.com"
         config.credentials =
@@ -89,7 +91,7 @@ object Main {
         val qrUrl = qrCodeRes.second
         println("Открой QR код и просканируй в Sirius App: $qrUrl")
         // Формируем DID - свой идентификатор в контексте relationship и VERKEY - открытый ключ
-        val (myDid, myVerkey) = context.getDid().createAndStoreMyDid(null, "000000000000000000000000000MISHA")
+        val (myDid, myVerkey) = context.did.createAndStoreMyDid(null, "000000000000000000000000000MISHA")
         println("DID: $myDid")
         println("Verkey: $myVerkey")
         // определимся какой endpoint мы возьмем, для простоты возьмем endpoint без доп шифрования
@@ -105,18 +107,18 @@ object Main {
         // Слушаем запросы
         println("Слушаем запросы")
         val listener: Listener? = context.subscribe()
-        val event: Event = listener?.one.get()
+        val event: Event? = listener?.getEvent()
         println("Получено событие")
         // В рамках Samples интересны только запросы 0160 на установку соединения для connection_key нашего QR
-        if (event.recipientVerkey.equals(connectionKey) && event.message() is ConnRequest) {
-            val request: ConnRequest = event.message() as ConnRequest
+        if (event?.recipientVerkey.equals(connectionKey) && event?.message() is ConnRequest) {
+            val request: ConnRequest = event!!.message() as ConnRequest
             // Establish connection with Sirius Communicator via standard Aries protocol
             // https://github.com/hyperledger/aries-rfcs/blob/master/features/0160-connection-protocol/README.md#states
             val sm = Inviter(context, Pairwise.Me(myDid, myVerkey), connectionKey, myEndpoint)
             val p2p: Pairwise? = sm.createConnection(request)
             if (p2p != null) {
                 // Ensure pairwise is stored
-                context.getPairwiseList().ensureExists(p2p)
+                context.pairwiseList.ensureExists(p2p)
                 val hello: Message =
                     Message.builder().setContent("Привет в новый МИР!!!" + Date().toString()).setLocale("ru")
                         .build()
@@ -127,4 +129,3 @@ object Main {
         }
     }
 }
-*/

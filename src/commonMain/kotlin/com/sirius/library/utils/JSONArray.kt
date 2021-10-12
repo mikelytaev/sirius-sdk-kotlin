@@ -37,12 +37,11 @@ open class JSONArray : Iterable<Any> {
 
 
     fun length(): Int {
-        return 0
+        return jsonArray.size
     }
 
     fun getJSONObject(i: Int): JSONObject? {
-
-        return null
+        return JSONObject(jsonArray.get(i).jsonObject)
     }
 
     fun put(credAttach: JSONObject): JSONArray {
@@ -78,7 +77,7 @@ open class JSONArray : Iterable<Any> {
     }
 
     fun optJSONObject(i: Int): JSONObject? {
-        return null
+        return getJSONObject(i)
     }
 
     fun put(credAttach: String): JSONArray {

@@ -1,5 +1,5 @@
 /*
-package com.examples.propose_credential
+package examples.propose_credential
 
 import com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.messages.ProposeCredentialMessage
 import com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.messages.ProposedAttrib

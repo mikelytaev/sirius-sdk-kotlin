@@ -3,13 +3,17 @@ package com.sirius.library.agent.listener
 import com.sirius.library.agent.AbstractAgent
 import com.sirius.library.agent.connections.AgentEvents
 import com.sirius.library.agent.pairwise.AbstractPairwiseList
-import com.sirius.library.utils.CompletableFuture
+import com.sirius.library.utils.CompletableFutureKotlin
 
 class Listener(source: AgentEvents, agent: AbstractAgent) {
     var source: AgentEvents
     var pairwiseResolver: AbstractPairwiseList?
     var agent: AbstractAgent
-    val one: CompletableFuture<Event>?
+
+    fun getEvent() : Event?{
+        return null
+    }
+    val one: CompletableFutureKotlin<Event>?
         get() {
            /* try {
                 return source.pull().thenApply { msg ->
