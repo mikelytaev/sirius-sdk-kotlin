@@ -1,6 +1,6 @@
 package com.sirius.library.base
 
-import com.sirius.library.utils.CompletableFuture
+import com.sirius.library.utils.CompletableFutureKotlin
 
 /**
  * Communication abstraction for reading data stream
@@ -11,5 +11,5 @@ interface ReadOnlyChannel {
      * @param timeout Operation timeout is sec
      * @return chunk of data stream
      */
-    fun read(): CompletableFuture<ByteArray?>?
+    fun read(): CompletableFutureKotlin<ByteArray?>?
 }

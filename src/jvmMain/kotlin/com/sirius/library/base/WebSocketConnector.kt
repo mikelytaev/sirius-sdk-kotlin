@@ -2,6 +2,7 @@ package com.sirius.library.base
 
 import com.neovisionaries.ws.client.*
 import com.sirius.library.messaging.Message
+import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.Logger
 import com.sirius.library.utils.StringCodec
 import com.sirius.library.utils.StringUtils
@@ -12,6 +13,7 @@ import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
@@ -255,29 +257,24 @@ actual class WebSocketConnector actual constructor() : BaseConnector() {
         }
     }
 
-    var readFuture: Deferred<ByteArray?> =
-        CoroutineScope(Dispatchers.Unconfined).async{
-            readed
-        }
+    var readFuture: CompleteFuture<ByteArray?> =
+        CompleteFuture()
 
-    actual suspend override fun read(): Deferred<ByteArray?> {
-        readFuture = CoroutineScope(Dispatchers.Unconfined).async{
-
-            readed
-        }
+    actual  override fun read(): CompleteFuture<ByteArray?> {
+        readFuture = CompleteFuture()
         return readFuture
         //readFuture = ByteArray
       //  return  //readFuture.get(defTimeout.toLong(),TimeUnit.SECONDS)
     }
 
 
-    var readed :ByteArray? = null
+  //  var readed :ByteArray? = null
     private fun read(frame: WebSocketFrame?, exception: WebSocketException?, timeout: Int): ByteArray? {
         if (frame != null) {
-            readed = frame.getPayload()
+          //  readed = frame.getPayload()
 
-            log.log(Logger.Level.INFO, "REaded binary data"+readed?.decodeToString());
-          //  readFuture.complete(frame.getPayload())
+            log.log(Logger.Level.INFO, "REaded binary data"+frame.getPayload()?.decodeToString());
+            readFuture.complete(frame.getPayload())
             if (readCallback != null) readCallback!!.apply(frame.getPayload())
             return frame.getPayload()
         }

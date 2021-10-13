@@ -23,8 +23,6 @@ class AddressedTunnel(var address: String, input: ReadOnlyChannel, output: Write
     private var context: Context
 
 
-
-
     /**
      * Read message.
      *
@@ -39,25 +37,25 @@ class AddressedTunnel(var address: String, input: ReadOnlyChannel, output: Write
     fun receive(timeout: Int): Message? {
         var payload = ByteArray(0)
         val codec = StringCodec()
-     /*   payload = try {
-            input.read().get(timeout, java.util.concurrent.TimeUnit.SECONDS)
+        payload = try {
+            input.read()?.get(timeout.toLong())
         } catch (e: Exception) {
             e.printStackTrace()
             return null
-        }*/
+        } ?: ByteArray(0)
         return try {
             val payloadString = codec.fromByteArrayToASCIIString(payload)
             val jsonObject = JSONObject(payloadString)
             if (jsonObject.has("protected")) {
                 val unpacked: String? = p2p.unpack(codec.fromByteArrayToASCIIString(payload))
-                //log.log(Level.INFO, "Received protected message. Unpacked: " + unpacked);
+                log.log(Logger.Level.INFO, "Received protected message. Unpacked: " + unpacked);
                 context.isEncrypted = true
                 unpacked?.let {
                     Message(unpacked)
                 }
             } else {
                 context.isEncrypted = false
-                //log.log(Level.INFO, "Received message: " + payload);
+                log.log(Logger.Level.INFO, "Received message: " + payload);
                 Message(codec.fromByteArrayToASCIIString(payload))
             }
         } catch (e: Exception) {
@@ -79,7 +77,7 @@ class AddressedTunnel(var address: String, input: ReadOnlyChannel, output: Write
     fun post(message: Message, encrypt: Boolean): Boolean {
         var payload: String? = null
         payload = if (encrypt) {
-            p2p.pack(message.serialize()?:"")
+            p2p.pack(message.serialize() ?: "")
         } else {
             message.serialize()
         }

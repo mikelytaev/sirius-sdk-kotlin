@@ -5,6 +5,7 @@ import com.sirius.library.encryption.P2PConnection
 import com.sirius.library.errors.sirius_exceptions.SiriusFieldValueError
 import com.sirius.library.messaging.Message
 import com.sirius.library.rpc.AddressedTunnel
+import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.Logger
 import com.sirius.library.utils.StringCodec
 
@@ -38,13 +39,13 @@ abstract class BaseAgentConnection {
         this.credentials = credentials
         this.p2p = p2p
         this.timeout = timeout
-      /*  connector = WebSocketConnector(
+        connector = WebSocketConnector(
             this.timeout,
             StringCodec.UTF_8,
             serverAddress,
             path() ?: "",
             credentials
-        )*/
+        )
     }
 
     abstract fun path(): String?
@@ -64,11 +65,11 @@ abstract class BaseAgentConnection {
 
     @Throws(SiriusFieldValueError::class)
     open fun create() {
-        // val feat: java.android.util.concurrent.CompletableFuture<ByteArray> = connector.read()
+         val feat: CompletableFutureKotlin<ByteArray?>? = connector?.read()
         connector!!.open()
         var payload = ByteArray(0)
         try {
-            //  payload = feat.get(getTimeout().toLong(), java.android.util.concurrent.TimeUnit.SECONDS)
+              payload = feat?.get(timeout.toLong()) ?:ByteArray(0)
         } catch (e: Exception) {
             e.printStackTrace()
         }

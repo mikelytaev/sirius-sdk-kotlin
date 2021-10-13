@@ -253,7 +253,7 @@ expect class WebSocketConnector()  {
      val isOpen: Boolean
 
 
-    suspend fun read(): Deferred<ByteArray?>
+    fun read(): CompletableFutureKotlin<ByteArray?>
 
      fun write(data: ByteArray?): Boolean
 

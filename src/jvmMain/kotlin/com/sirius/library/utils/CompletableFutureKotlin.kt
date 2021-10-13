@@ -1,4 +1,6 @@
 package com.sirius.library.utils
 
-actual typealias CompletableFutureKotlin<T> = java.util.concurrent.CompletableFuture<T>
+import com.sirius.library.base.CompleteFuture
+
+actual typealias CompletableFutureKotlin<T> = CompleteFuture<T>
 

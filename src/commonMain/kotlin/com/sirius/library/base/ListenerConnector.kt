@@ -1,7 +1,7 @@
 package com.sirius.library.base
 
 import com.sirius.library.messaging.Message
-import com.sirius.library.utils.CompletableFuture
+import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.Logger
 import com.sirius.library.utils.StringCodec
 
@@ -84,11 +84,11 @@ class ListenerConnector : BaseConnector {
         }*/
     }
 
-    var readFuture: CompletableFuture<ByteArray?> =
-        CompletableFuture<ByteArray?>()
+    var readFuture: CompletableFutureKotlin<ByteArray?> =
+        CompletableFutureKotlin<ByteArray?>()
 
-    override fun read(): CompletableFuture<ByteArray?> {
-        readFuture = CompletableFuture<ByteArray?>()
+    override fun read(): CompletableFutureKotlin<ByteArray?> {
+        readFuture = CompletableFutureKotlin<ByteArray?>()
         return readFuture
     }
 
