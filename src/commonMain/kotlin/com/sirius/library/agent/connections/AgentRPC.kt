@@ -57,6 +57,7 @@ class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnectio
         val msgTyp: Type = Type.fromStr(msgType)
         val isEncryptes: Boolean = !listOf("admin", "microledgers", "microledgers-batched")
             .contains(msgTyp.protocol)
+        println("remoteCallisEncryptes ="+isEncryptes +" request="+request)
         val isPosted: Boolean = tunnelRpc.post(request, isEncryptes)
         if (!isPosted) {
             throw SiriusRPCError()

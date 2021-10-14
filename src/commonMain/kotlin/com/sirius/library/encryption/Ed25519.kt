@@ -1,10 +1,15 @@
 package com.sirius.library.encryption
 
+import com.ionspin.kotlin.crypto.aead.crypto_aead_xchacha20poly1305_ietf_NPUBBYTES
+import com.ionspin.kotlin.crypto.box.crypto_box_NONCEBYTES
 import com.sirius.library.errors.sirius_exceptions.SiriusCryptoError
 import com.sirius.library.errors.sirius_exceptions.SiriusFieldValueError
-import com.sirius.library.utils.JSONArray
-import com.sirius.library.utils.JSONObject
-import com.sirius.library.utils.KeyPair
+import com.sirius.library.errors.sirius_exceptions.SiriusInvalidType
+import com.sirius.library.naclJava.CryptoAead
+import com.sirius.library.utils.*
+import com.sirius.library.utils.StringUtils.US_ASCII
+import com.sirius.library.utils.StringUtils.UTF_8
+import com.sodium.LibSodium
 
 class Ed25519 {
     var custom: Custom = Custom
@@ -22,14 +27,15 @@ class Ed25519 {
      */
 
     fun prepare_pack_recipient_keys(
-        to_verkeys: List<ByteArray?>,
+        to_verkeys: List<ByteArray>,
         from_verkey: ByteArray?,
-        from_sigkey: ByteArray?
-    ): Pair<String, KeyPair.Key> {
-        /*if (from_verkey != null && from_sigkey == null || from_verkey == null && from_sigkey != null) {
+        from_sigkey: ByteArray
+    ): Pair<String, Key> {
+        if (from_verkey != null && from_sigkey == null || from_verkey == null && from_sigkey != null) {
             throw SiriusCryptoError("Both verkey and sigkey needed to authenticated encrypt message")
         }
-        val cek: Key = LibSodium.getInstance().getLazySecretStream().cryptoSecretStreamKeygen()
+
+        val cek: Key = LibSodium.getInstance().cryptoSecretStreamKeygen()
         val recips = JSONArray()
         var enc_cek: ByteArray? = null
         var enc_sender: ByteArray? = null
@@ -37,17 +43,17 @@ class Ed25519 {
         for (target_vk in to_verkeys) {
             val keyPairToConvert = KeyPair(Key.fromBytes(target_vk), Key.fromBytes(from_sigkey))
             val convertedKeyPair: KeyPair =
-                LibSodium.getInstance().getLazySodium().convertKeyPairEd25519ToCurve25519(keyPairToConvert)
+                LibSodium.getInstance().convertKeyPairEd25519ToCurve25519(keyPairToConvert)
             val target_pk: Key = convertedKeyPair.getPublicKey()
             if (from_verkey != null) {
                 val sender_vk = custom.bytesToB58(from_verkey)
                 enc_sender = CryptoAead().cryptoBoxSeal(sender_vk, target_pk)
-                nonce = LibSodium.getInstance().getLazySodium().randomBytesBuf(Box.NONCEBYTES)
-                enc_cek = CryptoAead().cryptoBox(cek.getAsBytes(), nonce, convertedKeyPair)
+                nonce =   LibSodium.getInstance().randomBytesBuf(crypto_box_NONCEBYTES)
+                enc_cek = CryptoAead().cryptoBox(cek.asBytes, nonce, convertedKeyPair)
             } else {
                 enc_sender = null
                 nonce = null
-                enc_cek = CryptoAead().cryptoBoxSeal(cek.getAsBytes(), target_pk)
+                enc_cek = CryptoAead().cryptoBoxSeal(cek.asBytes, target_pk)
             }
             val jsonObject = JSONObject()
             jsonObject.put("encrypted_key", custom.bytesToB64(enc_cek, true))
@@ -58,6 +64,7 @@ class Ed25519 {
             } else {
                 headerObject.put("sender", custom.bytesToB64(enc_sender, true))
             }
+            println("put sender="+custom.bytesToB64(enc_sender, true))
             if (nonce == null) {
                 headerObject.put("iv", nonce)
             } else {
@@ -74,8 +81,8 @@ class Ed25519 {
         } else {
             data.put("alg", "Anoncrypt")
         }
-        data.put("recipients", recips)*/
-        return Pair("data.toString()", KeyPair.Key())
+        data.put("recipients", recips)
+        return Pair(data.toString(), cek)
     }
 
     /**
@@ -90,22 +97,23 @@ class Ed25519 {
 
     fun locate_pack_recipient_key(recipients: List<JSONObject?>, keyPair: KeyPair): DecryptModel {
         val not_found: MutableList<String> = ArrayList<String>()
-        /*for (recip in recipients) {
+        for (recip in recipients) {
             if (recip == null || !recip.has("header") || !recip.has("encrypted_key")) {
                 throw SiriusFieldValueError("Invalid recipient header")
             }
             //  JSONObject recipObj = new JSONObject(recip);
-            val headerObj: JSONObject = recip.getJSONObject("header")
-            val recip_vk_b58: String = headerObj.getString("kid")
-            if (!custom.bytesToB58(keyPair.getPublicKey().getAsBytes()).equals(recip_vk_b58)) {
+            val headerObj: JSONObject = recip.getJSONObject("header") ?: JSONObject()
+            val recip_vk_b58: String = headerObj.getString("kid") ?: ""
+            if (!custom.bytesToB58(keyPair.getPublicKey().asBytes).equals(recip_vk_b58)) {
                 not_found.add(recip_vk_b58)
                 continue
             }
             val convertedKeyPair: KeyPair =
-                LibSodium.getInstance().getLazySodium().convertKeyPairEd25519ToCurve25519(keyPair)
-            val encrypted_key = custom.b64ToBytes(recip.getString("encrypted_key"), true)
-            val iv: String = headerObj.optString("iv")
-            val sender: String = headerObj.optString("sender")
+                LibSodium.getInstance().convertKeyPairEd25519ToCurve25519(keyPair)
+            val encrypted_key = custom.b64ToBytes(recip.getString("encrypted_key") ?:"", true)
+            val iv: String = headerObj.optString("iv") ?:""
+            val sender: String = headerObj.optString("sender") ?:""
+            println("open sender="+sender)
             var nonce: ByteArray? = null
             var enc_sender: ByteArray? = null
             if (iv != null && sender != null) {
@@ -118,12 +126,12 @@ class Ed25519 {
             var sender_vk: ByteArray? = null
             var cek: ByteArray? = null
             if (nonce != null && enc_sender != null) {
-                sender_vk = CryptoAead().cryptoBoxSealOpen(enc_sender, convertedKeyPair)
-                val senderBytes = custom.b58ToBytes(String(sender_vk, java.nio.charset.StandardCharsets.US_ASCII))
+                sender_vk = CryptoAead().cryptoBoxSealOpen(enc_sender, convertedKeyPair) ?: ByteArray(0)
+                val senderBytes = custom.b58ToBytes(StringUtils.bytesToString(sender_vk, US_ASCII))
                 val senderKey: Key = Key.fromBytes(senderBytes)
                 val senderKeyPair = KeyPair(senderKey, senderKey)
                 val senderConvertedKeyPair: KeyPair =
-                    LibSodium.getInstance().getLazySodium().convertKeyPairEd25519ToCurve25519(senderKeyPair)
+                    LibSodium.getInstance().convertKeyPairEd25519ToCurve25519(senderKeyPair)
                 val sender_pk: Key = senderConvertedKeyPair.getPublicKey()
                 val openKeyPair = KeyPair(sender_pk, convertedKeyPair.getSecretKey())
                 cek = CryptoAead().cryptoBoxOpen(encrypted_key, nonce, openKeyPair)
@@ -132,8 +140,8 @@ class Ed25519 {
                 cek = CryptoAead().cryptoBoxSealOpen(encrypted_key, convertedKeyPair)
             }
             return DecryptModel(cek, sender_vk!!, recip_vk_b58)
-        }*/
-        throw SiriusFieldValueError()
+        }
+        throw SiriusFieldValueError("No corresponding recipient key found in $not_found")
     }
 
     /**
@@ -145,28 +153,31 @@ class Ed25519 {
      * @return A tuple of (ciphertext, nonce, tag)
      */
     fun encryptPlaintext(
-        message: String, add_data: String?, key: KeyPair.Key?
+        message: String, add_data: String?, key: Key?
     ): EncryptModel {
-      /*  val nonce: ByteArray =
-            LibSodium.getInstance().getLazySodium().randomBytesBuf(AEAD.CHACHA20POLY1305_IETF_NPUBBYTES)
-        val bytesOutput: ByteArray =
-            CryptoAead().encrypt(message, add_data, nonce, key, AEAD.Method.CHACHA20_POLY1305_IETF)
+        println("encryptPlaintext message="+message)
+        val nonce: ByteArray =
+            LibSodium.getInstance().randomBytesBuf(crypto_aead_xchacha20poly1305_ietf_NPUBBYTES)
+        val bytesOutput = CryptoAead().encrypt(message, add_data, nonce, key!!, "CHACHA20_POLY1305_IETF")
         //    String outputHex = LibSodium.getInstance().getLazyAaed().encrypt(message, add_data, nonce, key, AEAD.Method.CHACHA20_POLY1305_IETF);
         //    byte[] outputBytes = LazySodium.toBin(outputHex);
         //   String output = new String(outputBytes,StandardCharsets.US_ASCII);
+        println("encryptPlaintext message1="+StringUtils.bytesToString(bytesOutput ?: ByteArray(0), UTF_8))
+        println("encryptPlaintext message2="+StringUtils.bytesToString(bytesOutput?: ByteArray(0), US_ASCII))
         val mlen = message.length
-        val bObj: java.io.ByteArrayOutputStream = java.io.ByteArrayOutputStream()
+      /*  val bObj: java.io.ByteArrayOutputStream = java.io.ByteArrayOutputStream()
         bObj.reset()
         var i = 0
-        for (byteOut in bytesOutput) {
+        for (byteOut in bytesOutput!!) {
             i++
             bObj.write(byteOut.toInt())
             if (i == mlen) {
                 break
             }
         }
-        val ciphertext: ByteArray = bObj.toByteArray()
-        val bObj2: java.io.ByteArrayOutputStream = java.io.ByteArrayOutputStream()
+       */
+
+     /*   val bObj2: java.io.ByteArrayOutputStream = java.io.ByteArrayOutputStream()
         bObj2.reset()
         var z = 0
         for (byteOut in bytesOutput) {
@@ -176,9 +187,15 @@ class Ed25519 {
             }
             bObj2.write(byteOut.toInt())
         }
-        val tag: ByteArray = bObj2.toByteArray()*/
+*/
+        bytesOutput?.let {
+            val ciphertext: ByteArray =  bytesOutput.copyOfRange(0,mlen)
+            val tag: ByteArray =  bytesOutput.copyOfRange(mlen,bytesOutput.size)
+            return EncryptModel(ciphertext, nonce, tag)
+        }
+        return EncryptModel(ByteArray(0), nonce, ByteArray(0))
         //String tag = output.substring(mlen);
-        return EncryptModel(ByteArray(0), ByteArray(0), ByteArray(0))
+
     }
 
     /**
@@ -190,14 +207,13 @@ class Ed25519 {
      * @param key
      * @return The decrypted string
      */
-    fun decryptPlaintext(ciphertext: ByteArray?, recips_bin: ByteArray?, nonce: ByteArray?, key: ByteArray?): String {
-      /*  val keys: Key = Key.fromBytes(key)
-        val output: ByteArray =
-            CryptoAead().decrypt(ciphertext, recips_bin, nonce, keys, AEAD.Method.CHACHA20_POLY1305_IETF)
+    fun decryptPlaintext(ciphertext: ByteArray, recips_bin: ByteArray, nonce: ByteArray, key: ByteArray): String {
+        val keys = Key.fromBytes(key!!)
+        val output = CryptoAead().decrypt(ciphertext!!, recips_bin, nonce, keys, "CHACHA20_POLY1305_IETF")
         //String output = LibSodium.getInstance().getLazyAaed().decrypt(ciphertext, new String(recips_bin,StandardCharsets.US_ASCII), nonce, keys, AEAD.Method.CHACHA20_POLY1305_IETF);
-        return String(output, java.nio.charset.StandardCharsets.US_ASCII)*/
-        return ""
+        return StringUtils.bytesToString(output?:ByteArray(0),US_ASCII)
     }
+
 
     /**
      * Assemble a packed message for a set of recipients, optionally including
@@ -224,15 +240,16 @@ class Ed25519 {
         fromVerkey: String?,
         fromSigkey: String?
     ): String {
-      /*  val toVerKeysBytes: MutableList<ByteArray> = ArrayList<ByteArray>()
+        val toVerKeysBytes: MutableList<ByteArray> = ArrayList<ByteArray>()
         for (vk in toVerkeys) {
             val to_verkeys = ensureIsBytes(vk)
             toVerKeysBytes.add(to_verkeys)
         }
+
         val from_verkey = ensureIsBytes(fromVerkey)
         val from_sigkey = ensureIsBytes(fromSigkey)
         val (recips_json, second) = prepare_pack_recipient_keys(toVerKeysBytes, from_verkey, from_sigkey)
-        val recips_b64 = custom.bytesToB64(recips_json.toByteArray(java.nio.charset.StandardCharsets.US_ASCII), true)
+        val recips_b64 = custom.bytesToB64( StringUtils.stringToBytes(recips_json,US_ASCII), true)
         val model = encryptPlaintext(message, recips_b64, second)
         val nonce64 = custom.bytesToB64(model.nonce, true)
         val ciphertext64 = custom.bytesToB64(model.ciphertext, true)
@@ -241,8 +258,8 @@ class Ed25519 {
         jsonObject.put("protected", recips_b64)
         jsonObject.put("iv", nonce64)
         jsonObject.put("ciphertext", ciphertext64)
-        jsonObject.put("tag", tag64)*/
-        return "jsonObject.toString()"
+        jsonObject.put("tag", tag64)
+        return jsonObject.toString()
     }
 
     /**
@@ -262,7 +279,7 @@ class Ed25519 {
      */
 
     fun unpackMessage(encMessage: String?, myVerkey: String?, mySigkey: String?): UnpackModel {
-       /* val my_verkey = ensureIsBytes(myVerkey)
+        val my_verkey = ensureIsBytes(myVerkey)
         val my_sigkey = ensureIsBytes(mySigkey)
         val keyPair = KeyPair(Key.fromBytes(my_verkey), Key.fromBytes(my_sigkey))
         var error = ""
@@ -270,56 +287,57 @@ class Ed25519 {
             error = "Expected dictionary"
             val encMessJson = JSONObject(encMessage)
             error = "Invalid packed message"
-            val protected_bin: String = encMessJson.getString("protected")
+            val protected_bin: String = encMessJson.getString("protected") ?:""
             val recips_json = custom.b64ToBytes(protected_bin, true)
             error = "Invalid packed message recipients"
-            val recips_outer = JSONObject(String(recips_json))
-            val alg: String = recips_outer.getString("alg")
+            val recips_outer = JSONObject(StringUtils.bytesToString(recips_json, UTF_8))
+            val alg: String = recips_outer.getString("alg") ?:""
             val is_authcrypt = alg == "Authcrypt"
             if (!is_authcrypt && alg != "Anoncrypt") {
-                throw SiriusFieldValueError(String.format("Unsupported pack algorithm: %s", alg))
+                throw SiriusFieldValueError("Unsupported pack algorithm: $alg")
             }
-            val recipentsArray: JSONArray = recips_outer.getJSONArray("recipients")
-            val recipents: MutableList<JSONObject?> = ArrayList<JSONObject>()
+            val recipentsArray: JSONArray = recips_outer.getJSONArray("recipients") ?: JSONArray()
+            val recipents: MutableList<JSONObject> = ArrayList<JSONObject>()
             for (i in 0 until recipentsArray.length()) {
-                val recip: JSONObject = recipentsArray.getJSONObject(i)
-                recipents.add(recip)
+                val recip: JSONObject? = recipentsArray.getJSONObject(i)
+                recip?.let {
+                    recipents.add(recip)
+                }
             }
             //  cek, sender_vk, recip_vk
             val decryptModel = locate_pack_recipient_key(recipents, keyPair)
-            if (decryptModel.getSender_vk() == null && is_authcrypt) {
+            if (decryptModel.sender_vk == null && is_authcrypt) {
                 throw SiriusFieldValueError("Sender public key not provided for Authcrypt message")
             }
-            val chiperText: String = encMessJson.getString("ciphertext")
-            val ivNonce: String = encMessJson.getString("iv")
-            val tagTExt: String = encMessJson.getString("tag")
-            val ciphertext = custom.b64ToBytes(encMessJson.getString("ciphertext"), true)
+            val chiperText: String = encMessJson.getString("ciphertext")?:""
+            val ivNonce: String = encMessJson.getString("iv") ?:""
+            val tagTExt: String = encMessJson.getString("tag") ?:""
+            val ciphertext = custom.b64ToBytes(chiperText, true)
             val nonce = custom.b64ToBytes(ivNonce, true)
-            val tag = custom.b64ToBytes(encMessJson.getString("tag"), true)
-            val allByteArray = ByteArray(ciphertext.size + tag.size)
-            val buff: java.nio.ByteBuffer = java.nio.ByteBuffer.wrap(allByteArray)
-            buff.put(ciphertext)
-            buff.put(tag)
-            val combined: ByteArray = buff.array()
+            val tag = custom.b64ToBytes(tagTExt, true)
+         //   val allByte = ciphertext + tag
+            //val allByteArray = ByteArray(ciphertext.size + tag.size)
+           // val buff: java.nio.ByteBuffer = java.nio.ByteBuffer.wrap(allByteArray)
+           // buff.put(ciphertext)
+           // buff.put(tag)
+            val combined: ByteArray =ciphertext + tag
             val message = decryptPlaintext(
-                combined, protected_bin.toByteArray(java.nio.charset.StandardCharsets.US_ASCII),
+                combined, StringUtils.stringToBytes(protected_bin,US_ASCII),
                 nonce, decryptModel.cek
             )
             UnpackModel(
                 message,
-                String(decryptModel.sender_vk, java.nio.charset.StandardCharsets.US_ASCII),
+                StringUtils.bytesToString(decryptModel.sender_vk,US_ASCII),
                 decryptModel.recip_vk_b58
             )
         } catch (e: Exception) {
             e.printStackTrace()
             throw SiriusInvalidType(error)
         }
-*/
-return UnpackModel(
-    "message",
-   " String(decryptModel.sender_vk, java.nio.charset.StandardCharsets.US_ASCII)",
-    "decryptModel.recip_vk_b58"
-)
-        //   return null;
+           return  UnpackModel(
+               null,
+               null,
+               null
+           );
     }
 }

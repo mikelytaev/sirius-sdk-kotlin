@@ -2,30 +2,33 @@ package com.sirius.library.utils
 
 object StringUtils {
 
-    val encodeCharset: String = StringCodec.US_ASCII
 
-    fun stringToBytes(string: String): ByteArray {
-        if (encodeCharset == StringCodec.US_ASCII) {
+    const val US_ASCII  : String = "US_ASCII"
+    const val UTF_8  : String = "UTF_8"
+
+
+    fun stringToBytes(string: String,encodeCharset: String): ByteArray {
+        if (encodeCharset == US_ASCII) {
             val codec = StringCodec()
             return codec.fromASCIIStringToByteArray(string)
-        } else if (encodeCharset == StringCodec.UTF_8) {
+        } else if (encodeCharset == UTF_8) {
             return string.encodeToByteArray()
         }
         return ByteArray(0)
     }
 
-    fun bytesToString(bytes: ByteArray): String {
-        if (encodeCharset == StringCodec.US_ASCII) {
+    fun bytesToString(bytes: ByteArray,encodeCharset: String ): String {
+        if (encodeCharset == US_ASCII) {
             val codec = StringCodec()
             return codec.fromByteArrayToASCIIString(bytes)
-        } else if (encodeCharset == StringCodec.UTF_8) {
+        } else if (encodeCharset == UTF_8) {
             return bytes.decodeToString()
         }
         return ""
     }
 
     fun stringToBase58String(string: String): String {
-        val bytes = stringToBytes(string)
+        val bytes = stringToBytes(string, UTF_8)
         return bytesToBase58String(bytes)
     }
 
@@ -44,7 +47,10 @@ object StringUtils {
                 val escapedStr: String = CharUtils.unicodeEscaped(charOne)
                 escapedString.append(escapedStr)
             }
-        }*/
-        return escapedString.toString()
+        }
+           return escapedString.toString()
+           */
+
+        return string
     }
 }

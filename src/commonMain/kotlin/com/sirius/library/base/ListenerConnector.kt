@@ -4,11 +4,12 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.Logger
 import com.sirius.library.utils.StringCodec
+import com.sirius.library.utils.StringUtils.UTF_8
 
 class ListenerConnector : BaseConnector {
     var log: Logger = Logger.getLogger(ListenerConnector::class.simpleName)
     var defTimeout = 30
-    var encoding: String = StringCodec.UTF_8
+    var encoding: String = UTF_8
     var serverAddress: String
     var path: String
     var credentials: ByteArray

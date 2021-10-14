@@ -1,10 +1,10 @@
 package com.sirius.library.encryption
 
+import com.ionspin.kotlin.crypto.secretbox.crypto_secretbox_KEYBYTES
 import com.sirius.library.errors.sirius_exceptions.SiriusCryptoError
-import com.sirius.library.utils.Base58
-import com.sirius.library.utils.Base64
-import com.sirius.library.utils.KeyPair
-import com.sirius.library.utils.StringCodec
+import com.sirius.library.utils.*
+import com.sodium.LibSodium
+import com.sodium.SodiumException
 
 object Custom {
     /**
@@ -15,8 +15,7 @@ object Custom {
      * @return bytes array
      */
     fun b64ToBytes(value: String, urlSafe: Boolean): ByteArray {
-        val codec = StringCodec()
-        val valueBytes: ByteArray = codec.fromASCIIStringToByteArray(value)
+        var valueBytes: ByteArray = StringUtils.stringToBytes(value, StringUtils.US_ASCII)
         /*   if isinstance(value, str):
         value = value.encode('ascii')
         if urlsafe:
@@ -28,7 +27,15 @@ object Custom {
 */
 
         val encodedByte : ByteArray = if (urlSafe) {
-            val missing_padding = valueBytes.size % 4
+        //    val missing_padding  = valueBytes.size % 4
+         //   println("missing_padding="+missing_padding)
+         //   println("'='.toByte()="+'='.toByte())
+          //  val pad = '='.toByte() * (4-missing_padding).toByte()
+
+         //   println("pad"+pad)
+         //   println("valueBytes"+valueBytes)
+        //    valueBytes = valueBytes.plus(pad.toByte())
+          //  println("valueBytes"+valueBytes)
             Base64.getUrlDecoder().decode(valueBytes)
         } else {
            Base64.getDecoder().decode(valueBytes)
@@ -47,14 +54,13 @@ object Custom {
         if (bytes == null) {
             return null
         }
-        val decodedByte: ByteArray
-        decodedByte = if (urlSafe) {
+        val decodedByte: ByteArray = if (urlSafe) {
             Base64.getUrlEncoder().encode(bytes)
         } else {
             Base64.getEncoder().encode(bytes)
         }
-        val codec = StringCodec()
-        return  codec.fromByteArrayToASCIIString(decodedByte)
+        println("bytesToB64 "+decodedByte)
+        return  StringUtils.bytesToString(decodedByte, StringUtils.US_ASCII)
     }
 
     /**
@@ -83,7 +89,7 @@ object Custom {
      * @param seed (bytes) Seed for keypair
      * @return A tuple of (public key, secret key)
      */
-
+    @Throws(SiriusCryptoError::class, SodiumException::class)
     fun createKeypair(seed: ByteArray?): KeyPair {
         //  Sodium.crypto_sign_seed_keypair()
         var seed = seed
@@ -92,7 +98,7 @@ object Custom {
         } else {
             seed = randomSeed()
         }
-        return KeyPair()
+        return LibSodium.getInstance().cryptoSignSeedKeypair(seed)
     }
 
     /**
@@ -100,12 +106,11 @@ object Custom {
      *
      * @return A new random seed
      */
-    fun randomSeed(): ByteArray {
-        return ByteArray(0)
+    fun randomSeed(): ByteArray? {
+        return LibSodium.getInstance().randomBytesBuf(crypto_secretbox_KEYBYTES)
 
         //   return new Random().randomBytes(Sodium.crypto_secretbox_keybytes());
     }
-
     /**
      * Convert a seed parameter to standard format and check length.
      *
@@ -150,8 +155,8 @@ object Custom {
      * @param secret The private signing key
      * @return The signature
      */
-    fun signMessage(message: ByteArray, secret: ByteArray?): ByteArray? {
-        return null
+    fun signMessage(message: ByteArray, secret: ByteArray?): ByteArray {
+        return ByteArray(0)
     }
 
     /**
@@ -165,7 +170,7 @@ object Custom {
        return false
     }
 
-    fun didFromVerkey(verkey: ByteArray?): ByteArray {
-        return ByteArray(0)
+    fun didFromVerkey(verkey: ByteArray?): ByteArray? {
+        return verkey?.copyOfRange(0, 16)
     }
 }

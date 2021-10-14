@@ -1,5 +1,7 @@
 package com.sirius.library.utils
 
+import com.sirius.library.utils.StringUtils.US_ASCII
+
 /**
  *
  * Base58 is a way to encode Bitcoin addresses as numbers and letters. Note that this is not the same base58 as used by
@@ -30,14 +32,14 @@ object Base58 {
      * Encodes the given bytes in base58. No checksum is appended.
      */
     fun encode(input: ByteArray): String {
-       /* var input = input
+        var input = input
         if (input.size == 0) {
             return ""
         }
         input = copyOfRange(input, 0, input.size)
         // Count leading zeroes.
         var zeroCount = 0
-        while (zeroCount < input.size && input[zeroCount] == 0) {
+        while (zeroCount < input.size && input[zeroCount] == 0.toByte()) {
             ++zeroCount
         }
         // The actual encoding.
@@ -46,14 +48,14 @@ object Base58 {
         var startAt = zeroCount
         while (startAt < input.size) {
             val mod = divmod58(input, startAt)
-            if (input[startAt] == 0) {
+            if (input[startAt] == 0.toByte()) {
                 ++startAt
             }
             temp[--j] = ALPHABET[mod.toInt()].toByte()
         }
 
         // Strip extra '1' if there are some after decoding.
-        while (j < temp.size && temp[j] == ALPHABET[0]) {
+        while (j < temp.size && temp[j] == ALPHABET[0].toByte()) {
             ++j
         }
         // Add as many leading '1' as there were leading zeros.
@@ -61,15 +63,14 @@ object Base58 {
             temp[--j] = ALPHABET[0].toByte()
         }
         val output = copyOfRange(temp, j, temp.size)
-        val codec = StringCodec()
-        var string = codec.fromByteArrayToASCIIString(output)
+        var string = StringUtils.bytesToString(output, US_ASCII)
         if (string.length > 22 && string.startsWith("1")) {
             string = string.substring(1)
-        }*/
-        return "string"
+        }
+        return string
     }
 
-    @Throws(Exception::class)
+
     fun decode(input: String): ByteArray {
         if (input.length == 0) {
             return ByteArray(0)
@@ -79,17 +80,17 @@ object Base58 {
         for (i in 0 until input.length) {
             val c = input[i]
             var digit58 = -1
-            if (c.code >= 0 && c.code < 128) {
-                digit58 = INDEXES[c.code]
+            if (c.toInt() >= 0 && c.toInt() < 128) {
+                digit58 = INDEXES[c.toInt()]
             }
             if (digit58 < 0) {
-                throw Exception("Illegal character $c at $i")
+                throw IllegalArgumentException("Illegal character $c at $i")
             }
             input58[i] = digit58.toByte()
         }
         // Count leading zeroes
-    /*    var zeroCount = 0
-        while (zeroCount < input58.size && input58[zeroCount] == 0) {
+        var zeroCount = 0
+        while (zeroCount < input58.size && input58[zeroCount] == 0.toByte()) {
             ++zeroCount
         }
         // The encoding
@@ -98,17 +99,18 @@ object Base58 {
         var startAt = zeroCount
         while (startAt < input58.size) {
             val mod = divmod256(input58, startAt)
-            if (input58[startAt] == 0) {
+            if (input58[startAt] == 0.toByte()) {
                 ++startAt
             }
             temp[--j] = mod
         }
         // Do no add extra leading zeroes, move j to first non null byte.
-        while (j < temp.size && temp[j] == 0) {
+        while (j < temp.size && temp[j] == 0.toByte()) {
             ++j
-        }*/
-        return copyOfRange(ByteArray(0), 0, 0)
+        }
+        return copyOfRange(temp, j - zeroCount, temp.size)
     }
+
 
     @Throws(Exception::class)
     fun decodeToBigInteger(input: String): Int {
@@ -164,9 +166,11 @@ object Base58 {
     }
 
     private fun copyOfRange(source: ByteArray, from: Int, to: Int): ByteArray {
-        val range = ByteArray(to - from)
+        //val range = ByteArray(to - from)
+        return source.copyOfRange(from,to)
+
       //  java.lang.System.arraycopy(source, from, range, 0, range.size)
-        return range
+        //return range
     }
 
     init {
