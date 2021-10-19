@@ -5,8 +5,11 @@ import com.sirius.library.agent.microledgers.AbstractMicroledger
 import com.sirius.library.agent.model.Entity
 import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.encryption.Custom
+import com.sirius.library.encryption.P2PConnection
+import com.sirius.library.errors.sirius_exceptions.SiriusCryptoError
 import com.sirius.library.models.AgentParams
 import com.sirius.library.models.P2PModel
+import com.sirius.library.rpc.AddressedTunnel
 import com.sirius.library.utils.*
 import kotlin.time.ExperimentalTime
 
@@ -20,7 +23,7 @@ class ConfTest {
     fun configureTestEnv() {
         test_suite_baseurl = System.getenv("TEST_SUITE_BASE_URL")
         if (test_suite_baseurl == null || test_suite_baseurl!!.isEmpty()) {
-            test_suite_baseurl = "http://localhost"
+            test_suite_baseurl = "http://demo.socialsirius.com:8081"
         }
         test_suite_overlay_address = "http://10.0.0.90"
         old_agent_address = System.getenv("INDY_AGENT_BASE_URL")
@@ -35,21 +38,21 @@ class ConfTest {
     }
 
     fun createP2P(): Pair<P2PModel, P2PModel>? {
-        /*try {
+        try {
             val codec = StringCodec()
             val keysAgent: KeyPair =
                 custom.createKeypair(codec.fromASCIIStringToByteArray("000000000000000000000000000AGENT"))
             val keysSdk: KeyPair =
                 custom.createKeypair(codec.fromASCIIStringToByteArray("00000000000000000000000000000SDK"))
             val agent = P2PConnection(
-                StringUtils.bytesToBase58String(keysAgent.getPublicKey().getAsBytes()),
-                StringUtils.bytesToBase58String(keysAgent.getSecretKey().getAsBytes()),
-                StringUtils.bytesToBase58String(keysSdk.getPublicKey().getAsBytes())
+                StringUtils.bytesToBase58String(keysAgent.getPublicKey().asBytes),
+                StringUtils.bytesToBase58String(keysAgent.getSecretKey().asBytes),
+                StringUtils.bytesToBase58String(keysSdk.getPublicKey().asBytes)
             )
             val smartContract = P2PConnection(
-                StringUtils.bytesToBase58String(keysSdk.getPublicKey().getAsBytes()),
-                StringUtils.bytesToBase58String(keysSdk.getSecretKey().getAsBytes()),
-                StringUtils.bytesToBase58String(keysAgent.getPublicKey().getAsBytes())
+                StringUtils.bytesToBase58String(keysSdk.getPublicKey().asBytes),
+                StringUtils.bytesToBase58String(keysSdk.getSecretKey().asBytes),
+                StringUtils.bytesToBase58String(keysAgent.getPublicKey().asBytes)
             )
             val downstream = InMemoryChannel()
             val upstream = InMemoryChannel()
@@ -60,7 +63,7 @@ class ConfTest {
             return Pair(agentModel, sdkModel)
         } catch (siriusCryptoError: SiriusCryptoError) {
             siriusCryptoError.printStackTrace()
-        } */
+        }
         return null
     }
 

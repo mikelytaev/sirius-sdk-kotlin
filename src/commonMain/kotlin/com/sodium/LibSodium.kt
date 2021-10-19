@@ -55,7 +55,7 @@ class LibSodium {
     }
 
     fun cryptoBox(
-        cipherText: ByteArray?,
+        cipherText: ByteArray,
         message: ByteArray,
         messageLen: Long,
         nonce: ByteArray,
@@ -66,9 +66,26 @@ class LibSodium {
          //   throw java.lang.IllegalArgumentException("messageLen out of bounds: $messageLen")
         }
 
-        return Box.easy(message.toUByteArray(),nonce.toUByteArray(),publicKey.toUByteArray(),secretKey.toUByteArray()).toByteArray()
+        return Box.box(cipherText.toUByteArray(),message.toUByteArray(),nonce.toUByteArray(),publicKey.toUByteArray(),secretKey.toUByteArray()).toByteArray()
        // return ByteArray(0)
        // return successful(getSodium().crypto_box(cipherText, message, messageLen, nonce, publicKey, secretKey))
+    }
+
+    fun cryptoBoxOpen(
+        message: ByteArray,
+        cipherText: ByteArray,
+        messageLen: Long,
+        nonce: ByteArray,
+        publicKey: ByteArray,
+        secretKey: ByteArray
+    ): ByteArray {
+        if (messageLen < 0 || messageLen > message.size) {
+            //   throw java.lang.IllegalArgumentException("messageLen out of bounds: $messageLen")
+        }
+
+        return Box.openBox(message.toUByteArray(),cipherText.toUByteArray(),nonce.toUByteArray(),publicKey.toUByteArray(),secretKey.toUByteArray()).toByteArray()
+        // return ByteArray(0)
+        // return successful(getSodium().crypto_box(cipherText, message, messageLen, nonce, publicKey, secretKey))
     }
 
     fun randomBytesBuf(size: Int): ByteArray {

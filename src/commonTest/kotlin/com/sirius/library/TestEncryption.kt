@@ -1,16 +1,16 @@
 package com.sirius.library
 
 import com.ionspin.kotlin.crypto.LibsodiumInitializer
+import com.ionspin.kotlin.crypto.box.crypto_box_NONCEBYTES
 import com.sirius.library.encryption.Custom
 import com.sirius.library.encryption.Ed25519
 import com.sirius.library.encryption.UnpackModel
 import com.sirius.library.errors.sirius_exceptions.SiriusCryptoError
 import com.sirius.library.errors.sirius_exceptions.SiriusInvalidType
 import com.sirius.library.messaging.MessageFabric
-import com.sirius.library.utils.JSONObject
-import com.sirius.library.utils.KeyPair
-import com.sirius.library.utils.StringCodec
-import com.sirius.library.utils.StringUtils
+import com.sirius.library.naclJava.CryptoAead
+import com.sirius.library.utils.*
+import com.sodium.LibSodium
 import io.ktor.util.*
 import kotlin.test.*
 
@@ -59,6 +59,14 @@ class TestEncryption {
             //UNPACK MESSAGE
             val unpackedModel: UnpackModel = ed25519.unpackMessage(packedString, verkeyRecipient, sigkeyRecipient)
 
+            println("unpackedModelmessage="+unpackedModel.message)
+            println("unpackedModel.recip_vk="+unpackedModel.recip_vk)
+            println("unpackedModel.sender_vk="+unpackedModel.sender_vk)
+
+            println("message="+message)
+            println("verkeyRecipient="+verkeyRecipient)
+            println("verkeySender="+verkeySender)
+
             //ASSERTING
             assertEquals(unpackedModel.sender_vk, verkeySender)
             assertEquals(unpackedModel.recip_vk, verkeyRecipient)
@@ -68,7 +76,6 @@ class TestEncryption {
 
     //read={"protected":"eyJlbmMiOiJ4Y2hhY2hhMjBwb2x5MTMwNV9pZXRmIiwidHlwIjoiSldNLzEuMCIsImFsZyI6IkF1dGhjcnlwdCIsInJlY2lwaWVudHMiOlt7ImVuY3J5cHRlZF9rZXkiOiJYT2x2emVXcm5EdGhWUEEyN2wwZVp3NFBBOUxJT0x0WUwwRjdEcTBwNUR3c1N6RjA1bVU0a0hITnJPdWtweE9LIiwiaGVhZGVyIjp7ImtpZCI6IjZRdlEzWTVwUE1HTmd6dnM4Nk4zQVFvOThwRjVXcnpNMWg2V2tLSDNkTDdmIiwiaXYiOiJVbEo4NlRxM0E2aVlDbi1NNnZfeUJHWkxZbDZjMzFvTiIsInNlbmRlciI6IjM1b1h4azI5dDVzVTVvSF9BRnhNUmx0RTZqMWNKUlRhaV9pRmx3RDNXaGM4YlhHMkdrbGxhMjQ1aE1waVdFVFJnYWdxNjYyeGtnRXFvcEFSd2UzanZ6bzV0VkhrWTlhN2pvM095RE1GOEtNcU9fMEhjMmk1bjJhZ05qTT0ifX1dfQ==","iv":"YINZWei8GWFxaw0o","ciphertext":"NMXqUXeGzxDxcFhTDW2QU0G3DPShSydosdMtFhRUVDw7Fl9mzqP3m9AiDT5IlfywOhyRTkkS5KfO9lcAv3PU46q6kFQNnoYf9eddALmoGmPFESJKF5gwItEdzFtUCuozzWcCi1kY85sJO9D-JOzFa-SZCluBftBbMU6qcgM_2vWm1iPP2CBLK5nQAfcDQzj5L_tkB5CMcXTMv1Wbq0EPIDT2_kFXi9Dn7L8eLWAWCmjMbdU80qXzX6KsntXSJ_ibKlEiGrvR3_clyg21L2xwzWlS9GBgv1P28dyC1Ofcd2xPpQclvg7e5nSB5scoKgsDrCdHX7_DllXsMA7uymwj7mIV9rifw4zwkldH_LApajYXbEpod-uEeN0KFu5TyhmwKKCfALtBZ6CctrqOLYm6D-rJCKzP7gUjfWKxwsNiXrhIy38LCQrO25nJ7Z8NPSbIaktpRiMJbz4oaJrmdvcjXVR1d-e8uDzRkvwvyEBRVFJKpuBKP9E-4HHLXh_F-6A=","tag":"8tOGZg-i1AO9RO0Eh2mh5Q=="}
     @Test
-
     fun test_fixture() {
         LibsodiumInitializer.initializeWithCallback {
             var keyPairRecipient: KeyPair? = null
@@ -96,6 +103,9 @@ class TestEncryption {
 
     @Test
     fun test_CryptoSign() {
+        LibsodiumInitializer.initializeWithCallback {
+
+
         val codec = StringCodec()
         val kp: KeyPair =
             Custom.createKeypair("0000000000000000000000000000SEED".encodeToByteArray())
@@ -125,10 +135,12 @@ class TestEncryption {
                 msg.encodeToByteArray(), signature
             )
         )
+        }
     }
 
     @Test
     fun test_didFromVerkey() {
+
         LibsodiumInitializer.initializeWithCallback {
             val kp: KeyPair =
                 Custom.createKeypair("0000000000000000000000000000SEED".encodeToByteArray())
@@ -147,21 +159,20 @@ class TestEncryption {
     @Test
     fun base64TestUrl() {
         val text = "Message"
-        val text1 = Custom.bytesToB64(text.encodeToByteArray(),true) ?:""
-        val bytes = Custom.b64ToBytes(text1,true)
-        val text2 =   bytes.decodeToString()
-        assertEquals(text,text2)
+        val text1 = Custom.bytesToB64(text.encodeToByteArray(), true) ?: ""
+        val bytes = Custom.b64ToBytes(text1, true)
+        val text2 = bytes.decodeToString()
+        assertEquals(text, text2)
     }
 
     @Test
     fun base64Test() {
         val text = "Message"
-        val text1 = Custom.bytesToB64(text.encodeToByteArray(),false) ?:""
-        val bytes = Custom.b64ToBytes(text1,false)
-        val text2 =   bytes.decodeToString()
-        assertEquals(text,text2)
+        val text1 = Custom.bytesToB64(text.encodeToByteArray(), false) ?: ""
+        val bytes = Custom.b64ToBytes(text1, false)
+        val text2 = bytes.decodeToString()
+        assertEquals(text, text2)
     }
-
 
 
     @Test
@@ -169,7 +180,73 @@ class TestEncryption {
         val text = "Message"
         val text1 = Custom.bytesToB58(text.encodeToByteArray())
         val bytes = Custom.b58ToBytes(text1)
-        val text2 =  bytes.decodeToString()
-        assertEquals(text,text2)
+        val text2 = bytes.decodeToString()
+        assertEquals(text, text2)
     }
+
+/*    @Test
+    fun cryptoBoxSeal() {
+        LibsodiumInitializer.initializeWithCallback {
+
+
+            val custom = Custom
+            //INIT
+            val keyPairRecipient: KeyPair =
+                Custom.createKeypair(StringUtils.stringToBytes(seed1, StringUtils.US_ASCII))
+            val verkeyRecipient : String = custom . bytesToB58 (keyPairRecipient.getPublicKey().asBytes)
+            val sigkeyRecipient: String = custom.bytesToB58(keyPairRecipient.getSecretKey().asBytes)
+            val keyPairSender: KeyPair = custom.createKeypair(StringUtils.stringToBytes(seed2, StringUtils.US_ASCII))
+            val verkeySender: String = custom.bytesToB58(keyPairSender.getPublicKey().asBytes)
+            val sigkeySender: String = custom.bytesToB58(keyPairSender.getSecretKey().asBytes)
+
+            //SEAL
+
+
+            val from_verkey = Ed25519().ensureIsBytes(verkeySender)
+            val from_sigkey = Ed25519().ensureIsBytes(sigkeySender)
+            val to_verkeys = Ed25519().ensureIsBytes(verkeyRecipient)
+
+            val keyPairToConvert = KeyPair(Key.fromBytes(to_verkeys), Key.fromBytes(from_sigkey))
+            val convertedKeyPair: KeyPair =
+                LibSodium.getInstance().convertKeyPairEd25519ToCurve25519(keyPairToConvert)
+            val target_pk: Key = convertedKeyPair.getPublicKey()
+
+            val sender_vk = custom.bytesToB58(from_verkey)
+            val enc_sender = CryptoAead().cryptoBoxSeal(sender_vk, target_pk) ?: ByteArray(0)
+
+
+            val cek: Key = LibSodium.getInstance().cryptoSecretStreamKeygen()
+            val  nonce =   LibSodium.getInstance().randomBytesBuf(crypto_box_NONCEBYTES)
+            val enc_cek = CryptoAead().cryptoBox(cek.asBytes, nonce, convertedKeyPair)
+
+            //OPEN SEAL
+
+
+            val my_verkey = Ed25519().ensureIsBytes(verkeyRecipient)
+            val my_sigkey = Ed25519().ensureIsBytes(sigkeyRecipient)
+            val keyPairToConvert2 = KeyPair(Key.fromBytes(my_verkey), Key.fromBytes(my_sigkey))
+            val convertedKeyPair2: KeyPair =
+                LibSodium.getInstance().convertKeyPairEd25519ToCurve25519(keyPairToConvert2)
+
+            val sender_vk1 = CryptoAead().cryptoBoxSealOpen(enc_sender, convertedKeyPair2)
+
+            val sender_vk2 = custom.bytesToB58(sender_vk1)
+            println("sender_vk="+sender_vk)
+            println("sender_vk1="+sender_vk1)
+            println("enc_sender="+enc_sender)
+            println("sender_vk2="+sender_vk2)
+            assertTrue(true)
+            //assertTrue { sender_vk==sender_vk1}
+
+            val senderBytes = custom.b58ToBytes(sender_vk)
+            val senderKey: Key = Key.fromBytes(senderBytes)
+
+            val senderKeyPair = KeyPair(senderKey, senderKey)
+            val senderConvertedKeyPair: KeyPair =
+                LibSodium.getInstance().convertKeyPairEd25519ToCurve25519(senderKeyPair)
+            val sender_pk: Key = senderConvertedKeyPair.getPublicKey()
+            val openKeyPair = KeyPair(sender_pk, convertedKeyPair.getSecretKey())
+            val cek1 = CryptoAead().cryptoBoxOpen(enc_cek, nonce, openKeyPair)
+        }
+    }*/
 }

@@ -64,13 +64,13 @@ class ServerTestSuite {
     @ExperimentalTime
     fun ensureIsAlive() {
 
-        CoroutineScope(Dispatchers.Default).launch{
+       /* CoroutineScope(Dispatchers.Default).launch{
             val time = measureTime {
                 println("The answer is ${concurrentSum()}")
             }
             println("Completed in $time ms")
            // concurrentSum()
-        }
+        }*/
 
             val (first, second) = httpGet(url)
             if (first) {
@@ -101,12 +101,14 @@ class ServerTestSuite {
     }
 
     fun runSuiteLocally() {}
-      fun httpGet(url: String?): Pair<Boolean, String> {
+      fun httpGet(url: String?): Pair<Boolean, String?> {
           println("httpGet url="+url)
-         GlobalScope.launch {
+          val helpers = com.sirius.library.helpers.HttpClient()
+          return helpers.get(url?:"")
+    /*      CoroutineScope(Dispatchers.Default).launch {
               val client = HttpClient()
               println("httpGet client="+client)
-              val response: HttpResponse = client.request("https://ktor.io/") {
+              val response: HttpResponse = client.request(url?:"") {
                   // Configure request parameters exposed by HttpRequestBuilder
               }
               println("httpGet response="+response)
@@ -115,41 +117,12 @@ class ServerTestSuite {
               println("httpGet string="+string)
               client.close()
 
-          }
+          }*/
 
-         return Pair(false,  "byteArrayBody.decodeToString()")
+//         return Pair(false,  "byteArrayBody.decodeToString()")
 
-    /*    return try {
-            val httpclient: CloseableHttpClient = HttpClients.createDefault()
-            val httpGet = HttpGet(url)
-            val response1: CloseableHttpResponse = httpclient.execute(httpGet)
-            try {
-                val entity1: HttpEntity = response1.getEntity()
-                val `in`: java.io.BufferedReader = java.io.BufferedReader(
-                    java.io.InputStreamReader(
-                        entity1.getContent()
-                    )
-                )
-                var inputLine: String?
-                val response: java.lang.StringBuffer = java.lang.StringBuffer()
-                while (`in`.readLine().also { inputLine = it } != null) {
-                    response.append(inputLine)
-                }
-                `in`.close()
-                EntityUtils.consume(entity1)
-                // print result
-                Pair(true, response.toString())
-            } finally {
-                response1.close()
-            }
-        } catch (e: java.net.MalformedURLException) {
-            e.printStackTrace()
-            Pair(false, e.message)
-        } catch (e: java.io.IOException) {
-            e.printStackTrace()
-            Pair(false, e.message)
-        }*/
-        return Pair(false, "e.message")
+
+      //  return Pair(false, "e.message")
     }
 
     companion object {

@@ -120,87 +120,33 @@ class CryptoAead {
         return null
     }
 
-
     @Throws(SodiumException::class)
-    fun cryptoBox(messageBytes: ByteArray, nonce: ByteArray, keyPair: KeyPair): ByteArray? {
-       /* val bObj: java.io.ByteArrayOutputStream = java.io.ByteArrayOutputStream()
-        bObj.reset()
-        val cipherBytesPadding = ByteArray(32)
-        for (cipherBytesPadding1 in cipherBytesPadding) {
-            bObj.write(cipherBytesPadding1.toInt())
-        }
-        for (mesByte in messageBytes) {
-            bObj.write(mesByte.toInt())
-        }*/
-
-         val cipherBytes = ByteArray(32 + messageBytes.size)
-        val messageBytesPadded: ByteArray =   LibsodiumUtil.pad(messageBytes.toUByteArray(), 32).toByteArray()
+    fun cryptoBox(messageBytes: ByteArray, nonce: ByteArray, keyPair: KeyPair): ByteArray {
+        val cipherBytes = ByteArray(32 + messageBytes.size)
+        val messageBytesPadded: ByteArray = ByteArray(32).plus(messageBytes)
         val res: ByteArray = LibSodium.getInstance().cryptoBox(
             cipherBytes,
-            messageBytes,
-            messageBytes.size.toLong(),
+            messageBytesPadded,
+            messageBytesPadded.size.toLong(),
             nonce,
             keyPair.getPublicKey().asBytes,
             keyPair.getSecretKey().asBytes
         )
-        return   res.copyOfRange(16, res.size)
-        /*return if (!res) {
-            throw SodiumException("Could not encrypt your message.")
-        } else {*/
-            /*val bObj2: java.io.ByteArrayOutputStream = java.io.ByteArrayOutputStream()
-            bObj2.reset()
-            var i = 0
-            for (mesByte in cipherBytes) {
-                if (i <= 15) {
-                    i++
-                    continue
-                }
-                bObj2.write(mesByte.toInt())
-            }
-            bObj2.toByteArray()*/
-
-            //return new String(cipherBytes);
-        //}
+        return  res.copyOfRange(16, res.size)
     }
 
 
+
+
+    @Throws(SodiumException::class)
     fun cryptoBoxOpen(cipherText: ByteArray, nonce: ByteArray, keyPair: KeyPair): ByteArray {
-        return Box.openEasy(cipherText.toUByteArray(),nonce.toUByteArray(),keyPair.getPublicKey().asBytes.toUByteArray(),keyPair.getSecretKey().asBytes.toUByteArray()).toByteArray()
-        /* val message = ByteArray(cipherText.size + 16)
-         val cipherBytesPadding = ByteArray(16)
-         val bObj: java.io.ByteArrayOutputStream = java.io.ByteArrayOutputStream()
-         bObj.reset()
-         for (cipherBytesPadding1 in cipherBytesPadding) {
-             bObj.write(cipherBytesPadding1.toInt())
-         }
-         for (mesByte in cipherText) {
-             bObj.write(mesByte.toInt())
-         }
-         val padded: ByteArray = bObj.toByteArray()
-         val res: Boolean = LibSodium.getInstance().getNativeBox().cryptoBoxOpen(
-             message,
-             padded,
-             padded.size.toLong(),
-             nonce,
-             keyPair.getPublicKey().getAsBytes(),
-             keyPair.getSecretKey().getAsBytes()
-         )
-         return if (!res) {
-             throw SodiumException("Could not decrypt your message.")
-         } else {
-             // new byte[32]{message}
-             val bObj2: java.io.ByteArrayOutputStream = java.io.ByteArrayOutputStream()
-             bObj2.reset()
-             var i = 0
-             for (mesByte in message) {
-                 if (i <= 31) {
-                     i++
-                     continue
-                 }
-                 bObj2.write(mesByte.toInt())
-             }
-             bObj2.toByteArray()
-         }*/
+        val message = ByteArray(cipherText.size +16  )
+        val padded: ByteArray = ByteArray(16).plus(cipherText)
+        val res: ByteArray = LibSodium.getInstance().cryptoBoxOpen(
+            message, padded,
+            padded.size.toLong(), nonce, keyPair.getPublicKey().asBytes, keyPair.getSecretKey().asBytes
+        )
+        return res.copyOfRange(32,res.size)
     }
 
 
