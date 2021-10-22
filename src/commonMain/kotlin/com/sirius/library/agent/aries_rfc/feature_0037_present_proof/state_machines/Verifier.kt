@@ -28,14 +28,14 @@ class Verifier : BaseVerifyStateMachine {
     var poolname: String
     var requestedProof: JSONObject? = null
 
-    constructor(context: Context, prover: Pairwise, ledger: Ledger?, timeToLive: Int) : super(context) {
+    constructor(context: Context<*>, prover: Pairwise, ledger: Ledger?, timeToLive: Int) : super(context) {
         this.context = context
         this.prover = prover
         poolname = ledger?.name?:""
         timeToLiveSec = timeToLive
     }
 
-    constructor(context: Context, prover: Pairwise, ledger: Ledger?) : super(context) {
+    constructor(context: Context<*>, prover: Pairwise, ledger: Ledger?) : super(context) {
         this.context = context
         this.prover = prover
         poolname = ledger?.name?:""

@@ -25,7 +25,7 @@ class ProposeCredentialMessage(message: String) : BaseIssueCredentialMessage(mes
         get() = getMessageObjec()?.optString("cred_def_id")
     val issuerDid: String?
         get() = getMessageObjec()?.optString("issuer_did")
-    val credentialProposal: List<Any>
+    val credentialProposal: List<ProposedAttrib>
         get() {
             val res: MutableList<ProposedAttrib> = ArrayList<ProposedAttrib>()
             val credentialProposal: JSONObject? = getMessageObjec()?.optJSONObject("credential_proposal")

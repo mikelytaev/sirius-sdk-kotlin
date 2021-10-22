@@ -15,13 +15,13 @@ import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
 
-class Prover(context: Context, var verifier: Pairwise, masterSecretId: String?, poolName: String?) :
+class Prover(context: Context<*>, var verifier: Pairwise, masterSecretId: String?, poolName: String?) :
     BaseVerifyStateMachine(context) {
     var poolName: String?
     var masterSecretId: String?
     var log: Logger = Logger.getLogger("Prover")
 
-    constructor(context: Context, verifier: Pairwise, masterSecretId: String?) : this(
+    constructor(context: Context<*>, verifier: Pairwise, masterSecretId: String?) : this(
         context,
         verifier,
         masterSecretId,

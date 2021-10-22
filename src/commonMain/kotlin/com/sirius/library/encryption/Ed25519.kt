@@ -305,6 +305,7 @@ class Ed25519 {
                 }
             }
             //  cek, sender_vk, recip_vk
+            println("recipents="+recipents)
             val decryptModel = locate_pack_recipient_key(recipents, keyPair)
             if (decryptModel.sender_vk == null && is_authcrypt) {
                 throw SiriusFieldValueError("Sender public key not provided for Authcrypt message")

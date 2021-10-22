@@ -17,7 +17,7 @@ import com.sirius.library.hub.coprotocols.CoProtocolP2PAnon
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
 
-class Inviter(context: Context, me: Pairwise.Me, connectionKey: String, myEndpoint: Endpoint) :
+class Inviter(context: Context<*>, me: Pairwise.Me, connectionKey: String, myEndpoint: Endpoint) :
     BaseConnectionStateMachine(context,me, myEndpoint) {
     var log: Logger = Logger.getLogger(Inviter::class.simpleName)
     var connectionKey: String

@@ -4,8 +4,8 @@ import com.sirius.library.agent.microledgers.AbstractMicroledgerList
 import com.sirius.library.agent.wallet.abstract_wallet.AbstractCrypto
 import com.sirius.library.encryption.P2PConnection
 
-class CloudContext : Context {
-    internal constructor(hub: AbstractHub) : super(hub) {}
+class CloudContext : Context<CloudHub> {
+    internal constructor(hub: CloudHub) : super(hub) {}
     constructor(config: CloudHub.Config?) : super(CloudHub(config)) {}
 
     class CloudContextBuilder {
@@ -40,7 +40,7 @@ class CloudContext : Context {
             return this
         }
 
-        fun build(): Context {
+        fun build(): Context<CloudHub> {
             return CloudContext(config)
         }
     }

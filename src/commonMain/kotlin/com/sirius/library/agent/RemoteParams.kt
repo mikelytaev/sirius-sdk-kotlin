@@ -1,14 +1,14 @@
 package com.sirius.library.agent
 
-class RemoteParams private constructor(params: Map<String, Any>) {
-    var params: Map<String, Any> = HashMap<String, Any>()
+class RemoteParams private constructor(params: Map<String, Any?>) {
+    var params: Map<String, Any?> = HashMap<String, Any?>()
 
     class RemoteParamsBuilder private constructor() {
-        private val params: MutableMap<String, Any> = HashMap<String, Any>()
+        private val params: MutableMap<String, Any?> = HashMap<String, Any?>()
         fun add(name: String, `object`: Any?): RemoteParamsBuilder {
-            `object`?.let {
+         //   `object`?.let {
                 params[name] = `object`
-            }
+          //  }
             return this
         }
 

@@ -12,7 +12,7 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
 
 
-class CoProtocolP2P(context: Context, pairwise: Pairwise, propocols: List<String>, timeToLiveSec: Int) :
+class CoProtocolP2P(context: Context<*>, pairwise: Pairwise, propocols: List<String>, timeToLiveSec: Int) :
     AbstractP2PCoProtocol(context) {
     var pairwise: Pairwise
     var protocols: List<String>

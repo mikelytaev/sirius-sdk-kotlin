@@ -7,12 +7,14 @@ open class JSONArray : Iterable<Any> {
     var jsonArray : JsonArray = buildJsonArray {  }
     var parentObject : JSONObject? = null
     var parentKey : String? = null
-    constructor(list: List<String>?) : this(){
+    constructor(list: List<String?>?) : this(){
         if(list==null){
             jsonArray  = buildJsonArray {  }
         }else{
             list?.forEach {
-                val element = Json.parseToJsonElement(it)
+                it?.let {
+                    val element = Json.parseToJsonElement(it)
+                }
             }
         }
 

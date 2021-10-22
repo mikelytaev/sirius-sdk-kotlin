@@ -1,27 +1,13 @@
 package com.sirius.library.utils
 
-class Date {
+expect class Date {
+    var time : Long
+    constructor()
+    constructor(time: Long)
 
-    constructor()  {
-        this.time = 0
-    }
-
-
-
-    constructor(time: Long)  {
-        this.time = time
-    }
-
-     var time : Long = 0
-
-
-    fun formatTo(template :  String) : String{
-        return ""
-    }
+    fun formatTo(template :  String) : String
 
     companion object {
-        fun paresDate(date :  String, format : String): Date{
-            return Date()
-        }
+        fun paresDate(date :  String, format : String): Date
     }
 }

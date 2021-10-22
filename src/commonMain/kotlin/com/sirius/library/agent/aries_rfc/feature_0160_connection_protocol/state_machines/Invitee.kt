@@ -15,7 +15,7 @@ import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
 
-class Invitee(context: Context, me: Pairwise.Me, myEndpoint: Endpoint) : BaseConnectionStateMachine(context, me, myEndpoint) {
+class Invitee(context: Context<*>, me: Pairwise.Me, myEndpoint: Endpoint) : BaseConnectionStateMachine(context, me, myEndpoint) {
     var log: Logger = Logger.getLogger(Invitee::class.simpleName)
     fun createConnection(
         invitation: Invitation,

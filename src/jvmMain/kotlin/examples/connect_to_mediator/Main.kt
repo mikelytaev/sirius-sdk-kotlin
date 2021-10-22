@@ -1,5 +1,3 @@
-import kotlinx.coroutines.*
-
 /*
 package examples.connect_to_mediator
 
@@ -11,6 +9,8 @@ import com.sirius.library.hub.CloudContext
 import com.sirius.library.hub.CloudHub
 import com.sirius.library.hub.MobileHub
 import com.sirius.library.utils.JSONObject
+import com.sirius.library.utils.UUID
+import examples.covid.*
 import kotlin.jvm.JvmStatic
 
 object Main {
@@ -52,37 +52,37 @@ object Main {
     fun main(args: Array<String>) {
         val smartphone = Smartphone(mobileConfig)
         smartphone.start()
-        var medCredInfo: CredInfo
-        CloudContext(labConfig).use { c ->
-            medCredInfo = Laboratory.createMedCreds(c, LAB_DID, DKMS_NAME)
-            if (medCredInfo != null) {
-                println("Covid test credentials registered successfully")
-            } else {
-                println("Covid test credentials was not registered")
-                return
-            }
+        var medCredInfo: CredInfo? = null
+        val c1 = CloudContext(labConfig)
+        medCredInfo = Laboratory.createMedCreds(c1, LAB_DID, DKMS_NAME)
+        if (medCredInfo != null) {
+            println("Covid test credentials registered successfully")
+        } else {
+            println("Covid test credentials was not registered")
+            // return
         }
-        var boardingPassCredInfo: CredInfo
-        CloudContext(airCompanyConfig).use { c ->
-            boardingPassCredInfo = AirCompany.createBoardingPassCreds(c, AIRCOMPANY_DID, DKMS_NAME)
-            if (boardingPassCredInfo != null) {
-                println("Boarding pass credentials registered successfully")
-            } else {
-                println("Boarding pass credentials was not registered")
-                return
-            }
+
+        var boardingPassCredInfo: CredInfo? = null
+        val c = CloudContext(airCompanyConfig)
+        boardingPassCredInfo = AirCompany.createBoardingPassCreds(c, AIRCOMPANY_DID, DKMS_NAME)
+        if (boardingPassCredInfo != null) {
+            println("Boarding pass credentials registered successfully")
+        } else {
+            println("Boarding pass credentials was not registered")
+            return
         }
+
         val lab2aircompany: Pairwise =
             Helpers.establishConnection(labConfig, labEntity, airCompanyConfig, aircompanyEntity)
         val aircompany2lab: Pairwise =
             Helpers.establishConnection(airCompanyConfig, aircompanyEntity, labConfig, labEntity)
         val lab =
-            Laboratory(labConfig, listOf(lab2aircompany), COVID_MICROLEDGER_NAME, lab2aircompany.getMe(), medCredInfo)
+            Laboratory(labConfig, listOf(lab2aircompany), COVID_MICROLEDGER_NAME, lab2aircompany.me, medCredInfo!!)
         val airCompany = AirCompany(
             airCompanyConfig,
             listOf(aircompany2lab),
             COVID_MICROLEDGER_NAME,
-            aircompany2lab.getMe(),
+            aircompany2lab.me,
             boardingPassCredInfo
         )
         val airport = Airport(airportConfig, medCredInfo, LAB_DID, boardingPassCredInfo, AIRCOMPANY_DID, DKMS_NAME)
@@ -108,7 +108,7 @@ object Main {
                     val testRes: CovidTest =
                         CovidTest().setFullName(fullName).setCovid(hasCovid).setLocation("Nur-Sultan")
                             .setBioLocation("Nur-Sultan").setApproved("House M.D.").setTimestamp(timestamp)
-                    val labInvitation: Invitation = lab.issueTestResults(testRes).second
+                    val labInvitation: Invitation? = lab.issueTestResults(testRes)?.second
                     smartphone.acceptInvitation(labInvitation)
                 }
                 2 -> {
@@ -117,11 +117,11 @@ object Main {
                     val boardingPass: BoardingPass =
                         BoardingPass().setFullName(fullName).setArrival("Nur-Sultan").setDeparture("New York JFK")
                             .setClass("first").setDate(timestamp).setFlight("KC 1234").setSeat("1A")
-                    val acInvitation: Invitation = airCompany.register(boardingPass).second
+                    val acInvitation: Invitation? = airCompany.register(boardingPass)?.second
                     smartphone.acceptInvitation(acInvitation)
                 }
                 3 -> {
-                    val acInvitation: Invitation = airport.enterToTerminal().second
+                    val acInvitation: Invitation? = airport.enterToTerminal()?.second
                     smartphone.acceptInvitation(acInvitation)
                 }
                 4 -> {
@@ -183,24 +183,7 @@ object Main {
                 .setRecipientKeys(listOf("DjgWN49cXQ6M6JayBkRCwFsywNhomn8gdAXHJ4bb98im")).build()
     }
 }
+
+
+
 */
-
-/*
-fun main() = GlobalScope.launch {
-    val time = measureTimeMillis {
-        val one = doSomethingUsefulOne()
-        val two = doSomethingUsefulTwo()
-        println("The answer is ${one + two}")
-    }
-    println("Completed in $time ms")
-}
-
-suspend fun doSomethingUsefulOne(): Int {
-    delay(1000L) // pretend we are doing something useful here
-    return 13
-}
-
-suspend fun doSomethingUsefulTwo(): Int {
-    delay(1000L) // pretend we are doing something useful here, too
-    return 29
-}*/

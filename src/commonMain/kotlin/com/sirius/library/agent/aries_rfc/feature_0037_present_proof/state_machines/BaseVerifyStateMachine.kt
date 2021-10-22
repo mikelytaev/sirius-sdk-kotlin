@@ -6,7 +6,7 @@ import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages.Pr
 import com.sirius.library.base.AbstractStateMachine
 import com.sirius.library.hub.Context
 
-abstract class BaseVerifyStateMachine(context: Context) : AbstractStateMachine(context) {
+abstract class BaseVerifyStateMachine(context: Context<*>) : AbstractStateMachine(context) {
     var problemReport: PresentProofProblemReport? = null
 
 

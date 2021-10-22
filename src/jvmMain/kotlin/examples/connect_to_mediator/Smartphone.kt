@@ -1,4 +1,4 @@
-/*
+
 package examples.connect_to_mediator
 
 import com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.messages.OfferCredentialMessage
@@ -8,6 +8,7 @@ import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.state_machi
 import com.sirius.library.agent.aries_rfc.feature_0095_basic_message.Message
 import com.sirius.library.agent.aries_rfc.feature_0160_connection_protocol.messages.Invitation
 import com.sirius.library.agent.aries_rfc.feature_0160_connection_protocol.state_machines.Invitee
+import com.sirius.library.agent.connections.Endpoint
 import com.sirius.library.agent.listener.Event
 import com.sirius.library.agent.listener.Listener
 import com.sirius.library.agent.pairwise.Pairwise
@@ -38,8 +39,8 @@ class Smartphone {
     fun start() {
         if (context == null) {
             context = MobileContext(config)
-            context.connectToMediator("Edge Test agent")
-            val (first, second) = context.getDid().createAndStoreMyDid()
+            context!!.connectToMediator("Edge Test agent")
+            val (first, second) = context!!.did.createAndStoreMyDid()
             me = Pairwise.Me(first, second)
             //context.addMediatorKey(me.getVerkey());
             loop = true
@@ -49,42 +50,42 @@ class Smartphone {
 
     fun stop() {
         if (context != null) {
-            context.close()
+            context!!.close()
         }
     }
 
     fun acceptInvitation(invitation: Invitation?) {
-        val invitee = Invitee(context, me, context.endpointWithEmptyRoutingKeys)
-        val pw: Pairwise = invitee.createConnection(invitation, "Edge agent")
+        val invitee = Invitee(context!!, me!!, context!!.endpointWithEmptyRoutingKeys?: Endpoint(""))
+        val pw: Pairwise? = invitee.createConnection(invitation!!, "Edge agent")
         if (pw != null) {
-            context.getPairwiseList().ensureExists(pw)
+            context?.pairwiseList?.ensureExists(pw)
         }
     }
 
     protected fun routine() {
         try {
-            context.getAnonCreds().proverCreateMasterSecret(masterSecret)
+            context?.anonCreds?.proverCreateMasterSecret(masterSecret)
         } catch (e: DuplicateMasterSecretNameException) {
             e.printStackTrace()
         }
-        val listener: Listener = context.subscribe()
+        val listener: Listener? = context?.subscribe()
         try {
             while (loop) {
-                val event: Event = listener.one.get()
-                if (event.message() is OfferCredentialMessage && event.getPairwise() != null) {
+                val event: Event? = listener?.one?.get()
+                if (event?.message() is OfferCredentialMessage && event?.pairwise != null) {
                     val offer: OfferCredentialMessage = event.message() as OfferCredentialMessage
-                    val holder = Holder(context, event.getPairwise(), masterSecret)
+                    val holder = Holder(context!!, event.pairwise!!, masterSecret)
                     val (first, second) = holder.accept(offer)
-                } else if (event.message() is RequestPresentationMessage && event.getPairwise() != null) {
+                } else if (event?.message() is RequestPresentationMessage && event?.pairwise != null) {
                     val request: RequestPresentationMessage = event.message() as RequestPresentationMessage
                     var prover: Prover? = null
                     if (networkName == null) {
-                        prover = Prover(context, event.getPairwise(), masterSecret)
+                        prover = Prover(context!!, event.pairwise!!, masterSecret)
                     } else {
-                        prover = Prover(context, event.getPairwise(), masterSecret, networkName)
+                        prover = Prover(context!!, event.pairwise!!, masterSecret, networkName)
                     }
                     prover.prove(request)
-                } else if (event.message() is Message && event.getPairwise() != null) {
+                } else if (event?.message() is Message && event.pairwise != null) {
                     val message: Message = event.message() as Message
                     Logger.getLogger("Examples").info("Received new message: " + message.content)
 
@@ -95,4 +96,4 @@ class Smartphone {
         }
     }
 }
-*/
+

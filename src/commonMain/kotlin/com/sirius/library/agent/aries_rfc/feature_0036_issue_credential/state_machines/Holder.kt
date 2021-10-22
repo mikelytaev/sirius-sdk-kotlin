@@ -15,14 +15,14 @@ import com.sirius.library.utils.Base64
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
 
-class Holder(context: Context, issuer: Pairwise, masterSecretId: String?, locale: String?) :
+class Holder(context: Context<*>, issuer: Pairwise, masterSecretId: String?, locale: String?) :
     BaseIssuingStateMachine(context) {
     var log: Logger = Logger.getLogger(Holder::class.simpleName)
     var issuer: Pairwise
     var masterSecretId: String?
     var locale: String?
 
-    constructor(context: Context, issuer: Pairwise, masterSecretId: String?) : this(
+    constructor(context: Context<*>, issuer: Pairwise, masterSecretId: String?) : this(
         context,
         issuer,
         masterSecretId,
@@ -132,7 +132,7 @@ class Holder(context: Context, issuer: Pairwise, masterSecretId: String?, locale
     }
 
     companion object {
-        fun getMimeTypes(c: Context, credId: String?): JSONObject {
+        fun getMimeTypes(c: Context<*>, credId: String?): JSONObject {
             val record: String? =
                 c.nonSecrets.getWalletRecord("mime-types", credId, RetrieveRecordOptions(true, true, false))
             if (record != null) {

@@ -49,13 +49,13 @@ class TestEncryption {
             //CREATE TESTmessage
             val message = testMessage
             val ed25519 = Ed25519()
-
+//val message = "{\"@type\":\"did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sirius_rpc/1.0/create_key\",\"@id\":\"4214da00-d0a4-4c59-8753-a1bae05753c0\",\"@promise\":{\"id\":\"445b5b70-43a7-4663-a452-5988f5fe50f4\",\"channel_address\":\"redis://redis/de28da3f418f491d93276bcace293c26\",\"expiration_stamp\":1634821996},\"params\":{\"seed\":{\"mime_type\":null,\"payload\":null},\"crypto_type\":{\"mime_type\":null,\"payload\":null}}}"
 
             //PACK MESSAGE
             val verkeys: MutableList<String> = ArrayList<String>()
             verkeys.add(verkeyRecipient)
             val packedString: String = ed25519.packMessage(message, verkeys, verkeySender, sigkeySender)
-
+            println("packedString="+packedString)
             //UNPACK MESSAGE
             val unpackedModel: UnpackModel = ed25519.unpackMessage(packedString, verkeyRecipient, sigkeyRecipient)
 

@@ -11,19 +11,19 @@ class CoProtocolThreadedP2P : AbstractP2PCoProtocol {
     var to: Pairwise
     var pthid: String? = null
 
-    constructor(context: Context, thid: String, to: Pairwise, pthid: String?, timeToLiveSec: Int) : super(context) {
+    constructor(context: Context<*>, thid: String, to: Pairwise, pthid: String?, timeToLiveSec: Int) : super(context) {
         this.thid = thid
         this.to = to
         this.pthid = pthid
         this.timeToLiveSec = timeToLiveSec
     }
 
-    constructor(context: Context, thid: String, to: Pairwise) : super(context) {
+    constructor(context: Context<*>, thid: String, to: Pairwise) : super(context) {
         this.thid = thid
         this.to = to
     }
 
-    constructor(context: Context, thid: String, to: Pairwise, timeToLiveSec: Int) : super(context) {
+    constructor(context: Context<*>, thid: String, to: Pairwise, timeToLiveSec: Int) : super(context) {
         this.thid = thid
         this.to = to
         this.timeToLiveSec = timeToLiveSec

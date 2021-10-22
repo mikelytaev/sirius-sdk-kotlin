@@ -12,7 +12,7 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.storage.abstract_storage.AbstractImmutableCollection
 
 abstract class AbstractAgent : TransportLayer() {
-    var endpoints: List<Endpoint> = ArrayList<Endpoint>()
+    var endpoints: MutableList<Endpoint> = ArrayList<Endpoint>()
 
 
     var ledgers: MutableMap<String, Ledger> = HashMap<String, Ledger>()
@@ -65,7 +65,7 @@ abstract class AbstractAgent : TransportLayer() {
         return wallet
     }
 
-    fun getEndpointsi(): List<Endpoint> {
+    fun getEndpointsi(): MutableList<Endpoint> {
         checkIsOpen()
         return endpoints
     }

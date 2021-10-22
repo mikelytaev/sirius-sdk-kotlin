@@ -9,7 +9,7 @@ import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.base.AbstractStateMachine
 import com.sirius.library.hub.Context
 
-abstract class BaseConnectionStateMachine(context: Context, val me: Pairwise.Me, val myEndpoint: Endpoint) : AbstractStateMachine(context) {
+abstract class BaseConnectionStateMachine(context: Context<*>, val me: Pairwise.Me, val myEndpoint: Endpoint) : AbstractStateMachine(context) {
     var problemReport: ConnProblemReport? = null
     override fun protocols(): List<String> {
         return listOf(ConnProtocolMessage.PROTOCOL, Ack.PROTOCOL, Ping.PROTOCOL)

@@ -4,7 +4,7 @@ import com.sirius.library.utils.CompletableFutureKotlin
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 
-expect class WebSocketConnector()  {
+expect class WebSocketConnector() :BaseConnector  {
 
 
 
@@ -246,16 +246,16 @@ expect class WebSocketConnector()  {
         webSocket.sendText(payload)
         return true
     }*/
-     fun open()
+    override fun open()
 
-     fun close()
+     override fun close()
 
-     val isOpen: Boolean
+     override val isOpen: Boolean
 
 
-    fun read(): CompletableFutureKotlin<ByteArray?>
+    override fun read(): CompletableFutureKotlin<ByteArray?>
 
-     fun write(data: ByteArray?): Boolean
+     override fun write(data: ByteArray?): Boolean
 
     suspend fun openConnector()
 

@@ -16,28 +16,18 @@ import com.sirius.library.agent.wallet.abstract_wallet.model.RetrieveRecordOptio
 import com.sirius.library.errors.indy_exceptions.DuplicateMasterSecretNameException
 import com.sirius.library.errors.indy_exceptions.WalletItemNotFoundException
 import com.sirius.library.messaging.Message
+import com.sirius.library.messaging.MessageFabric
 import com.sirius.library.utils.JSONObject
 
-abstract class Context internal constructor(hub: AbstractHub) : Closeable {
+abstract class Context<T: AbstractHub> internal constructor(hub: T) : Closeable {
     companion object {
         // loading all Message classes to force their registration in static block
         init {
-          /*  val reflections = Reflections(
-                ConfigurationBuilder()
-                    .setUrls(ClasspathHelper.forPackage("com.sirius.sdk"))
-                    .setScanners(SubTypesScanner())
-            )
-            for (cl in reflections.getSubTypesOf(Message::class)) {
-                try {
-                    java.lang.Class.forName(cl.getName(), true, cl.getClassLoader())
-                } catch (e: java.lang.ClassNotFoundException) {
-                    e.printStackTrace()
-                }
-            }*/
+            MessageFabric.registerAllMessagesClass()
         }
     }
 
-    lateinit var currentHub: AbstractHub
+    open lateinit var currentHub: T
     var nonSecrets: AbstractNonSecrets = object : AbstractNonSecrets() {
         override fun addWalletRecord(type: String?, id: String?, value: String?, tags: String?) {
             val service: AbstractNonSecrets? = currentHub.nonSecrets
@@ -120,10 +110,11 @@ abstract class Context internal constructor(hub: AbstractHub) : Closeable {
             return service?.anonDecrypt(recipientVk, encryptedMsg)
         }
 
-        override fun packMessage(message: Any?, recipentVerkeys: List<String?>?, senderVerkey: String?): ByteArray? {
+        override fun packMessage(message: Any?, recipentVerkeys: List<String>?, senderVerkey: String?): ByteArray? {
             val service: AbstractCrypto? = currentHub.crypto
             return service?.packMessage(message, recipentVerkeys, senderVerkey)
         }
+
 
         override fun unpackMessage(jwe: ByteArray?): String? {
             val service: AbstractCrypto? = currentHub.crypto
@@ -526,8 +517,8 @@ abstract class Context internal constructor(hub: AbstractHub) : Closeable {
 
 
 
-    val endpoints: List<Endpoint>
-        get() = currentHub?.agentConnectionLazy?.getEndpointsi().orEmpty()
+    val endpoints: MutableList<Endpoint>
+        get() = currentHub?.agentConnectionLazy?.getEndpointsi().orEmpty().toMutableList()
 
 
 

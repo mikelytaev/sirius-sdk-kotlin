@@ -3,19 +3,18 @@ package com.sirius.library.agent.listener
 import com.sirius.library.agent.AbstractAgent
 import com.sirius.library.agent.connections.AgentEvents
 import com.sirius.library.agent.pairwise.AbstractPairwiseList
+import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.utils.CompletableFutureKotlin
 
-class Listener(source: AgentEvents, agent: AbstractAgent) {
+expect class Listener(source: AgentEvents, agent: AbstractAgent) {
     var source: AgentEvents
     var pairwiseResolver: AbstractPairwiseList?
     var agent: AbstractAgent
 
-    fun getEvent() : Event?{
-        return null
-    }
+/*
     val one: CompletableFutureKotlin<Event>?
         get() {
-           /* try {
+           *//* try {
                 return source.pull().thenApply { msg ->
                     val theirVerkey: String = msg.getStringFromJSON("sender_verkey")
                     var pairwise: Pairwise? = null
@@ -26,7 +25,7 @@ class Listener(source: AgentEvents, agent: AbstractAgent) {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-            }*/
+            }*//*
             return null
         }
 
@@ -34,9 +33,5 @@ class Listener(source: AgentEvents, agent: AbstractAgent) {
         agent.unsubscribe(this)
     }
 
-    init {
-        this.source = source
-        pairwiseResolver = agent.getPairwiseListi()
-        this.agent = agent
-    }
+    */
 }

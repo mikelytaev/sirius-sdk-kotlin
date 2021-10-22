@@ -4,6 +4,7 @@ import com.sirius.library.utils.JSONObject
 
 class CovidTest : JSONObject() {
 
+
     fun setFullName(name: String?): CovidTest {
         put("full_name", name)
         return this

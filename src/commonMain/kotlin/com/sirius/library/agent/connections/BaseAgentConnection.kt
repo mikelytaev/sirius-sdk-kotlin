@@ -75,7 +75,7 @@ abstract class BaseAgentConnection {
             e.printStackTrace()
         }
         val msgString = payload.decodeToString()
-        //log.log(Level.INFO, "Received message: " + msgString);
+        log.log(Logger.Level.INFO, "Received message: " + msgString);
         val context = Message(msgString)
         if (context.getType() == null) {
             throw SiriusFieldValueError("message @type is empty")

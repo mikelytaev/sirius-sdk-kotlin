@@ -8,6 +8,8 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
 import com.sirius.library.utils.StringCodec
+import com.sirius.library.utils.StringUtils
+import com.sirius.library.utils.StringUtils.US_ASCII
 import com.sirius.library.utils.StringUtils.UTF_8
 import kotlinx.coroutines.*
 import kotlinx.coroutines.*
@@ -39,7 +41,8 @@ class AddressedTunnel(var address: String, input: ReadOnlyChannel, output: Write
         var payload = ByteArray(0)
         val codec = StringCodec()
         payload = try {
-            input.read()?.get(timeout.toLong())
+            val read =  input.read()
+            read?.get(timeout.toLong())
         } catch (e: Exception) {
             e.printStackTrace()
             return null
@@ -83,9 +86,8 @@ class AddressedTunnel(var address: String, input: ReadOnlyChannel, output: Write
             message.serialize()
         }
         println("post payload="+payload)
-        val codec = StringCodec()
-
-        return output.write(codec.fromASCIIStringToByteArray(payload))
+        println("message.serialize()="+message.serialize())
+        return output.write(  StringUtils.stringToBytes(payload?:"", US_ASCII))
     }
 
     /**

@@ -58,12 +58,12 @@ class AirCompany(
             CloudContext(config).also { c ->
                 val listener: Listener? = c.subscribe()
                 while (loop) {
-                    val event = listener?.one.get()
-                    if (event.message() is InitRequestLedgerMessage) {
+                    val event = listener?.one?.get()
+                    if (event?.message() is InitRequestLedgerMessage) {
                         processInitMicroledger(c, event)
-                    } else if (event.message() is ProposeTransactionsMessage) {
+                    } else if (event?.message() is ProposeTransactionsMessage) {
                         processNewCommit(c, event)
-                    } else if (event.message() is ConnRequest) {
+                    } else if (event?.message() is ConnRequest) {
                         processBoardingPassRequest(c, event)
                     }
                 }
@@ -72,23 +72,25 @@ class AirCompany(
         }
     }
 
-    private fun processNewCommit(c: Context, event: Event) {
+    private fun processNewCommit(c: Context<*>, event: Event) {
         val propose: ProposeTransactionsMessage = event.message() as ProposeTransactionsMessage
-        val machine = MicroLedgerSimpleConsensus(c, event.getPairwise()?.me)
-        machine.acceptCommit(event.getPairwise(), propose)
+        val machine = MicroLedgerSimpleConsensus(c, event.pairwise!!.me)
+        machine.acceptCommit(event.pairwise!!, propose)
         val trs: List<Transaction> = propose.transactions() ?: listOf()
         for (tr in trs) {
-            val testRes = CovidTest(tr.getJSONObject("test_res"))
+            val testRes = CovidTest(tr?.getJSONObject("test_res"))
             if (testRes.hasCovid()) {
-                covidPosNames.add(testRes.fullName)
+                covidPosNames.add(testRes.fullName?:"")
                 for (conn in boardingPasses.keys) {
                     val pass: BoardingPass? = boardingPasses[conn]
                     if (testRes.fullName.equals(pass?.getFullName())) {
-                        val pw: Pairwise? = c.getPairwiseList().loadForDid(aircompanyClientDids[pass.getFullName()])
+                        val pw: Pairwise? = c.pairwiseList.loadForDid(aircompanyClientDids[pass?.getFullName()]?:"")
                         val hello: Message = Message.builder()
                             .setContent("We have to revoke your boarding pass due to positive covid test")
                             .setLocale("en").build()
-                        c.sendTo(hello, pw)
+                        pw?.let {
+                            c.sendTo(hello, pw)
+                        }
                     }
                 }
             } else {
@@ -97,9 +99,9 @@ class AirCompany(
         }
     }
 
-    private fun processInitMicroledger(c: Context, event: Event) {
-        val machine = MicroLedgerSimpleConsensus(c, event.getPairwise()?.me)
-        val (first) = machine.acceptMicroledger(event.getPairwise(), event.message() as InitRequestLedgerMessage)
+    private fun processInitMicroledger(c: Context<*>, event: Event) {
+        val machine = MicroLedgerSimpleConsensus(c, event.pairwise!!.me)
+        val (first) = machine.acceptMicroledger(event.pairwise!!, event.message() as InitRequestLedgerMessage)
         if (first) {
             println("Microledger for aircompany created successfully")
         } else {
@@ -107,9 +109,9 @@ class AirCompany(
         }
     }
 
-    private fun processBoardingPassRequest(c: Context, event: Event) {
+    private fun processBoardingPassRequest(c: Context<*>, event: Event) {
         val request: ConnRequest = event.message() as ConnRequest
-        val (first, second) = c.getDid().createAndStoreMyDid()
+        val (first, second) = c.did.createAndStoreMyDid()
         val connectionKey: String? = event.recipientVerkey
         val myEndpoint: Endpoint? = c.endpointWithEmptyRoutingKeys
         val sm = Inviter(c, Pairwise.Me(first, second), connectionKey, myEndpoint)
@@ -188,5 +190,6 @@ class AirCompany(
         }
     }
 }
+
 
 */

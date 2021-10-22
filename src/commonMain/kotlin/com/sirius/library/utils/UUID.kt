@@ -1,7 +1,9 @@
 package com.sirius.library.utils
 
- class UUID() {
+ expect class UUID() {
     companion object {
-        val randomUUID: UUID get() {  return UUID()}
+        val randomUUID: UUID
     }
+
+     override fun toString(): String
 }

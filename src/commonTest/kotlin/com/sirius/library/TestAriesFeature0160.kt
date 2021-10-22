@@ -104,7 +104,7 @@ class TestAriesFeature0160 {
 
     companion object {
         fun runInviter(
-            context: Context, expectedConnectionKey: String,
+            context: Context<*>, expectedConnectionKey: String,
             me: Pairwise.Me
         ) {
            /* try {
@@ -130,7 +130,7 @@ class TestAriesFeature0160 {
         }
 
         fun runInvitee(
-            context: Context, invitation: Invitation,
+            context: Context<*>, invitation: Invitation,
             myLabel: String?, me: Pairwise.Me
         ) {
             val myEndpoint: Endpoint? = context.endpointWithEmptyRoutingKeys

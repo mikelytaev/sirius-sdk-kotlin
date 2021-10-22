@@ -24,12 +24,12 @@ class MicroLedgerSimpleConsensus : AbstractStateMachine {
     var problemReport: SimpleConsensusProblemReport? = null
     var cachedP2P: MutableMap<String, Pairwise> = HashMap<String, Pairwise>()
 
-    constructor(context: Context, me: Pairwise.Me, timeToLiveSec: Int) : super(context) {
+    constructor(context: Context<*>, me: Pairwise.Me, timeToLiveSec: Int) : super(context) {
         this.me = me
         this.timeToLiveSec = timeToLiveSec
     }
 
-    constructor(context: Context, me: Pairwise.Me) : super(context){
+    constructor(context: Context<*>, me: Pairwise.Me) : super(context){
         this.me = me
         this.timeToLiveSec = 60
     }

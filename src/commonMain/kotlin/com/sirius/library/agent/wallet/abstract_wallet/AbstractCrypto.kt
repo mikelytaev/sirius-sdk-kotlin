@@ -115,12 +115,12 @@ abstract class AbstractCrypto {
      * @param senderVerkey    the sender's verkey as a string. -> When None is passed in this parameter, anoncrypt mode is used
      * @return an Agent Wire Message format as a byte array.
      */
-    abstract fun packMessage(message: Any?, recipentVerkeys: List<String?>?, senderVerkey: String?): ByteArray?
+    abstract fun packMessage(message: Any?, recipentVerkeys: List<String>?, senderVerkey: String?): ByteArray?
 
     /**
      * Overload method [.]
      */
-    fun packMessage(message: Any?, recipentVerkeys: List<String?>?): ByteArray? {
+    fun packMessage(message: Any?, recipentVerkeys: List<String>?): ByteArray? {
         return packMessage(message, recipentVerkeys, null)
     }
 

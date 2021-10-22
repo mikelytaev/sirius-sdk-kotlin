@@ -24,7 +24,7 @@ import kotlin.jvm.JvmOverloads
  */
 class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnection?, timeout: Int) :
     BaseAgentConnection(serverAddress, credentials, p2p, timeout) {
-    var endpoints: List<Endpoint>
+    var endpoints: MutableList<Endpoint>
     var networks: List<String>
     var websockets: Map<String, String>
     var preferAgentSide: Boolean
@@ -48,16 +48,18 @@ class AgentRPC(serverAddress: String, credentials: ByteArray?, p2p: P2PConnectio
             throw SiriusConnectionClosed("Open agent connection at first")
         }
         var expirationTime: Long = 0
-        if (timeout !== 0) {
+        if (timeout != 0) {
             expirationTime = (Date().time+ timeout * 1000) / 1000
         }
+        println("Date().time="+(Date().time/1000))
+        println("expirationTime="+expirationTime)
         val future = Future(tunnelRpc, expirationTime)
         val request: Message = Parsing.buildRequest(msgType, future, params)
         val payload: String = request.serialize()
         val msgTyp: Type = Type.fromStr(msgType)
         val isEncryptes: Boolean = !listOf("admin", "microledgers", "microledgers-batched")
             .contains(msgTyp.protocol)
-        println("remoteCallisEncryptes ="+isEncryptes +" request="+request)
+        println("remoteCallisEncryptes ="+isEncryptes +" request="+request.serialize())
         val isPosted: Boolean = tunnelRpc.post(request, isEncryptes)
         if (!isPosted) {
             throw SiriusRPCError()

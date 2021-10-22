@@ -88,12 +88,17 @@ actual class WebSocketConnector actual constructor() : BaseConnector() {
 
         @Throws(java.lang.Exception::class)
         override fun onTextFrame(webSocket: WebSocket?, webSocketFrame: WebSocketFrame?) {
-            read(webSocketFrame, null, defTimeout)
+
+                read(webSocketFrame, null, defTimeout)
+
+
         }
 
         @Throws(java.lang.Exception::class)
         override fun onBinaryFrame(webSocket: WebSocket?, webSocketFrame: WebSocketFrame?) {
-            read(webSocketFrame, null, defTimeout)
+
+                read(webSocketFrame, null, defTimeout)
+
         }
 
         @Throws(java.lang.Exception::class)
@@ -262,7 +267,7 @@ actual class WebSocketConnector actual constructor() : BaseConnector() {
         CompleteFuture()
 
     actual  override fun read(): CompleteFuture<ByteArray?> {
-        readFuture = CompleteFuture()
+        readFuture = CompleteFuture<ByteArray?>()
         return readFuture
         //readFuture = ByteArray
       //  return  //readFuture.get(defTimeout.toLong(),TimeUnit.SECONDS)
@@ -273,9 +278,8 @@ actual class WebSocketConnector actual constructor() : BaseConnector() {
     private fun read(frame: WebSocketFrame?, exception: WebSocketException?, timeout: Int): ByteArray? {
         if (frame != null) {
           //  readed = frame.getPayload()
-
-            log.log(Logger.Level.INFO, "REaded binary data"+frame.getPayload()?.decodeToString());
             readFuture.complete(frame.getPayload())
+            log.log(Logger.Level.INFO, "REaded binary data"+frame.getPayload()?.decodeToString());
             if (readCallback != null) readCallback!!.apply(frame.getPayload())
             return frame.getPayload()
         }

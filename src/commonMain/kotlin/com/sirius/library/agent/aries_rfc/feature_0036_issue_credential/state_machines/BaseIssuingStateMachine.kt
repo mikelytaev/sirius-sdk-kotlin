@@ -6,7 +6,7 @@ import com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.messages
 import com.sirius.library.base.AbstractStateMachine
 import com.sirius.library.hub.Context
 
-abstract class BaseIssuingStateMachine(context: Context) : AbstractStateMachine(context) {
+abstract class BaseIssuingStateMachine(context: Context<*>) : AbstractStateMachine(context) {
     var problemReport: IssueProblemReport? = null
     override fun protocols(): List<String> {
         return listOf(BaseIssueCredentialMessage.PROTOCOL, Ack.PROTOCOL)

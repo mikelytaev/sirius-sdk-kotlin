@@ -7,6 +7,7 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.models.P2PModel
 import com.sirius.library.rpc.AddressedTunnel
 import com.sirius.library.rpc.Future
+import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.JSONObject
 import kotlin.test.*
 
@@ -48,12 +49,12 @@ class TestFuturePromise {
             val message = Message(promiseMsgObj.toString())
             var isWait = false
             try {
-                isWait = future.waitPromise(5)
+                isWait = future.waitPromise(15)
             } catch (ignored: Exception) {
             }
             assertFalse(isWait)
             agent_to_sdk.post(message)
-            val isOk: Boolean = future.waitPromise(5)
+            val isOk: Boolean = future.waitPromise(15)
             assertTrue(isOk)
             try {
                 val actual: Any? = future.getValue()
@@ -63,4 +64,8 @@ class TestFuturePromise {
             }
         }
     }
+
+
+
+
 }

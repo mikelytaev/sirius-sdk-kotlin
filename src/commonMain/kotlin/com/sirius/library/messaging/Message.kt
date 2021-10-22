@@ -13,7 +13,9 @@ open class Message : JsonSerializable<Message> {
     val FIELD_ID = "@id"
 
     constructor() {
+
     }
+
 
     constructor(message: String) {
         init(message)

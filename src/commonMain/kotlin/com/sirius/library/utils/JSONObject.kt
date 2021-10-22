@@ -27,6 +27,10 @@ open class JSONObject {
     constructor(jsonObject: JsonObject) {
         this.jsonObject = jsonObject
     }
+
+    constructor(jsonObject: JSONObject?) {
+      //  this.jsonObject = jsonObject
+    }
     fun serialize(){
        // Json.encodeToJsonElement()
     }
@@ -52,7 +56,23 @@ open class JSONObject {
     }
 
     fun get(key: String): Any? {
-        return null
+        if( checkNull(key)){
+            return null
+        }
+        val elemnt = jsonObject.get(key)
+        if(elemnt is JsonObject){
+            return JSONObject(elemnt)
+        }else if(elemnt is JsonArray){
+            return JSONArray(elemnt)
+        }else if(elemnt is JsonPrimitive){
+            if(elemnt.booleanOrNull != null){
+                return elemnt.boolean
+            }else if(elemnt.isString){
+                return elemnt.content
+            }
+
+        }
+        return jsonObject.get(key)
     }
 
     fun optString(key: String, default : String? = null): String? {
@@ -72,7 +92,7 @@ open class JSONObject {
             jsonObject.entries.forEach {
                 put(it.key, it.value)
             }
-            if(value ==null){
+            if(value ==null || value == JSONObject.NULL){
                 put(key, JsonNull)
             }else if(value is String){
                 put(key, value)
@@ -105,8 +125,7 @@ open class JSONObject {
     }
 
     fun isNull(key: String): Boolean {
-       // return jsonObject.get(key)?.jsonNull
-        return false
+        return checkNull(key)
     }
 
     fun getBoolean(key: String): Boolean? {
@@ -122,14 +141,26 @@ open class JSONObject {
     }
 
     fun optJSONObject(key: String): JSONObject? {
-        if (jsonObject.get(key)?.jsonObject == null) {
+        if(checkNull(key)){
+            return null
+        }
+        if (jsonObject.get(key)?.jsonObject == null  ) {
             return null
         }
         return JSONObject(jsonObject.get(key)!!.jsonObject)
     }
 
+    fun checkNull(key: String) : Boolean{
+        if(jsonObject.get(key) == JsonNull){
+            return true
+        }
+        return false
+    }
     fun optJSONArray(key: String): JSONArray? {
-        if (jsonObject.get(key)?.jsonArray == null) {
+        if(checkNull(key)){
+            return null
+        }
+        if (jsonObject.get(key)?.jsonArray == null || jsonObject.get(key) == JsonNull) {
             return null
         }
         return JSONArray(jsonObject.get(key)!!.jsonArray, this, key)
@@ -166,5 +197,9 @@ open class JSONObject {
 
     fun length(): Int {
         return 0
+    }
+
+    fun opt(key: String): Any {
+        return jsonObject.get(key).toString()
     }
 }

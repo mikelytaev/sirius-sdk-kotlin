@@ -13,7 +13,7 @@ import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
 
-class Issuer(context: Context, holder: Pairwise, timeToLiveSec: Int) : BaseIssuingStateMachine(context) {
+class Issuer(context: Context<*>, holder: Pairwise, timeToLiveSec: Int) : BaseIssuingStateMachine(context) {
     var log: Logger = Logger.getLogger("Issuer")
     var holder: Pairwise
 

@@ -1,3 +1,4 @@
+/*
 package examples.covid
 
 import com.sirius.library.agent.model.Entity
@@ -75,3 +76,4 @@ object Helpers {
         return res!!
     }
 }
+*/

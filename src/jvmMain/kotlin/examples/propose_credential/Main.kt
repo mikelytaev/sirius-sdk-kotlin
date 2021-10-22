@@ -20,6 +20,7 @@ import com.sirius.library.hub.CloudContext
 import com.sirius.library.hub.Context
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.UUID
+import examples.covid.CredInfo
 import kotlin.jvm.JvmStatic
 
 object Main {
@@ -33,7 +34,7 @@ object Main {
     )
     var publicDid = "Th7MpTaRZVRYnPiabds81Y"
     const val DKMS_NAME = "test_network"
-    fun qrCode(context: Context): Pair<String, String>? {
+    fun qrCode(context: Context<*>): Pair<String, String>? {
         val connectionKey: String? = context.crypto.createKey()
         // Теперь сформируем приглашение для других через 0160
         // шаг 1 - определимся какой endpoint мы возьмем, для простоты возьмем endpoint без доп шифрования
@@ -59,16 +60,16 @@ object Main {
         return Pair(connectionKey, qrUrl)
     }
 
-    fun regCreds(issuer: Context, did: String?, dkmsName: String?): CredInfo? {
+    fun regCreds(issuer: Context<*>, did: String?, dkmsName: String?): CredInfo? {
         val schemaName = "passport"
-        val (_, anoncredSchema) = issuer.getAnonCreds().issuerCreateSchema(
+        val (_, anoncredSchema) = issuer.anonCreds.issuerCreateSchema(
             did, schemaName, "1.0",
             "name", "age", "photo"
         )
-        val ledger: Ledger = issuer.getLedgers().get(dkmsName)
-        var schema: Schema = ledger.ensureSchemaExists(anoncredSchema, did)
+        val ledger: Ledger? = issuer.ledgers?.get(dkmsName)
+        var schema: Schema? = ledger?.ensureSchemaExists(anoncredSchema, did)
         if (schema == null) {
-            val (first, second) = ledger.registerSchema(anoncredSchema, did)
+            val (first, second) = ledger?.registerSchema(anoncredSchema, did)
             schema = if (first) {
                 println("Schema was registered successfully")
                 second
@@ -96,11 +97,11 @@ object Main {
                 val connectionKey = qrCodeRes!!.first
                 val qrUrl = qrCodeRes.second
                 println("Открой QR код и просканируй в Sirius App: $qrUrl")
-                val (myDid, myVerkey) = context.getDid().createAndStoreMyDid()
-                val endpoints: List<Endpoint> = context.getEndpoints()
+                val (myDid, myVerkey) = context.did.createAndStoreMyDid()
+                val endpoints: List<Endpoint> = context.endpoints
                 var myEndpoint: Endpoint? = null
                 for (e in endpoints) {
-                    if (e.getRoutingKeys().isEmpty()) {
+                    if (e.routingKeys.isEmpty()) {
                         myEndpoint = e
                         break
                     }
@@ -108,27 +109,27 @@ object Main {
                 if (myEndpoint == null) return
                 // Слушаем запросы
                 println("Слушаем запросы")
-                val listener: Listener = context.subscribe()
+                val listener: Listener? = context.subscribe()
                 var p2p: Pairwise? = null
                 while (true) {
-                    val event: Event = listener.getOne().get()
-                    println("received: " + event.message().getMessageObj().toString())
-                    if (event.getRecipientVerkey().equals(connectionKey) && event.message() is ConnRequest) {
+                    val event: Event? = listener?.one?.get()
+                    println("received: " + event?.message()?.messageObj.toString())
+                    if (event.recipientVerkey.equals(connectionKey) && event?.message() is ConnRequest) {
                         println("ConnRequest received")
-                        val request: ConnRequest = event.message() as ConnRequest
+                        val request: ConnRequest = event?.message() as ConnRequest
                         val sm = Inviter(context, Pairwise.Me(myDid, myVerkey), connectionKey, myEndpoint)
                         p2p = sm.createConnection(request)
                         if (p2p != null) {
                             // Ensure pairwise is stored
-                            context.getPairwiseList().ensureExists(p2p)
+                            context.pairwiseList.ensureExists(p2p)
                             val hello: Message =
                                 Message.builder().setContent("Waiting for your credential propose").setLocale("en")
                                     .build()
                             context.sendTo(hello, p2p)
                         }
                     }
-                    if (event.getRecipientVerkey()
-                            .equals(connectionKey) && event.message() is ProposeCredentialMessage
+                    if (event.recipientVerkey
+                            .equals(connectionKey) && event?.message() is ProposeCredentialMessage
                     ) {
                         println("ProposeCredentialMessage received")
                         if (p2p == null) {
@@ -136,19 +137,19 @@ object Main {
                             return
                         }
                         val propose: ProposeCredentialMessage = event.message() as ProposeCredentialMessage
-                        if (!propose.getIssuerDid().equals(publicDid)) {
+                        if (!propose.issuerDid.equals(publicDid)) {
                             println("Wrong did")
                         }
-                        if (!propose.getCredDefId().equals(credInfo.credentialDefinition.getId())) {
+                        if (!propose.credDefId.equals(credInfo?.credentialDefinition?.id)) {
                             println("Wrong credDefId")
                         }
-                        if (!propose.getSchemaId().equals(credInfo.schema.getId())) {
+                        if (!propose.schemaId.equals(credInfo?.schema?.id)) {
                             println("Wrong schemaId")
                         }
-                        if (!propose.getSchemaIssuerDid().equals(publicDid)) {
+                        if (!propose.schemaIssuerDid.equals(publicDid)) {
                             println("Wrong schemaIssuerDid")
                         }
-                        val proposedAttribs: List<ProposedAttrib> = propose.getCredentialProposal()
+                        val proposedAttribs: List<ProposedAttrib> = propose.credentialProposal.orEmpty()
                         val vals: JSONObject = JSONObject()
                         for (attr in proposedAttribs) {
                             vals.put(attr.optString("name"), attr.get("value"))
@@ -170,4 +171,5 @@ object Main {
             }
     }
 }
+
 */

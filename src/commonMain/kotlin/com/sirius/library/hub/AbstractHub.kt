@@ -82,7 +82,7 @@ abstract class AbstractHub : Closeable {
             return agent
         }
 
-    fun getAgenti(): AbstractAgent? {
+    open fun getAgenti(): AbstractAgent? {
         return agent
     }
 

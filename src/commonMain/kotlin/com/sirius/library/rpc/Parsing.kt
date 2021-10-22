@@ -66,7 +66,7 @@ object Parsing {
         if (params == null) {
             return paramsObject
         }
-        val paramsMap: Map<String, Any> = params.params
+        val paramsMap: Map<String, Any?> = params.params
         val keys = paramsMap.keys
         for (key in keys) {
             val (first, second) = serializeVariable(paramsMap[key])

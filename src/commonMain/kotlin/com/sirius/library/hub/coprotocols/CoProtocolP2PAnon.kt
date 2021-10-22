@@ -12,7 +12,7 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
 
 class CoProtocolP2PAnon(
-    context: Context,
+    context: Context<*>,
     var myVerkey: String,
     endpoint: TheirEndpoint,
     protocols: List<String>,

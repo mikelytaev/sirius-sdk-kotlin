@@ -9,7 +9,7 @@ import com.sirius.library.hub.Context
 import com.sirius.library.messaging.Message
 
 class CoProtocolThreadedTheirs(
-    context: Context,
+    context: Context<*>,
     thid: String,
     theirs: List<Pairwise>,
     pthid: String?,

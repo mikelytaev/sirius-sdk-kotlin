@@ -67,7 +67,7 @@ class CryptoProxy(rpc: AgentRPC) : AbstractCrypto() {
         )
     }
 
-    override fun packMessage(message: Any?, recipentVerkeys: List<String?>?, senderVerkey: String?): ByteArray? {
+    override fun packMessage(message: Any?, recipentVerkeys: List<String>?, senderVerkey: String?): ByteArray? {
         return object : RemoteCallWrapper<ByteArray?>(rpc) {}.remoteCall(
             "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sirius_rpc/1.0/pack_message",
             RemoteParams.RemoteParamsBuilder.create()
@@ -76,6 +76,8 @@ class CryptoProxy(rpc: AgentRPC) : AbstractCrypto() {
                 .add("sender_verkey", senderVerkey)
         )
     }
+
+
 
     override fun unpackMessage(jwe: ByteArray?): String? {
         return object : RemoteCallWrapper<String?>(rpc) {}.remoteCall(
