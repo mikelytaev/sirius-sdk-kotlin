@@ -48,12 +48,12 @@ class ChanelHelper {
             try {
                 Log.d("mylog200", "listener=" + listener)
                 val cf  = listener!!.one
-                SiriusSDK.getInstance().context.currentHub.agent.receiveMsg(
+                SiriusSDK.getInstance().context.currentHub.getAgenti()?.receiveMsg(
                     message.toByteArray(
                         charset("UTF-8")
                     )
                 )
-                val event = cf?.get(60L)
+                val event = cf?.get(60L, TimeUnit.SECONDS)
                 val message = event?.message()
                 //val type = message.type
                 parseMessageByScenario(event)

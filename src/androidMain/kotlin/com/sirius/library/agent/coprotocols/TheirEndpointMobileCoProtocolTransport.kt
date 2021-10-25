@@ -37,7 +37,7 @@ class TheirEndpointMobileCoProtocolTransport(agent: MobileAgent, myVerkey: Strin
     override val one: GetOneResult?
         get() {
             try {
-                val event: Event? = listener.one?.get(timeToLiveSec.toLong())
+                val event: Event? = listener.one?.get(timeToLiveSec.toLong(), TimeUnit.SECONDS)
                 if(event !=null){
                     if(event.message()!=null && event.senderVerkey!=null &&event.recipientVerkey!=null){
                         return GetOneResult(event.message()!!, event.senderVerkey!!, event.recipientVerkey!!)
@@ -53,7 +53,7 @@ class TheirEndpointMobileCoProtocolTransport(agent: MobileAgent, myVerkey: Strin
         agent.sendMessage(
             message,
             Arrays.asList(endpoint.verkey),
-            endpoint.endpointAddress,
+            endpoint.endpointAddress?:"",
             myVerkey,
             listOf()
         )
