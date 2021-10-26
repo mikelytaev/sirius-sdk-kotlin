@@ -101,12 +101,12 @@ open class JSONObject {
     //fun
     constructor(message: String?) {
         message?.let {
-            this.message = message
+            val unescapedString = JSONEscape.unescapeJsonObject(message)
+            this.message = unescapedString
             println("message=" + message)
             val element = Json.parseToJsonElement(message)
             println("element=" + element)
-
-            jsonObject = Json.parseToJsonElement(message).jsonObject
+            jsonObject = Json.parseToJsonElement(unescapedString).jsonObject
 
         }
 
