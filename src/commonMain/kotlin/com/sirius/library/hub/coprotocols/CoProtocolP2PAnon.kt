@@ -69,6 +69,7 @@ class CoProtocolP2PAnon(
     private val transportLazy: AbstractCoProtocolTransport?
         private get() {
             if (transport == null) {
+                println("transportLazy endpoint="+endpoint)
                 transport = context.currentHub?.agentConnectionLazy?.spawn(myVerkey, endpoint)
                 transport?.protocols = protocols
                 transport?.setTimeToLiveSeci(timeToLiveSec)

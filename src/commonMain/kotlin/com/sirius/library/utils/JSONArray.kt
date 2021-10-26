@@ -11,9 +11,13 @@ open class JSONArray : Iterable<Any?> {
         if(list==null){
             jsonArray  = buildJsonArray {  }
         }else{
-            list?.forEach {
-                it?.let {
-                    val element = Json.parseToJsonElement(it)
+            jsonArray =  buildJsonArray {
+                list?.forEach {
+                    it?.let {
+                        this.add(it)
+                       // val element = Json.parseToJsonElement(it)
+                       // this.add(element)
+                    }
                 }
             }
         }
@@ -88,7 +92,13 @@ open class JSONArray : Iterable<Any?> {
         return getJSONObject(i)
     }
 
-    fun put(credAttach: String): JSONArray {
+    fun put(value: String): JSONArray {
+        jsonArray = buildJsonArray {
+            jsonArray.forEach {
+                this.add(it)
+            }
+            this.add(value)
+        }
         return this
     }
 

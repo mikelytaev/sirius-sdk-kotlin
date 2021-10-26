@@ -50,6 +50,9 @@ class TheirEndpointMobileCoProtocolTransport(agent: MobileAgent, myVerkey: Strin
         }
 
     override fun send(message: Message) {
+        println("send endpoint.verkey="+endpoint.verkey)
+        println("send endpoint.endpointAddress="+endpoint.endpointAddress)
+        println("send myVerkey="+myVerkey)
         agent.sendMessage(
             message,
             Arrays.asList(endpoint.verkey),

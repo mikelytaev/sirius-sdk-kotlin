@@ -35,38 +35,39 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
     var mediatorAddress: String? = null
 
     var sender: BaseSender? = null
-   /* var sender: BaseSender? = object : BaseSender() {
-        override fun sendTo(endpoint: String?, data: ByteArray?): Boolean {
-            if (endpoint.startsWith("http")) {
-                try {
-                    val httpClient: HttpClient = HttpClients.createDefault()
-                    val httpPost = HttpPost(endpoint)
-                    httpPost.setHeader("content-type", "application/ssi-agent-wire")
-                    httpPost.setEntity(ByteArrayEntity(cryptoMsg))
-                    httpClient.execute(httpPost)
-                } catch (e: java.io.IOException) {
-                    e.printStackTrace()
-                }
-            } else if (endpoint.startsWith("ws")) {
-                val webSocket: WebSocketConnector? = getWebSocket(endpoint)
-                if (!webSocket.isOpen()) webSocket.open()
-                webSocket.write(cryptoMsg)
-            } else {
-                throw java.lang.RuntimeException("Not yet supported!")
-            }
-            return true
-        }
 
-        override fun open(endpoint: String?) {
-            getWebSocket(endpoint)
-        }
+    /* var sender: BaseSender? = object : BaseSender() {
+         override fun sendTo(endpoint: String?, data: ByteArray?): Boolean {
+             if (endpoint.startsWith("http")) {
+                 try {
+                     val httpClient: HttpClient = HttpClients.createDefault()
+                     val httpPost = HttpPost(endpoint)
+                     httpPost.setHeader("content-type", "application/ssi-agent-wire")
+                     httpPost.setEntity(ByteArrayEntity(cryptoMsg))
+                     httpClient.execute(httpPost)
+                 } catch (e: java.io.IOException) {
+                     e.printStackTrace()
+                 }
+             } else if (endpoint.startsWith("ws")) {
+                 val webSocket: WebSocketConnector? = getWebSocket(endpoint)
+                 if (!webSocket.isOpen()) webSocket.open()
+                 webSocket.write(cryptoMsg)
+             } else {
+                 throw java.lang.RuntimeException("Not yet supported!")
+             }
+             return true
+         }
 
-        override fun close() {
-            webSockets.forEach {
-                it.value.close()
-            }
-        }
-    }*/
+         override fun open(endpoint: String?) {
+             getWebSocket(endpoint)
+         }
+
+         override fun close() {
+             webSockets.forEach {
+                 it.value.close()
+             }
+         }
+     }*/
     var indyWallet: Wallet? = null
     var webSockets: MutableMap<String, WebSocketConnector> = HashMap<String, WebSocketConnector>()
 
@@ -105,20 +106,27 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
             storage = InWalletImmutableCollection(wallet!!.nonSecrets)
         }
         for (network in networks.orEmpty()) {
-            ledgers.put(network, Ledger(network, wallet!!.ledger, wallet!!.anoncreds, wallet!!.cache, storage!!))
+            ledgers.put(
+                network,
+                Ledger(network, wallet!!.ledger, wallet!!.anoncreds, wallet!!.cache, storage!!)
+            )
         }
     }
 
     private val networks: List<String>?
         private get() {
             try {
-                val str: String = Pool.listPools().get(timeoutSec.toLong(), java.util.concurrent.TimeUnit.SECONDS)
+                val str: String =
+                    Pool.listPools().get(timeoutSec.toLong(), java.util.concurrent.TimeUnit.SECONDS)
                 val arr: JSONArray = JSONArray(str)
                 val networks: MutableList<String> = ArrayList<String>()
                 for (o in arr) {
-                   val poolString =  (o as JSONObject).optString("pool")
-                    poolString?.let {
-                        networks.add(poolString)
+                    println("o="+o)
+                    if (o is JSONObject) {
+                        val poolString = (o as JSONObject).optString("pool")
+                        poolString?.let {
+                            networks.add(poolString)
+                        }
                     }
                 }
                 return networks
@@ -140,32 +148,34 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
         my_vk: String?,
         routing_keys: List<String?>?
     ) {
-        if (routing_keys?.isEmpty()==false) throw java.lang.RuntimeException("Not yet supported!")
-        val cryptoMsg = packMessage(message?: Message(), my_vk, their_vk.orEmpty())
+        if (routing_keys?.isEmpty() == false) throw java.lang.RuntimeException("Not yet supported!")
+        println("sendMessage their_vk=" + their_vk)
+        println("sendMessage my_vk=" + my_vk)
+        val cryptoMsg = packMessage(message ?: Message(), my_vk, their_vk.orEmpty())
         if (sender != null) {
             val isSend = sender!!.sendTo(endpoint, cryptoMsg)
             //return new Pair<>(isSend, null);
         }
     }
 
-  /*  fun getWebSocket(endpoint: String?): WebSocketConnector? {
-        return if (webSockets.containsKey(endpoint)) {
-            webSockets[endpoint]
-        } else {
-            val webSocket = WebSocketConnector(endpoint ?:"", "", null)
-            val fAgent = this
-            webSocket.readCallback = object : java.util.function.Function<ByteArray?, java.lang.Void?>() {
+    /*  fun getWebSocket(endpoint: String?): WebSocketConnector? {
+          return if (webSockets.containsKey(endpoint)) {
+              webSockets[endpoint]
+          } else {
+              val webSocket = WebSocketConnector(endpoint ?:"", "", null)
+              val fAgent = this
+              webSocket.readCallback = object : java.util.function.Function<ByteArray?, java.lang.Void?>() {
 
-                override fun apply(bytes: ByteArray?): Void? {
-                    fAgent.receiveMsg(bytes)
-                    return null
-                }
-            }
-            webSocket.open()
-            webSockets[endpoint?:""] = webSocket
-            webSocket
-        }
-    }*/
+                  override fun apply(bytes: ByteArray?): Void? {
+                      fAgent.receiveMsg(bytes)
+                      return null
+                  }
+              }
+              webSocket.open()
+              webSockets[endpoint?:""] = webSocket
+              webSocket
+          }
+      }*/
 
     fun connect(endpoint: String?) {
         sender!!.open(endpoint)
@@ -174,6 +184,9 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
     fun packMessage(msg: Message, myVk: String?, theirVk: List<String?>): ByteArray? {
         val receivers: JSONArray = JSONArray(theirVk)
         try {
+            System.out.println(" receivers.toString()=" + receivers.toString())
+            System.out.println(" myVk=" + myVk)
+            System.out.println("  StringUtils.stringToBytes(msg.messageObj.toString(), UTF_8)=" + msg.messageObj.toString())
             return Crypto.packMessage(
                 indyWallet, receivers.toString(),
                 myVk, StringUtils.stringToBytes(msg.messageObj.toString(), UTF_8)
@@ -194,8 +207,12 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
                         .get(timeoutSec.toLong(), java.util.concurrent.TimeUnit.SECONDS)
                 val unpackedMessage: JSONObject = JSONObject(String(unpackedMessageBytes))
                 eventMessage =
-                    JSONObject().put("@type", "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sirius_rpc/1.0/event")
-                        .put("content_type", "application/ssi-agent-wire").put("@id", UUID.randomUUID)
+                    JSONObject().put(
+                        "@type",
+                        "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sirius_rpc/1.0/event"
+                    )
+                        .put("content_type", "application/ssi-agent-wire")
+                        .put("@id", UUID.randomUUID)
                         .put("message", JSONObject(unpackedMessage.optString("message")))
                         .put("recipient_verkey", unpackedMessage.optString("recipient_verkey"))
                 if (unpackedMessage.has("sender_verkey")) {
@@ -205,11 +222,15 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
                 unpackedMessageBytes = bytes
                 val unpackedMessage: JSONObject = JSONObject(String(unpackedMessageBytes))
                 eventMessage =
-                    JSONObject().put("@type", "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sirius_rpc/1.0/event")
-                        .put("content_type", "application/ssi-agent-wire").put("@id", UUID.randomUUID)
+                    JSONObject().put(
+                        "@type",
+                        "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sirius_rpc/1.0/event"
+                    )
+                        .put("content_type", "application/ssi-agent-wire")
+                        .put("@id", UUID.randomUUID)
                         .put("message", unpackedMessage)
             }
-            for ( one : Pair<MobileAgentEvents, Listener> in events) {
+            for (one: Pair<MobileAgentEvents, Listener> in events) {
                 one.first.future?.complete(Message(eventMessage))
             }
         } catch (e: java.lang.InterruptedException) {
@@ -285,7 +306,11 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
         return null
     }
 
-    override fun spawn(thid: String, pairwise: Pairwise, pthid: String): AbstractCoProtocolTransport? {
+    override fun spawn(
+        thid: String,
+        pairwise: Pairwise,
+        pthid: String
+    ): AbstractCoProtocolTransport? {
         return null
     }
 

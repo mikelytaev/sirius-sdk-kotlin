@@ -100,7 +100,7 @@ class MobileContext(config: MobileHub.Config) : Context<MobileHub>(MobileHub(con
             mediatorPw = pairwiseList.loadForDid(mediatorDid)
             val endpoint = getMyMediatorEndpoint(invitation?.recipientKeys()?.get(0) ?: "")
             if (endpoint != null) {
-                endpoints.add(endpoint)
+                endpoints?.add(endpoint)
             }
         }
         if (mediatorPw != null) {
@@ -173,7 +173,7 @@ class MobileContext(config: MobileHub.Config) : Context<MobileHub>(MobileHub(con
                 if (second is MediateGrant) {
                     val grant: MediateGrant = second as MediateGrant
                     val endpoint = Endpoint(grant.endpointAddress?:"", grant.routingKeys)
-                    endpoints.add(endpoint)
+                    endpoints?.add(endpoint)
                     val invitation: Invitation? = (currentHub.config as MobileHub.Config).mediatorInvitation
                     saveMediatorInfo(invitation?.recipientKeys()?.get(0)?:"", mediatorPw?.their?.did ?:"", endpoint)
                     return true

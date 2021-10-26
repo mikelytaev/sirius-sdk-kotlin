@@ -48,7 +48,8 @@ class MicroledgerList(api: AgentRPC) : AbstractMicroledgerList() {
     }
 
     override fun leafHash(txn: Transaction?): ByteArray? {
-        val data: ByteArray = JSONUtils.JSONObjectToString(txn, true).encodeToByteArray()
+
+        val data: ByteArray = JSONUtils.JSONObjectToString(txn?:JSONObject(), true).encodeToByteArray()
         return object : RemoteCallWrapper<ByteArray?>(api) {}.remoteCall(
             "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/microledgers/1.0/leaf_hash",
             RemoteParams.RemoteParamsBuilder.create().add("data", data)

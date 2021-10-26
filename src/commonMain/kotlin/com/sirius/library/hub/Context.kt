@@ -517,8 +517,8 @@ abstract class Context<T: AbstractHub> internal constructor(hub: T) : Closeable 
 
 
 
-    val endpoints: MutableList<Endpoint>
-        get() = currentHub?.agentConnectionLazy?.getEndpointsi().orEmpty().toMutableList()
+    val endpoints: MutableList<Endpoint>?
+        get() = currentHub?.agentConnectionLazy?.getEndpointsi()
 
 
 
@@ -554,7 +554,7 @@ abstract class Context<T: AbstractHub> internal constructor(hub: T) : Closeable 
     //    }
     val endpointWithEmptyRoutingKeys: Endpoint?
         get() {
-            for (e in endpoints) {
+            for (e in endpoints.orEmpty()) {
                 if (e.routingKeys.size === 0) {
                     return e
                 }

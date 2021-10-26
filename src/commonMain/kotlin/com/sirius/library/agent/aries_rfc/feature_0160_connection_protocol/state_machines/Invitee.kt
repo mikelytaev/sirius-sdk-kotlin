@@ -14,6 +14,7 @@ import com.sirius.library.hub.coprotocols.CoProtocolP2PAnon
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
+import com.sirius.library.utils.System
 
 class Invitee(context: Context<*>, me: Pairwise.Me, myEndpoint: Endpoint) : BaseConnectionStateMachine(context, me, myEndpoint) {
     var log: Logger = Logger.getLogger(Invitee::class.simpleName)
@@ -36,6 +37,9 @@ class Invitee(context: Context<*>, me: Pairwise.Me, myEndpoint: Endpoint) : Base
         val docUri = invitation.getDocUri()
         // Extract Inviter connection_key
         val connectionKey = invitation.recipientKeys()[0]
+        println("connectionKey="+connectionKey)
+        println("invitation.endpoint()="+invitation.endpoint())
+        println("me.verkey="+me.verkey)
         val inviterEndpoint = TheirEndpoint(invitation.endpoint(), connectionKey)
 
         // Allocate transport channel between self and theirs by verkeys factor

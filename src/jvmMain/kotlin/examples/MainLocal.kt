@@ -99,7 +99,7 @@ object MainLocal {
             println("DID: $myDid")
             println("Verkey: $myVerkey")
             // определимся какой endpoint мы возьмем, для простоты возьмем endpoint без доп шифрования
-            val endpoints: List<Endpoint> = context.endpoints
+            val endpoints: List<Endpoint> = context.endpoints ?: listOf()
             var myEndpoint: Endpoint? = null
             for (e in endpoints) {
                 if (e.routingKeys.isEmpty()) {

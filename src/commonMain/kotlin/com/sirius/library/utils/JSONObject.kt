@@ -265,10 +265,11 @@ open class JSONObject {
     }
 
     fun length(): Int {
-        return 0
+        return jsonObject.size
     }
 
-    fun opt(key: String): Any {
-        return jsonObject.get(key).toString()
+    fun opt(key: String): Any? {
+        val serialised = JSONObject.serializeToObjects(jsonObject.get(key))
+        return serialised
     }
 }
