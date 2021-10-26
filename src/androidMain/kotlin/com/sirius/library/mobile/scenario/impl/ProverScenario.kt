@@ -50,7 +50,7 @@ abstract class ProverScenario(val eventStorage : EventStorageAbstract) : BaseSce
         val ttl = 60
         val pairwise = PairwiseHelper.getInstance().getPairwise(event?.first)
         val masterSecretId: String =
-            HashUtils.generateHash(SiriusSDK.getInstance().label)
+            HashUtils.generateHash(SiriusSDK.getInstance().label?:"")
         // val proverLedger: Ledger? = SiriusSDK.getInstance().context.getLedgers().get("default")
         // proverLedger?.let {
         var machine :Prover? =null

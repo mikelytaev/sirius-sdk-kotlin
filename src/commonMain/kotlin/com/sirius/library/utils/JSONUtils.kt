@@ -4,33 +4,35 @@ import kotlin.jvm.JvmOverloads
 
 object JSONUtils {
     @JvmOverloads
-    fun JSONObjectToString(obj: JSONObject?, sortKeys: Boolean = false): String {
-       /* val keys: List<String> = ArrayList(obj.keySet())
-        if (sortKeys) java.android.util.Collections.sort<String>(keys)
+    fun JSONObjectToString(obj: JSONObject, sortKeys: Boolean = false): String {
+        val keys: List<String> = ArrayList(obj.keySet())
+        if (sortKeys) {
+            keys.sorted()
+        }
         val stringBuilder: StringBuilder = StringBuilder()
         stringBuilder.append("{")
         for (key in keys) {
             stringBuilder.append("\"").append(key).append("\"").append(":")
-            val `val`: Any = obj.get(key)
+            val `val`: Any? = obj.get(key)
             stringBuilder.append(JSONFieldToString(`val`)).append(',')
         }
         if (stringBuilder.get(stringBuilder.length - 1) == ',') {
-            stringBuilder.deleteCharAt(stringBuilder.length - 1)
+            stringBuilder.deleteAt(stringBuilder.length - 1)
         }
-        stringBuilder.append("}")*/
-        return "stringBuilder.toString()"
+        stringBuilder.append("}")
+        return stringBuilder.toString()
     }
 
     private fun JSONArrayToString(arr: JSONArray): String {
-   /*     val stringBuilder: StringBuilder = StringBuilder()
+        val stringBuilder: StringBuilder = StringBuilder()
         stringBuilder.append("[")
         for (o in arr) {
             stringBuilder.append(JSONFieldToString(o)).append(',')
         }
         if (stringBuilder.get(stringBuilder.length - 1) == ',') {
-            stringBuilder.deleteCharAt(stringBuilder.length - 1)
+            stringBuilder.deleteAt(stringBuilder.length - 1)
         }
-        stringBuilder.append("]")*/
+        stringBuilder.append("]")
         return "stringBuilder.toString()"
     }
 

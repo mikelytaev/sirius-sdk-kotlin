@@ -2,7 +2,7 @@ package com.sirius.library.utils
 
 import kotlinx.serialization.json.*
 
-open class JSONArray : Iterable<Any> {
+open class JSONArray : Iterable<Any?> {
 
     var jsonArray : JsonArray = buildJsonArray {  }
     var parentObject : JSONObject? = null
@@ -66,8 +66,14 @@ open class JSONArray : Iterable<Any> {
         return this
     }
 
-    override fun iterator(): Iterator<Any> {
-       return jsonArray.iterator()
+    override fun iterator(): Iterator<Any?> {
+        val list : MutableList<Any?> = mutableListOf()
+        jsonArray.iterator().forEach {
+            val element = JSONObject.serializeToObjects(it)
+            list.add(element)
+        }
+      val iterator =   list.iterator()
+       return iterator
     }
 
     fun getString(i: Int): String? {

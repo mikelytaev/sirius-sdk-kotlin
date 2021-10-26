@@ -5,9 +5,8 @@
 
  import com.google.gson.Gson;
  import com.sirius.library.mobile.models.KeyDidRecord;
- import com.sirius.library.mobile.models.WalletRecordSearch;
  import com.sirius.library.mobile.utils.FileUtils;
- import com.sirius.library.mobile.utils.HashUtils;
+
  import org.hyperledger.indy.sdk.IndyException;
  import org.hyperledger.indy.sdk.did.Did;
  import org.hyperledger.indy.sdk.did.DidResults;

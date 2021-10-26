@@ -3,6 +3,8 @@ package com.sirius.library.mobile
 
 import android.content.Context
 import android.util.Log
+import com.ionspin.kotlin.crypto.LibsodiumInitializer
+import com.ionspin.kotlin.crypto.util.LibsodiumRandom
 import com.sirius.library.agent.BaseSender
 import com.sirius.library.agent.MobileContextConnection
 import com.sirius.library.agent.aries_rfc.feature_0160_connection_protocol.messages.Invitation
@@ -138,7 +140,6 @@ class SiriusSDK {
     ) {
         this.label = label
         initAllMessages(mycontext)
-
         //   LibIndy.setRuntimeConfig("{\"collect_backtrace\": true }")
         var config = WalletHelper.getInstance().createWalletConfig(alias, mainDirPath)
         val credential = WalletHelper.getInstance().createWalletCredential(pass)

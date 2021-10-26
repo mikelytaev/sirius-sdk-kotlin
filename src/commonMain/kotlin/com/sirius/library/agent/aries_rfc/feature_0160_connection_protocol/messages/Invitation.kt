@@ -23,7 +23,12 @@ class Invitation(msg: String) : ConnProtocolMessage(msg) {
             val jsonArr: JSONArray? = getMessageObjec().getJSONArray("recipientKeys")
             jsonArr?.let {
                 for (obj in jsonArr) {
-                    res.add(obj as String)
+                    if(obj is String){
+                        val element = obj as? String
+                        element?.let {
+                            res.add(element)
+                        }
+                    }
                 }
             }
         }

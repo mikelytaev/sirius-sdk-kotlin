@@ -1,5 +1,6 @@
 package com.sirius.library.utils
 
+import com.sirius.library.mobile.utils.JSONUtilsAndroid
 import java.nio.charset.StandardCharsets
 
 actual class StringCodec actual constructor() {
@@ -14,4 +15,6 @@ actual class StringCodec actual constructor() {
         }
         return string.toByteArray(StandardCharsets.US_ASCII)
     }
+
+
 }

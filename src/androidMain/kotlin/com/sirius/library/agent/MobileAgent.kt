@@ -18,11 +18,13 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.utils.*
 import com.sirius.library.utils.StringUtils.UTF_8
 import io.ktor.client.*
+import org.hyperledger.indy.sdk.LibIndy
 
 
 import org.hyperledger.indy.sdk.crypto.Crypto
 import org.hyperledger.indy.sdk.pool.Pool
 import org.hyperledger.indy.sdk.wallet.Wallet
+import java.lang.System
 import java.util.concurrent.CompletableFuture
 
 class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
@@ -102,7 +104,7 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
         if (storage == null) {
             storage = InWalletImmutableCollection(wallet!!.nonSecrets)
         }
-        for (network in networks!!) {
+        for (network in networks.orEmpty()) {
             ledgers.put(network, Ledger(network, wallet!!.ledger, wallet!!.anoncreds, wallet!!.cache, storage!!))
         }
     }
@@ -295,6 +297,7 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
     init {
         this.walletConfig = walletConfig
         this.walletCredentials = walletCredentials
+        LibIndy.init()
     }
 }
 

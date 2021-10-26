@@ -69,7 +69,7 @@ class MobileContext(config: MobileHub.Config) : Context<MobileHub>(MobileHub(con
     @JvmOverloads
     fun connectToMediator(label: String?, connections: List<MobileContextConnection>? = null) {
         val invitation: Invitation? = (currentHub.config as MobileHub.Config).mediatorInvitation
-        val mediatorDid = getMediatorDid(invitation?.recipientKeys()?.get(0) ?: "")
+        val mediatorDid = getMediatorDid(invitation?.recipientKeys()?.firstOrNull() ?: "")
         if (mediatorDid == null) {
             val (first, second) = did.createAndStoreMyDid()
             val me = Pairwise.Me(first, second)

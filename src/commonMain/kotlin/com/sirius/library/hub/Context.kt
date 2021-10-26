@@ -139,7 +139,7 @@ abstract class Context<T: AbstractHub> internal constructor(hub: T) : Closeable 
 
         override fun listMyDidsWithMeta(): List<Any?> {
             val service: AbstractDID? = currentHub.did
-            return service?.listMyDidsWithMeta() ?: listOf<Any>()
+            return service?.listMyDidsWithMeta() ?: listOf<Any?>()
         }
 
         override fun getDidMetadata(did: String?): String? {

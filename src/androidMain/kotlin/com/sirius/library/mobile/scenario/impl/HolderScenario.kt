@@ -41,7 +41,7 @@ abstract class HolderScenario(val eventStorage: EventStorageAbstract) : BaseScen
     override fun start(event: Event): Pair<Boolean, String?> {
         try {
             val masterSecretId: String =
-                HashUtils.generateHash(SiriusSDK.getInstance().label)
+                HashUtils.generateHash(SiriusSDK.getInstance().label?:"")
             SiriusSDK.getInstance().context.anonCreds
                 .proverCreateMasterSecret(masterSecretId)
         } catch (ignored: DuplicateMasterSecretNameException) {
@@ -71,7 +71,7 @@ abstract class HolderScenario(val eventStorage: EventStorageAbstract) : BaseScen
         val event = eventStorage.getEvent(id)
         val pairwise  : Pairwise?= PairwiseHelper.getInstance().getPairwise(event?.first)
         val masterSecretId: String =
-            HashUtils.generateHash(SiriusSDK.getInstance().label)
+            HashUtils.generateHash(SiriusSDK.getInstance().label?:"")
         if(pairwise!=null){
             holderMachine = Holder(SiriusSDK.getInstance().context, pairwise, masterSecretId)
         }

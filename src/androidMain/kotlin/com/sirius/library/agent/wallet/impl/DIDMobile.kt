@@ -47,7 +47,7 @@ class DIDMobile(wallet: Wallet) : AbstractDID() {
         }
     }
 
-    override fun listMyDidsWithMeta(): List<Any>? {
+    override fun listMyDidsWithMeta(): List<Any?>? {
         try {
             val listDidsWithMetaJson: String =
                 Did.getListMyDidsWithMeta(wallet).get(timeoutSec.toLong(), java.util.concurrent.TimeUnit.SECONDS)

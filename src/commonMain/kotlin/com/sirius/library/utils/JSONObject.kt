@@ -11,6 +11,67 @@ open class JSONObject {
         }
 
         val NULL = JsonNull.content
+
+        fun serializeToObjects(element : JsonElement?) :Any?{
+            if (element == null || element == JsonNull) {
+                return null
+            } else if (element is JsonPrimitive) {
+                if (element.booleanOrNull != null) {
+                    return element.boolean
+                } else if (element.isString) {
+                    return element.content
+                } else if(element.floatOrNull!=null){
+                    return element.float
+                }
+                else if(element.doubleOrNull!=null){
+                    return element.double
+                }else if(element.longOrNull!=null){
+                    return element.long
+                }else if(element.intOrNull!=null){
+                    return element.int
+                }
+            }
+
+            else if (element is JsonObject) {
+                return JSONObject(element)
+            } else if (element is JsonArray) {
+                return JSONArray(element)
+            }
+            return null
+        }
+
+        fun serializeToJsonElement(value : Any?) : JsonElement{
+            if (value == null || value == JSONObject.NULL) {
+                return JsonNull
+            }else if (value is String) {
+                return JsonPrimitive(value)
+            }else if (value is Number) {
+                return JsonPrimitive(value)
+            }else if (value is Boolean) {
+                return JsonPrimitive(value)
+            } else if (value is JSONObject) {
+                return buildJsonObject {
+                    value.jsonObject.entries.forEach {
+                        put(it.key, it.value)
+                    }
+                }
+            } else if (value is JSONArray){
+                return buildJsonArray {
+                    value.jsonArray.forEach {
+                        this.add(it)
+                    }
+                }
+            }else if (value is List<Any?>) {
+                return buildJsonArray {
+                    value.forEach {
+                        val element = serializeToJsonElement(it)
+                        this.add(element)
+                    }
+                }
+            }
+            return JsonNull
+        }
+
     }
 
     var message: String? = null
@@ -21,7 +82,7 @@ open class JSONObject {
 
     constructor() {
 
-         jsonObject = buildJsonObject { }
+        jsonObject = buildJsonObject { }
     }
 
     constructor(jsonObject: JsonObject) {
@@ -29,22 +90,22 @@ open class JSONObject {
     }
 
     constructor(jsonObject: JSONObject?) {
-      //  this.jsonObject = jsonObject
-    }
-    fun serialize(){
-       // Json.encodeToJsonElement()
+        //  this.jsonObject = jsonObject
     }
 
-
+    fun serialize() {
+        // Json.encodeToJsonElement()
+    }
 
 
     //fun
     constructor(message: String?) {
         message?.let {
             this.message = message
-            println("message="+message)
+            println("message=" + message)
             val element = Json.parseToJsonElement(message)
-            println("element="+element)
+            println("element=" + element)
+
             jsonObject = Json.parseToJsonElement(message).jsonObject
 
         }
@@ -56,18 +117,18 @@ open class JSONObject {
     }
 
     fun get(key: String): Any? {
-        if( checkNull(key)){
+        if (checkNull(key)) {
             return null
         }
         val elemnt = jsonObject.get(key)
-        if(elemnt is JsonObject){
+        if (elemnt is JsonObject) {
             return JSONObject(elemnt)
-        }else if(elemnt is JsonArray){
+        } else if (elemnt is JsonArray) {
             return JSONArray(elemnt)
-        }else if(elemnt is JsonPrimitive){
-            if(elemnt.booleanOrNull != null){
+        } else if (elemnt is JsonPrimitive) {
+            if (elemnt.booleanOrNull != null) {
                 return elemnt.boolean
-            }else if(elemnt.isString){
+            } else if (elemnt.isString) {
                 return elemnt.content
             }
 
@@ -75,7 +136,7 @@ open class JSONObject {
         return jsonObject.get(key)
     }
 
-    fun optString(key: String, default : String? = null): String? {
+    fun optString(key: String, default: String? = null): String? {
         return jsonObject.get(key)?.jsonPrimitive?.content ?: default
     }
 
@@ -87,34 +148,41 @@ open class JSONObject {
         return jsonObject.containsKey(key)
     }
 
+
+
     fun put(key: String, value: Any?): JSONObject {
         jsonObject = buildJsonObject {
             jsonObject.entries.forEach {
                 put(it.key, it.value)
             }
-            if(value ==null || value == JSONObject.NULL){
+           val element =  serializeToJsonElement(value)
+            put(key, element)
+          /*  if (value == null || value == JSONObject.NULL) {
                 put(key, JsonNull)
-            }else if(value is String){
+            } else if (value is String) {
                 put(key, value)
-            }else if(value is JSONArray){
-                putJsonArray(key){
+            } else if (value is JSONArray) {
+                putJsonArray(key) {
                     value.jsonArray.forEach {
                         this.add(it)
                     }
                 }
-            }else if(value is JSONObject){
+
+            } else if (value is JSONObject) {
                 putJsonObject(key) {
                     value.jsonObject.entries.forEach {
                         put(it.key, it.value)
                     }
                 }
-            }else if(value is Number ){
-                put(key,value)
-            }else if(value is String){
-                put(key,value)
-            }else if(value is Boolean){
-                put(key,value)
-            }
+            } else if (value is Number) {
+                put(key, value)
+            } else if (value is String) {
+                put(key, value)
+            } else if (value is Boolean) {
+                put(key, value)
+            }else if (value is List<Any?>) {
+
+            }*/
         }
 
         return this
@@ -141,23 +209,24 @@ open class JSONObject {
     }
 
     fun optJSONObject(key: String): JSONObject? {
-        if(checkNull(key)){
+        if (checkNull(key)) {
             return null
         }
-        if (jsonObject.get(key)?.jsonObject == null  ) {
+        if (jsonObject.get(key)?.jsonObject == null) {
             return null
         }
         return JSONObject(jsonObject.get(key)!!.jsonObject)
     }
 
-    fun checkNull(key: String) : Boolean{
-        if(jsonObject.get(key) == JsonNull){
+    fun checkNull(key: String): Boolean {
+        if (jsonObject.get(key) == JsonNull) {
             return true
         }
         return false
     }
+
     fun optJSONArray(key: String): JSONArray? {
-        if(checkNull(key)){
+        if (checkNull(key)) {
             return null
         }
         if (jsonObject.get(key)?.jsonArray == null || jsonObject.get(key) == JsonNull) {
@@ -170,7 +239,7 @@ open class JSONObject {
         return jsonObject.get(key)?.jsonPrimitive?.intOrNull
     }
 
-    fun optInt(key: String, defaultValue: Int?=null): Int? {
+    fun optInt(key: String, defaultValue: Int? = null): Int? {
         return getInt(key) ?: defaultValue
     }
 
@@ -179,12 +248,12 @@ open class JSONObject {
     }
 
     fun optBoolean(s: String, b: Boolean): Boolean {
-       val boolean =  getBoolean(s)
-       return boolean ?: b
+        val boolean = getBoolean(s)
+        return boolean ?: b
     }
 
     fun keySet(): Set<String> {
-       return jsonObject.keys
+        return jsonObject.keys
     }
 
     fun isEmpty(): Boolean {
