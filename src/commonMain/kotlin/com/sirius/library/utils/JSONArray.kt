@@ -27,6 +27,7 @@ open class JSONArray : Iterable<Any?> {
     constructor(){
         jsonArray  = buildJsonArray {  }
     }
+
     constructor(jsonArray : JsonArray, parentObject : JSONObject? =null,parentKey : String? =  null ){
         this.jsonArray = jsonArray
         this.parentObject = parentObject
@@ -50,6 +51,21 @@ open class JSONArray : Iterable<Any?> {
         return JSONObject(jsonArray.get(i).jsonObject)
     }
 
+    fun putToAll(parentJson: JSONObject?, parentKey: String?) {
+        if (parentJson != null && parentKey != null) {
+            parentJson!!.jsonObject = buildJsonObject {
+                parentJson!!.jsonObject.entries.forEach {
+                    this.put(it.key, it.value)
+                }
+                this.put(parentKey!!, jsonArray)
+                println("put=" + parentKey + " jsonObject=" + jsonArray)
+            }
+            if (parentJson.parentJson != null && parentJson.parentKey != null) {
+                parentJson.putToAll(parentJson.parentJson, parentJson.parentKey)
+            }
+        }
+    }
+
     fun put(credAttach: JSONObject): JSONArray {
         jsonArray = buildJsonArray {
             jsonArray.forEach {
@@ -57,7 +73,10 @@ open class JSONArray : Iterable<Any?> {
             }
             this.add(credAttach.jsonObject)
         }
-        parentObject?.let {
+        putToAll(parentObject,parentKey )
+        //putToAll()
+      /*  parentObject?.let {
+          //  parentObject.putToAll()
             it.jsonObject = buildJsonObject {
                 it.jsonObject.entries.forEach {
                     put(it.key,it.value)
@@ -66,7 +85,7 @@ open class JSONArray : Iterable<Any?> {
                     put(it, jsonArray)
                 }
             }
-        }
+        }*/
         return this
     }
 
@@ -99,6 +118,7 @@ open class JSONArray : Iterable<Any?> {
             }
             this.add(value)
         }
+        putToAll(parentObject,parentKey )
         return this
     }
 
@@ -114,6 +134,7 @@ open class JSONArray : Iterable<Any?> {
             val jsonElement = JSONObject.serializeToJsonElement(oneParamObject)
             this.add(jsonElement)
         }
+        putToAll(parentObject,parentKey )
         return this
     }
 

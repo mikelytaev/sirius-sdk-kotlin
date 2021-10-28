@@ -76,6 +76,10 @@ open class JSONObject {
     var jsonObject: JsonObject = buildJsonObject {
 
     }
+    var parentElement: JsonElement? = null
+    var parentJson: JSONObject? = null
+    var parentKey: String? = null
+    var parentNumber: Int? = null
 
     constructor() {
 
@@ -87,7 +91,7 @@ open class JSONObject {
     }
 
     constructor(jsonObject: JSONObject?) {
-        //  this.jsonObject = jsonObject
+        this.jsonObject = jsonObject?.jsonObject ?: buildJsonObject { }
     }
 
     fun serialize() {
@@ -145,6 +149,21 @@ open class JSONObject {
         return jsonObject.containsKey(key)
     }
 
+    fun putToAll(parentJson: JSONObject?, parentKey: String?) {
+        if (parentJson != null && parentKey != null) {
+            parentJson!!.jsonObject = buildJsonObject {
+                parentJson!!.jsonObject.entries.forEach {
+                    this.put(it.key, it.value)
+                }
+                this.put(parentKey!!, jsonObject)
+                println("put=" + parentKey + " jsonObject=" + jsonObject)
+            }
+            if (parentJson.parentJson != null && parentJson.parentKey != null) {
+                parentJson.putToAll(parentJson.parentJson, parentJson.parentKey)
+                // putToAll(parentJson.parentJson!!, parentJson.parentKey!!)
+            }
+        }
+    }
 
     fun put(key: String, value: Any?): JSONObject {
         jsonObject = buildJsonObject {
@@ -153,34 +172,9 @@ open class JSONObject {
             }
             val element = serializeToJsonElement(value)
             put(key, element)
-            /*  if (value == null || value == JSONObject.NULL) {
-                  put(key, JsonNull)
-              } else if (value is String) {
-                  put(key, value)
-              } else if (value is JSONArray) {
-                  putJsonArray(key) {
-                      value.jsonArray.forEach {
-                          this.add(it)
-                      }
-                  }
-
-              } else if (value is JSONObject) {
-                  putJsonObject(key) {
-                      value.jsonObject.entries.forEach {
-                          put(it.key, it.value)
-                      }
-                  }
-              } else if (value is Number) {
-                  put(key, value)
-              } else if (value is String) {
-                  put(key, value)
-              } else if (value is Boolean) {
-                  put(key, value)
-              }else if (value is List<Any?>) {
-
-              }*/
         }
-
+        println("put=" + parentElement + " parentKey=" + parentKey)
+        putToAll(parentJson, parentKey)
         return this
     }
 
@@ -212,7 +206,17 @@ open class JSONObject {
             if (jsonObject.get(key)?.jsonObject == null) {
                 return null
             }
-            return JSONObject(jsonObject.get(key)!!.jsonObject)
+            val jsonObjectReturn = JSONObject(jsonObject.get(key)!!.jsonObject)
+            jsonObjectReturn.parentJson = this
+            jsonObjectReturn.parentElement = jsonObject
+            jsonObjectReturn.parentKey = key
+            println(
+                "jsonObjectReturn=" + jsonObjectReturn + " key=" + key + "jsonObject=" + jsonObject + " jsonObject.get(key)!!.jsonObject=" + jsonObject.get(
+                    key
+                )!!.jsonObject
+            )
+
+            return jsonObjectReturn
         }
         return null
     }
@@ -232,7 +236,10 @@ open class JSONObject {
             if (jsonObject.get(key)?.jsonArray == null || jsonObject.get(key) == JsonNull) {
                 return null
             }
-            return JSONArray(jsonObject.get(key)!!.jsonArray, this, key)
+            val JSONArray = JSONArray(jsonObject.get(key)!!.jsonArray, this, key)
+            JSONArray.parentObject = this
+            JSONArray.parentKey = key
+            return JSONArray
         }
         return null
     }
