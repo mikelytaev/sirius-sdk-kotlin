@@ -6,13 +6,13 @@ import kotlin.reflect.KClass
 open class JSONObject {
     companion object {
         fun getNames(offer: JSONObject): List<String> {
-            return listOf()
+            return offer.keySet().toList()
 
         }
 
         val NULL = JsonNull.content
 
-        fun serializeToObjects(element : JsonElement?) :Any?{
+        fun serializeToObjects(element: JsonElement?): Any? {
             if (element == null || element == JsonNull) {
                 return null
             } else if (element is JsonPrimitive) {
@@ -20,19 +20,16 @@ open class JSONObject {
                     return element.boolean
                 } else if (element.isString) {
                     return element.content
-                } else if(element.floatOrNull!=null){
+                } else if (element.floatOrNull != null) {
                     return element.float
-                }
-                else if(element.doubleOrNull!=null){
+                } else if (element.doubleOrNull != null) {
                     return element.double
-                }else if(element.longOrNull!=null){
+                } else if (element.longOrNull != null) {
                     return element.long
-                }else if(element.intOrNull!=null){
+                } else if (element.intOrNull != null) {
                     return element.int
                 }
-            }
-
-            else if (element is JsonObject) {
+            } else if (element is JsonObject) {
                 return JSONObject(element)
             } else if (element is JsonArray) {
                 return JSONArray(element)
@@ -40,14 +37,14 @@ open class JSONObject {
             return null
         }
 
-        fun serializeToJsonElement(value : Any?) : JsonElement{
+        fun serializeToJsonElement(value: Any?): JsonElement {
             if (value == null || value == JSONObject.NULL) {
                 return JsonNull
-            }else if (value is String) {
+            } else if (value is String) {
                 return JsonPrimitive(value)
-            }else if (value is Number) {
+            } else if (value is Number) {
                 return JsonPrimitive(value)
-            }else if (value is Boolean) {
+            } else if (value is Boolean) {
                 return JsonPrimitive(value)
             } else if (value is JSONObject) {
                 return buildJsonObject {
@@ -55,13 +52,13 @@ open class JSONObject {
                         put(it.key, it.value)
                     }
                 }
-            } else if (value is JSONArray){
+            } else if (value is JSONArray) {
                 return buildJsonArray {
                     value.jsonArray.forEach {
                         this.add(it)
                     }
                 }
-            }else if (value is List<Any?>) {
+            } else if (value is List<Any?>) {
                 return buildJsonArray {
                     value.forEach {
                         val element = serializeToJsonElement(it)
@@ -75,7 +72,7 @@ open class JSONObject {
     }
 
     var message: String? = null
-    var jsonMap: Map<String, JsonElement> = HashMap()
+
     var jsonObject: JsonObject = buildJsonObject {
 
     }
@@ -103,9 +100,9 @@ open class JSONObject {
         message?.let {
             val unescapedString = JSONEscape.unescapeJsonObject(message)
             this.message = unescapedString
-            println("message=" + message)
+            //   println("message=" + message)
             val element = Json.parseToJsonElement(message)
-            println("element=" + element)
+            //    println("element=" + element)
             jsonObject = Json.parseToJsonElement(unescapedString).jsonObject
 
         }
@@ -149,40 +146,39 @@ open class JSONObject {
     }
 
 
-
     fun put(key: String, value: Any?): JSONObject {
         jsonObject = buildJsonObject {
             jsonObject.entries.forEach {
                 put(it.key, it.value)
             }
-           val element =  serializeToJsonElement(value)
+            val element = serializeToJsonElement(value)
             put(key, element)
-          /*  if (value == null || value == JSONObject.NULL) {
-                put(key, JsonNull)
-            } else if (value is String) {
-                put(key, value)
-            } else if (value is JSONArray) {
-                putJsonArray(key) {
-                    value.jsonArray.forEach {
-                        this.add(it)
-                    }
-                }
+            /*  if (value == null || value == JSONObject.NULL) {
+                  put(key, JsonNull)
+              } else if (value is String) {
+                  put(key, value)
+              } else if (value is JSONArray) {
+                  putJsonArray(key) {
+                      value.jsonArray.forEach {
+                          this.add(it)
+                      }
+                  }
 
-            } else if (value is JSONObject) {
-                putJsonObject(key) {
-                    value.jsonObject.entries.forEach {
-                        put(it.key, it.value)
-                    }
-                }
-            } else if (value is Number) {
-                put(key, value)
-            } else if (value is String) {
-                put(key, value)
-            } else if (value is Boolean) {
-                put(key, value)
-            }else if (value is List<Any?>) {
+              } else if (value is JSONObject) {
+                  putJsonObject(key) {
+                      value.jsonObject.entries.forEach {
+                          put(it.key, it.value)
+                      }
+                  }
+              } else if (value is Number) {
+                  put(key, value)
+              } else if (value is String) {
+                  put(key, value)
+              } else if (value is Boolean) {
+                  put(key, value)
+              }else if (value is List<Any?>) {
 
-            }*/
+              }*/
         }
 
         return this
@@ -212,10 +208,13 @@ open class JSONObject {
         if (checkNull(key)) {
             return null
         }
-        if (jsonObject.get(key)?.jsonObject == null) {
-            return null
+        if (jsonObject.get(key) is JsonObject) {
+            if (jsonObject.get(key)?.jsonObject == null) {
+                return null
+            }
+            return JSONObject(jsonObject.get(key)!!.jsonObject)
         }
-        return JSONObject(jsonObject.get(key)!!.jsonObject)
+        return null
     }
 
     fun checkNull(key: String): Boolean {
@@ -229,10 +228,13 @@ open class JSONObject {
         if (checkNull(key)) {
             return null
         }
-        if (jsonObject.get(key)?.jsonArray == null || jsonObject.get(key) == JsonNull) {
-            return null
+        if (jsonObject.get(key) is JsonArray) {
+            if (jsonObject.get(key)?.jsonArray == null || jsonObject.get(key) == JsonNull) {
+                return null
+            }
+            return JSONArray(jsonObject.get(key)!!.jsonArray, this, key)
         }
-        return JSONArray(jsonObject.get(key)!!.jsonArray, this, key)
+        return null
     }
 
     fun getInt(key: String): Int? {

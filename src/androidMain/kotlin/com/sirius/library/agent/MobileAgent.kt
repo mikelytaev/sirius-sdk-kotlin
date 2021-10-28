@@ -205,6 +205,7 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
                 unpackedMessageBytes =
                     Crypto.unpackMessage(indyWallet, bytes)
                         .get(timeoutSec.toLong(), java.util.concurrent.TimeUnit.SECONDS)
+                System.out.println("Chipre String(unpackedMessageBytes)="+String(unpackedMessageBytes))
                 val unpackedMessage: JSONObject = JSONObject(String(unpackedMessageBytes))
                 eventMessage =
                     JSONObject().put(
@@ -221,6 +222,7 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
             } else {
                 unpackedMessageBytes = bytes
                 val unpackedMessage: JSONObject = JSONObject(String(unpackedMessageBytes))
+                System.out.println("String(unpackedMessageBytes)="+String(unpackedMessageBytes))
                 eventMessage =
                     JSONObject().put(
                         "@type",

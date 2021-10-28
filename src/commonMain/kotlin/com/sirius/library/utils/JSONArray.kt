@@ -81,11 +81,11 @@ open class JSONArray : Iterable<Any?> {
     }
 
     fun getString(i: Int): String? {
-        return null
+        return jsonArray.get(i).jsonPrimitive.content
     }
 
     fun get(i: Int): Any? {
-        return null
+        return JSONObject.serializeToObjects(jsonArray.get(i))
     }
 
     fun optJSONObject(i: Int): JSONObject? {
@@ -103,16 +103,22 @@ open class JSONArray : Iterable<Any?> {
     }
 
     fun isEmpty(): Boolean {
-        return false
+        return jsonArray.isEmpty()
     }
 
-    fun put(oneParamObject: Any?) {
-
-
+    fun put(oneParamObject: Any?) : JSONArray {
+        jsonArray = buildJsonArray {
+            jsonArray.forEach {
+                this.add(it)
+            }
+            val jsonElement = JSONObject.serializeToJsonElement(oneParamObject)
+            this.add(jsonElement)
+        }
+        return this
     }
 
     fun getBoolean(i: Int): Boolean {
-        return false
+        return jsonArray.get(i).jsonPrimitive.booleanOrNull ?: false
     }
 
     fun remove(i: Int) {

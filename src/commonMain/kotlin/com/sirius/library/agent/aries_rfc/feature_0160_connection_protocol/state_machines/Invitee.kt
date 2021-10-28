@@ -69,6 +69,7 @@ class Invitee(context: Context<*>, me: Pairwise.Me, myEndpoint: Endpoint) : Base
                             try {
                                 response.validate()
                             } catch (e: SiriusValidationError) {
+                                e.printStackTrace()
                                 throw StateMachineTerminatedWithError(RESPONSE_NOT_ACCEPTED, e.message ?: "")
                             }
                             val success = response.verifyConnection(context.crypto)
