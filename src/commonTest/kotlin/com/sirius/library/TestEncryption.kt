@@ -7,8 +7,12 @@ import com.sirius.library.encryption.Ed25519
 import com.sirius.library.encryption.UnpackModel
 import com.sirius.library.errors.sirius_exceptions.SiriusCryptoError
 import com.sirius.library.errors.sirius_exceptions.SiriusInvalidType
+import com.sirius.library.messaging.Message
 import com.sirius.library.messaging.MessageFabric
 import com.sirius.library.naclJava.CryptoAead
+import com.sirius.library.rpc.AddressedTunnel
+import com.sirius.library.rpc.Future
+import com.sirius.library.rpc.Parsing
 import com.sirius.library.utils.*
 import com.sodium.LibSodium
 import io.ktor.util.*
@@ -26,6 +30,16 @@ class TestEncryption {
             return StringUtils.escapeStringLikePython(message)
         }
 
+    val testMessage2 : String
+    get(){
+        val  expirationTime : Long = 1635520202
+        val  msgType = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sirius_rpc/1.0/ping_agent"
+
+        val future = Future.FuturePromise("12","redis://redis/23423423423-909", expirationTime)
+        val request: Message = Parsing.buildRequest(msgType, future, null)
+        request.setId("a9ab256b-dd19-47fe-973a-55501443101e")
+        return request.serialize()
+    }
     @BeforeTest
     fun initSdk() {
         MessageFabric.registerAllMessagesClass()

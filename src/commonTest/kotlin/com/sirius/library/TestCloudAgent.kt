@@ -1,5 +1,6 @@
 package com.sirius.library
 
+import com.ionspin.kotlin.crypto.LibsodiumInitializer
 import com.sirius.library.agent.CloudAgent
 import com.sirius.library.agent.listener.Listener
 import com.sirius.library.agent.model.Entity
@@ -10,6 +11,7 @@ import com.sirius.library.models.AgentParams
 import com.sirius.library.models.TrustPingMessageUnderTest
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.StringCodec
+import com.sirius.library.utils.StringUtils
 import com.sirius.library.utils.UUID
 import kotlin.test.*
 
@@ -23,26 +25,28 @@ class TestCloudAgent {
     //TODO do all tests
     @Test
     fun testAllAgentsPing() {
-        val testSuite: ServerTestSuite = confTest.suiteSingleton
-        println("get suiteSingleton testSuite="+testSuite)
-        val allAgentsList: MutableList<String> = ArrayList<String>()
-        allAgentsList.add("agent1")
-        allAgentsList.add("agent2")
-        allAgentsList.add("agent3")
-        allAgentsList.add("agent4")
-        val codec = StringCodec()
-      /*  for (i in allAgentsList.indices) {
-            val agentName = allAgentsList[i]
-            val params: AgentParams = testSuite.getAgentParams(agentName)
-            val agent = CloudAgent(
-                params.serverAddress, codec.fromASCIIStringToByteArray(params.credentials),
-                params.getConnectioni(), 10
-            )
-            agent.open()
-            val isPinged: Boolean = agent.ping()
-            assertTrue(isPinged)
-            agent.close()
-        }*/
+        LibsodiumInitializer.initializeWithCallback {
+            val testSuite: ServerTestSuite = confTest.suiteSingleton
+            println("get suiteSingleton testSuite="+testSuite)
+            val allAgentsList: MutableList<String> = ArrayList<String>()
+            allAgentsList.add("agent1")
+            allAgentsList.add("agent2")
+            allAgentsList.add("agent3")
+            allAgentsList.add("agent4")
+            val codec = StringCodec()
+            for (i in allAgentsList.indices) {
+                val agentName = allAgentsList[i]
+                val params: AgentParams = testSuite.getAgentParams(agentName)
+                val agent = CloudAgent(
+                    params.serverAddress, StringUtils.stringToBytes(params.credentials,StringUtils.US_ASCII ),
+                    params.getConnectioni(), 10
+                )
+                agent.open()
+                val isPinged: Boolean = agent.ping()
+                assertTrue(isPinged)
+                agent.close()
+            }
+        }
     }
 
     @Test
