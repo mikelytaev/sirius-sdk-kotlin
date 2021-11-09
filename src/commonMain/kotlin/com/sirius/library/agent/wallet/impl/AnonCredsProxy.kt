@@ -23,9 +23,9 @@ class AnonCredsProxy(rpc: AgentRPC) : AbstractAnonCreds() {
     ): Pair<String?, AnonCredSchema?> {
         val params = RemoteParams.RemoteParamsBuilder.create()
             .add("issuer_did", issuerDid).add("name", name).add("version", version).add("attrs", attrs)
-        val pair : Pair<String?, String?> = object : RemoteCallWrapper<Pair<String?, String?>>(rpc) {}.
-        remoteCall("did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sirius_rpc/1.0/issuer_create_schema", params) ?: Pair<String?, String?>(null,null)
-        val anonCredSchema = AnonCredSchema(pair?.second?:"")
+        val pair : Pair<String?, JSONObject?> = object : RemoteCallWrapper<Pair<String?, JSONObject?>>(rpc) {}.
+        remoteCall("did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sirius_rpc/1.0/issuer_create_schema", params) ?: Pair<String?, JSONObject?>(null,null)
+        val anonCredSchema = AnonCredSchema(pair?.second?.toString() ?:"")
         return Pair(pair?.first ?:"", anonCredSchema)
     }
 

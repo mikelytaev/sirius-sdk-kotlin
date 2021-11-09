@@ -1,5 +1,6 @@
 package com.sirius.library.encryption
 
+import com.ionspin.kotlin.crypto.aead.crypto_aead_chacha20poly1305_ietf_NPUBBYTES
 import com.ionspin.kotlin.crypto.aead.crypto_aead_xchacha20poly1305_ietf_NPUBBYTES
 import com.ionspin.kotlin.crypto.box.crypto_box_NONCEBYTES
 import com.sirius.library.errors.sirius_exceptions.SiriusCryptoError
@@ -157,7 +158,7 @@ class Ed25519 {
     ): EncryptModel {
         println("encryptPlaintext message="+message)
         val nonce: ByteArray =
-            LibSodium.getInstance().randomBytesBuf(crypto_aead_xchacha20poly1305_ietf_NPUBBYTES)
+            LibSodium.getInstance().randomBytesBuf(crypto_aead_chacha20poly1305_ietf_NPUBBYTES)
         val bytesOutput = CryptoAead().encrypt(message, add_data, nonce, key!!, "CHACHA20_POLY1305_IETF")
         //    String outputHex = LibSodium.getInstance().getLazyAaed().encrypt(message, add_data, nonce, key, AEAD.Method.CHACHA20_POLY1305_IETF);
         //    byte[] outputBytes = LazySodium.toBin(outputHex);

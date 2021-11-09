@@ -1,5 +1,6 @@
 package com.sirius.library
 
+import com.ionspin.kotlin.crypto.LibsodiumInitializer
 import com.sirius.library.agent.CloudAgent
 import com.sirius.library.agent.storages.InWalletImmutableCollection
 import com.sirius.library.helpers.ConfTest
@@ -50,45 +51,47 @@ class TestStorages {
     @Test
     fun testInWalletImmutableCollection() {
         //TODO test
-        val confTest: ConfTest = ConfTest.newInstance()
-        val agent1: CloudAgent = confTest.agent1()
-        agent1.open()
-        assertNotNull(agent1.getWalleti()?.nonSecrets)
-        //  agent1: Agent
-        val collection = InWalletImmutableCollection(agent1.getWalleti()!!.nonSecrets)
-        val value1: JSONObject = JSONObject()
-        value1.put("key1", "value1")
-        value1.put("key2", 10000)
-        val value2: JSONObject = JSONObject()
-        value2.put("key1", "value2")
-        value2.put("key2", 50000)
-        collection.selectDb(UUID.randomUUID.toString())
-        println("valu1=" + value1.toString())
-        println("valu2=" + value2.toString())
-        println("valu3=" + "{\"tag\": \"value1\"}")
-        println("valu4=" + "{\"tag\": \"value2\"}")
-        collection.add(value1.toString(), "{\"tag\": \"value1\"}")
-        collection.add(value2.toString(), "{\"tag\": \"value2\"}")
-        val query1: JSONObject = JSONObject()
-        query1.put("tag", "value1")
-        val (first, second) = collection.fetch(query1.toString())
-        assertEquals(1, second as Int)
-        assertEquals(1, first.size)
-        assertEquals(value1.toString(), first[0])
-        val query2: JSONObject = JSONObject()
-        query2.put("tag", "value2")
-        val (first1, second1) = collection.fetch(query2.toString())
-        assertEquals(1, second1 )
-        assertEquals(1, first1.size)
-        assertEquals(value2.toString(), first1[0])
-        val query3: JSONObject = JSONObject()
-        val (_, second2) = collection.fetch(query3.toString())
-        assertEquals(2, second2 )
-        collection.selectDb(UUID.randomUUID.toString())
-        val query4: JSONObject = JSONObject()
-        val (_, second3) = collection.fetch(query4.toString())
-        assertEquals(0, second3)
-        agent1.close()
+
+            val confTest: ConfTest = ConfTest.newInstance()
+            val agent1: CloudAgent = confTest.agent1()
+            agent1.open()
+            assertNotNull(agent1.getWalleti()?.nonSecrets)
+            //  agent1: Agent
+            val collection = InWalletImmutableCollection(agent1.getWalleti()!!.nonSecrets)
+            val value1: JSONObject = JSONObject()
+            value1.put("key1", "value1")
+            value1.put("key2", 10000)
+            val value2: JSONObject = JSONObject()
+            value2.put("key1", "value2")
+            value2.put("key2", 50000)
+            collection.selectDb(UUID.randomUUID.toString())
+            println("valu1=" + value1.toString())
+            println("valu2=" + value2.toString())
+            println("valu3=" + "{\"tag\": \"value1\"}")
+            println("valu4=" + "{\"tag\": \"value2\"}")
+            collection.add(value1.toString(), "{\"tag\": \"value1\"}")
+            collection.add(value2.toString(), "{\"tag\": \"value2\"}")
+            val query1: JSONObject = JSONObject()
+            query1.put("tag", "value1")
+            val (first, second) = collection.fetch(query1.toString())
+            assertEquals(1, second as Int)
+            assertEquals(1, first.size)
+            assertEquals(value1.toString(), first[0])
+            val query2: JSONObject = JSONObject()
+            query2.put("tag", "value2")
+            val (first1, second1) = collection.fetch(query2.toString())
+            assertEquals(1, second1)
+            assertEquals(1, first1.size)
+            assertEquals(value2.toString(), first1[0])
+            val query3: JSONObject = JSONObject()
+            val (_, second2) = collection.fetch(query3.toString())
+            assertEquals(2, second2)
+            collection.selectDb(UUID.randomUUID.toString())
+            val query4: JSONObject = JSONObject()
+            val (_, second3) = collection.fetch(query4.toString())
+            assertEquals(0, second3)
+            agent1.close()
+
     }
 }
 /*

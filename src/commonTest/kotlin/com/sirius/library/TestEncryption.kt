@@ -130,12 +130,12 @@ class TestEncryption {
             "3tfqJYZ8ME8gTFUSHcH4uVTUx5kV7S1qPJJ65k2VtSocMfXvnzR1sbbfq6F2RcXrFtaufjEr4KQVu7aeyirYrcRm",
             Custom.bytesToB58(signature)
         )
-        assertTrue(
-            Custom.verifySignedMessage(
+          val messagebyteArray =   Custom.verifySignedMessage(
                 kp.getPublicKey().asBytes,
                 msg.encodeToByteArray(), signature
             )
-        )
+           val string =  messagebyteArray.decodeToString()
+        assertEquals(msg, string)
         val kp2: KeyPair =
             Custom.createKeypair("000000000000000000000000000SEED2".encodeToByteArray())
         assertNotEquals(kp2.getPublicKey().asBytes, kp.getPublicKey().asBytes)
@@ -143,12 +143,12 @@ class TestEncryption {
             msg.encodeToByteArray(),
             kp2.getSecretKey().asBytes
         )
-        assertFalse(
-            Custom.verifySignedMessage(
+            val messagebyteArray2 =    Custom.verifySignedMessage(
                 kp.getPublicKey().asBytes,
                 msg.encodeToByteArray(), signature
             )
-        )
+            val string2 =  messagebyteArray2.decodeToString()
+        assertNotEquals(msg,string2)
         }
     }
 

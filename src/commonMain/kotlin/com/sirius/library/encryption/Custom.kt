@@ -1,6 +1,8 @@
 package com.sirius.library.encryption
 
 import com.ionspin.kotlin.crypto.secretbox.crypto_secretbox_KEYBYTES
+import com.ionspin.kotlin.crypto.signature.Signature
+import com.ionspin.kotlin.crypto.signature.crypto_sign_BYTES
 import com.sirius.library.errors.sirius_exceptions.SiriusCryptoError
 import com.sirius.library.utils.*
 import com.sodium.LibSodium
@@ -156,7 +158,11 @@ object Custom {
      * @return The signature
      */
     fun signMessage(message: ByteArray, secret: ByteArray?): ByteArray {
-        return ByteArray(0)
+       val  signedMessage = Signature.sign(message.toUByteArray(),secret?.toUByteArray() ?: UByteArray(0)).toByteArray()
+      //  val signedMessage = ByteArray(Sign.BYTES + message.size)
+        return signedMessage.copyOfRange(0, crypto_sign_BYTES)
+
+        //return ByteArray(0)
     }
 
     /**
@@ -166,8 +172,16 @@ object Custom {
      * @param signature signature
      * @return
      */
-    fun verifySignedMessage(verkey: ByteArray?, message: ByteArray?, signature: ByteArray?): Boolean {
-       return false
+    fun verifySignedMessage(verkey: ByteArray?, message: ByteArray?, signature: ByteArray?): ByteArray {
+        val signedMessage: ByteArray = signature?.plus(message?: ByteArray(0)) ?: ByteArray(0)
+        try{
+            val messageOpened =  Signature.open(signedMessage.toUByteArray(),verkey?.toUByteArray() ?: UByteArray(0))
+            return messageOpened.toByteArray()
+        }catch (e : Exception){
+            e.printStackTrace()
+        }
+        return ByteArray(0)
+
     }
 
     fun didFromVerkey(verkey: ByteArray?): ByteArray? {
