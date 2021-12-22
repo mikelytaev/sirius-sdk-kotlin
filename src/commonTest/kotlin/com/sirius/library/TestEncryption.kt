@@ -158,6 +158,9 @@ class TestEncryption {
         LibsodiumInitializer.initializeWithCallback {
             val kp: KeyPair =
                 Custom.createKeypair("0000000000000000000000000000SEED".encodeToByteArray())
+
+            println("kp.getPublicKey().asBytes)"+kp.getPublicKey().asBytes)
+            println("Custom.bytesToB58(kp.getPublicKey().asBytes)"+Custom.bytesToB58(kp.getPublicKey().asBytes))
             assertEquals(
                 "GXhjv2jGf2oT1sqMyvJtgJxNYPMHmTsdZ3c2ZYQLJExj",
                 Custom.bytesToB58(kp.getPublicKey().asBytes)
@@ -171,11 +174,26 @@ class TestEncryption {
 
 
     @Test
+    fun codecTest() {
+        val text = "Message"
+        val textBytes = StringUtils.stringToBytes(text, StringUtils.CODEC.US_ASCII)
+        val textBytesToString = StringUtils.bytesToString(textBytes, StringUtils.CODEC.US_ASCII)
+        //val text1 = Custom.bytesToB64(text.encodeToByteArray(), true) ?: ""\
+        println("textBytes="+textBytes)
+        println("textBytesToString="+textBytesToString)
+        assertEquals(text,textBytesToString)
+        assertNotEquals(textBytes.size, 0)
+      //  assertEquals(text, text2)
+    }
+
+
+    @Test
     fun base64TestUrl() {
         val text = "Message"
         val text1 = Custom.bytesToB64(text.encodeToByteArray(), true) ?: ""
         val bytes = Custom.b64ToBytes(text1, true)
         val text2 = bytes.decodeToString()
+        println("text2="+text2)
         assertEquals(text, text2)
     }
 
@@ -185,6 +203,7 @@ class TestEncryption {
         val text1 = Custom.bytesToB64(text.encodeToByteArray(), false) ?: ""
         val bytes = Custom.b64ToBytes(text1, false)
         val text2 = bytes.decodeToString()
+        println("text2="+text2)
         assertEquals(text, text2)
     }
 

@@ -99,12 +99,12 @@ object Parsing {
             val (first, second) = serializeVariable(paramsMap[key])
             val oneParamObject = JSONObject()
             if (first == null) {
-                oneParamObject.put("mime_type", JSONObject.NULL)
+                oneParamObject.put("mime_type", JSONObject.JSONNULL)
             } else {
                 oneParamObject.put("mime_type", first)
             }
             if (second == null) {
-                oneParamObject.put("payload", JSONObject.NULL)
+                oneParamObject.put("payload", JSONObject.JSONNULL)
             } else {
                 oneParamObject.put("payload", second)
             }

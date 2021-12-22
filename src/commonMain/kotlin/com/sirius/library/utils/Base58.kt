@@ -1,6 +1,6 @@
 package com.sirius.library.utils
 
-import com.sirius.library.utils.StringUtils.US_ASCII
+
 
 /**
  *
@@ -63,7 +63,7 @@ object Base58 {
             temp[--j] = ALPHABET[0].toByte()
         }
         val output = copyOfRange(temp, j, temp.size)
-        var string = StringUtils.bytesToString(output, US_ASCII)
+        var string = StringUtils.bytesToString(output, StringUtils.CODEC.US_ASCII)
         if (string.length > 22 && string.startsWith("1")) {
             string = string.substring(1)
         }

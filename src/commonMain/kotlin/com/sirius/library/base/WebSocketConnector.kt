@@ -1,6 +1,7 @@
 package com.sirius.library.base
 
 import com.sirius.library.utils.CompletableFutureKotlin
+import com.sirius.library.utils.StringUtils
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 
@@ -10,7 +11,7 @@ expect class WebSocketConnector() :BaseConnector  {
 
     constructor(
         defTimeout: Int,
-        encoding: String,
+        encoding: StringUtils.CODEC,
         serverAddress: String,
         path: String,
         credentials: ByteArray?

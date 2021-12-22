@@ -494,7 +494,7 @@ class TestWallet {
                 assertTrue(first7 == true)
                 val okNym3Json: JSONObject = JSONObject(second4)
                 val role3: Any? = okNym3Json.get("role")
-                assertEquals(role3, JSONObject.NULL)
+                assertEquals(role3, JSONObject.JSONNULL)
                 val (first8) = actor?.ledger?.writeNum(
                     confTest.defaultNetwork(),
                     first2,

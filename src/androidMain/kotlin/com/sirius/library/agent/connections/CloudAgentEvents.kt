@@ -44,7 +44,7 @@ actual class CloudAgentEvents actual constructor(serverAddress: String, credenti
         val future = connector!!.read().thenApply { data ->
             try {
                 val payload: JSONObject =
-                    JSONObject(StringUtils.bytesToString(data?: ByteArray(0), StringUtils.US_ASCII))
+                    JSONObject(StringUtils.bytesToString(data?: ByteArray(0), StringUtils.CODEC.US_ASCII))
                 if (payload.has("protected")) {
                     val message = p2p!!.unpack(payload.toString())
                     //log.log(Level.INFO, "Received protected message. Unpacked: " + message);

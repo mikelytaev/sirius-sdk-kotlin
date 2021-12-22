@@ -61,7 +61,7 @@ class TestLocks {
             assertTrue(okBusy.first)
             okBusy = session2.acquire(resources, timeoutSec)
             assertFalse(okBusy.first)
-            java.lang.Thread.sleep((timeoutSec + 1).toLong() * 1000)
+           // java.lang.Thread.sleep((timeoutSec + 1).toLong() * 1000)
             okBusy = session2.acquire(resources, timeoutSec)
             assertTrue(okBusy.first)
         } finally {

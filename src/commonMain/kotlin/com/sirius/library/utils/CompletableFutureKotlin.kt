@@ -2,7 +2,7 @@ package com.sirius.library.utils
 
 
 
-expect class CompletableFutureKotlin<T>() {
+expect open class CompletableFutureKotlin<T>() {
 
     fun get(timeout : Long) : T?
     fun isDone(): Boolean

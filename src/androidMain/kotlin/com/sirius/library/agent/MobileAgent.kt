@@ -10,31 +10,27 @@ import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.agent.pairwise.TheirEndpoint
 import com.sirius.library.agent.pairwise.WalletPairwiseList
 import com.sirius.library.agent.storages.InWalletImmutableCollection
+import com.sirius.library.agent.wallet.LocalWallet
 import com.sirius.library.agent.wallet.MobileWallet
-import com.sirius.library.base.CompleteFuture
 import com.sirius.library.base.WebSocketConnector
 import com.sirius.library.errors.IndyException
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.*
-import com.sirius.library.utils.StringUtils.UTF_8
-import io.ktor.client.*
+
 import org.hyperledger.indy.sdk.LibIndy
-
-
 import org.hyperledger.indy.sdk.crypto.Crypto
 import org.hyperledger.indy.sdk.pool.Pool
 import org.hyperledger.indy.sdk.wallet.Wallet
-import java.lang.System
-import java.util.concurrent.CompletableFuture
 
-class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
+
+actual  class MobileAgent actual constructor(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
     AbstractAgent() {
-    var walletConfig: JSONObject? = null
-    var walletCredentials: JSONObject? = null
-    var timeoutSec = 60
-    var mediatorAddress: String? = null
+    actual var walletConfig: JSONObject? = null
+    actual var walletCredentials: JSONObject? = null
+    actual var timeoutSec = 60
+    actual var mediatorAddress: String? = null
 
-    var sender: BaseSender? = null
+    actual var sender: BaseSender? = null
 
     /* var sender: BaseSender? = object : BaseSender() {
          override fun sendTo(endpoint: String?, data: ByteArray?): Boolean {
@@ -68,21 +64,21 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
              }
          }
      }*/
-    var indyWallet: Wallet? = null
-    var webSockets: MutableMap<String, WebSocketConnector> = HashMap<String, WebSocketConnector>()
+    actual var indyWallet: LocalWallet? = null
+    actual var webSockets: MutableMap<String, WebSocketConnector> = HashMap<String, WebSocketConnector>()
 
-    inner class MobileAgentEvents : AgentEvents {
-        var future: CompletableFutureKotlin<Message?>? = null
-        override fun pull(): CompletableFutureKotlin<Message?>? {
+    actual inner class MobileAgentEvents : AgentEvents {
+        actual var future: CompletableFutureKotlin<Message?>? = null
+        actual override fun pull(): CompletableFutureKotlin<Message?>? {
             future = CompletableFutureKotlin<Message?>()
             return future
         }
     }
 
-    var events: MutableList<Pair<MobileAgentEvents, Listener>> =
+    actual var events: MutableList<Pair<MobileAgentEvents, Listener>> =
         ArrayList<Pair<MobileAgentEvents, Listener>>()
 
-    fun create() {
+    actual fun create() {
         try {
             Wallet.createWallet(walletConfig.toString(), walletCredentials.toString())
                 .get(timeoutSec.toLong(), java.util.concurrent.TimeUnit.SECONDS)
@@ -91,7 +87,7 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
         }
     }
 
-    override fun open() {
+    actual override fun open() {
         try {
             indyWallet = Wallet.openWallet(walletConfig.toString(), walletCredentials.toString())
                 .get(timeoutSec.toLong(), java.util.concurrent.TimeUnit.SECONDS)
@@ -113,8 +109,8 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
         }
     }
 
-    private val networks: List<String>?
-        private get() {
+     actual val networks: List<String>?
+         get() {
             try {
                 val str: String =
                     Pool.listPools().get(timeoutSec.toLong(), java.util.concurrent.TimeUnit.SECONDS)
@@ -135,13 +131,13 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
             }
             return null
         }
-    override val isOpen: Boolean
+    actual override val isOpen: Boolean
         get() = indyWallet != null
-    override val name: String
-        get() = "Mobile agent"
+    actual override val name: String
+        get() = "Mobile agent Android"
 
 
-    override fun sendMessage(
+    actual override fun sendMessage(
         message: Message?,
         their_vk: List<String?>?,
         endpoint: String,
@@ -177,19 +173,19 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
           }
       }*/
 
-    fun connect(endpoint: String?) {
+    actual fun connect(endpoint: String?) {
         sender!!.open(endpoint)
     }
 
-    fun packMessage(msg: Message, myVk: String?, theirVk: List<String?>): ByteArray? {
+    actual fun packMessage(msg: Message, myVk: String?, theirVk: List<String?>): ByteArray? {
         val receivers: JSONArray = JSONArray(theirVk)
         try {
-            System.out.println(" receivers.toString()=" + receivers.toString())
-            System.out.println(" myVk=" + myVk)
-            System.out.println("  StringUtils.stringToBytes(msg.messageObj.toString(), UTF_8)=" + msg.messageObj.toString())
+            println(" receivers.toString()=" + receivers.toString())
+            println(" myVk=" + myVk)
+           println("  StringUtils.stringToBytes(msg.messageObj.toString(), UTF_8)=" + msg.messageObj.toString())
             return Crypto.packMessage(
                 indyWallet, receivers.toString(),
-                myVk, StringUtils.stringToBytes(msg.messageObj.toString(), UTF_8)
+                myVk, StringUtils.stringToBytes(msg.messageObj.toString(), StringUtils.CODEC.UTF_8)
             ).get(timeoutSec.toLong(), java.util.concurrent.TimeUnit.SECONDS)
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
@@ -197,7 +193,7 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
         return null
     }
 
-    fun receiveMsg(bytes: ByteArray) {
+    actual fun receiveMsg(bytes: ByteArray) {
         try {
             val unpackedMessageBytes: ByteArray
             val eventMessage: JSONObject
@@ -205,7 +201,7 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
                 unpackedMessageBytes =
                     Crypto.unpackMessage(indyWallet, bytes)
                         .get(timeoutSec.toLong(), java.util.concurrent.TimeUnit.SECONDS)
-                System.out.println("Chipre String(unpackedMessageBytes)="+String(unpackedMessageBytes))
+                println("Chipre String(unpackedMessageBytes)="+String(unpackedMessageBytes))
                 val unpackedMessage: JSONObject = JSONObject(String(unpackedMessageBytes))
                 eventMessage =
                     JSONObject().put(
@@ -222,7 +218,7 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
             } else {
                 unpackedMessageBytes = bytes
                 val unpackedMessage: JSONObject = JSONObject(String(unpackedMessageBytes))
-                System.out.println("String(unpackedMessageBytes)="+String(unpackedMessageBytes))
+                println("String(unpackedMessageBytes)="+String(unpackedMessageBytes))
                 eventMessage =
                     JSONObject().put(
                         "@type",
@@ -246,8 +242,8 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
         }
     }
 
-    override fun close() {
-        sender!!.close()
+    actual override fun close() {
+        sender?.close()
         try {
             indyWallet!!.close()
         } catch (e: java.lang.Exception) {
@@ -255,11 +251,11 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
         }
     }
 
-    override fun checkIsOpen(): Boolean {
+    actual override fun checkIsOpen(): Boolean {
         return indyWallet != null
     }
 
-    override fun subscribe(): Listener {
+    actual override fun subscribe(): Listener {
         val e: MobileAgentEvents = MobileAgentEvents()
         val listener = Listener(e, this)
         events.add(Pair(e, listener))
@@ -267,7 +263,7 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
     }
 
 
-    override fun unsubscribe(listener: Listener?) {
+    actual override fun unsubscribe(listener: Listener?) {
         for (e in events) {
             if (e.second === listener) {
                 events.remove(e)
@@ -276,12 +272,12 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
         }
     }
 
-    override fun generateQrCode(value: String?): String? {
+    actual override fun generateQrCode(value: String?): String? {
         return null
     }
 
 
-    override fun acquire(
+    actual override fun acquire(
         resources: List<String?>?,
         lockTimeoutSec: Int?,
         enterTimeoutSec: Int?
@@ -289,26 +285,26 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
         return Pair(false, listOf())
     }
 
-    override fun release() {}
+    actual override fun release() {}
 
 
-    override fun spawn(my_verkey: String, endpoint: TheirEndpoint): AbstractCoProtocolTransport? {
+    actual override fun spawn(my_verkey: String, endpoint: TheirEndpoint): AbstractCoProtocolTransport? {
         return TheirEndpointMobileCoProtocolTransport(this, my_verkey, endpoint)
     }
 
-    override fun spawn(pairwise: Pairwise): AbstractCoProtocolTransport? {
+    actual override fun spawn(pairwise: Pairwise): AbstractCoProtocolTransport? {
         return PairwiseMobileCoProtocolTransport(this, pairwise)
     }
 
-    override fun spawn(thid: String, pairwise: Pairwise): AbstractCoProtocolTransport? {
+    actual override fun spawn(thid: String, pairwise: Pairwise): AbstractCoProtocolTransport? {
         return null
     }
 
-    override fun spawn(thid: String): AbstractCoProtocolTransport? {
+    actual override fun spawn(thid: String): AbstractCoProtocolTransport? {
         return null
     }
 
-    override fun spawn(
+    actual override fun spawn(
         thid: String,
         pairwise: Pairwise,
         pthid: String
@@ -317,7 +313,7 @@ class MobileAgent(walletConfig: JSONObject?, walletCredentials: JSONObject?) :
     }
 
 
-    override fun spawn(thid: String, pthid: String): AbstractCoProtocolTransport? {
+    actual override fun spawn(thid: String, pthid: String): AbstractCoProtocolTransport? {
         return null
     }
 

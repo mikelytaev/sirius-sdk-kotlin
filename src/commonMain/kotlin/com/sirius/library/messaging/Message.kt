@@ -6,6 +6,7 @@ import com.sirius.library.errors.sirius_exceptions.SiriusInvalidType
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.UUID
+import kotlin.native.concurrent.ThreadLocal
 import kotlin.reflect.KClass
 
 open class Message : JsonSerializable<Message> {
@@ -146,7 +147,7 @@ open class Message : JsonSerializable<Message> {
         return Message(string ?: "")
     }
 
-
+    @ThreadLocal
     companion object {
 
         fun generateId(): String {
@@ -170,6 +171,7 @@ open class Message : JsonSerializable<Message> {
         ) {
             var name = name
             if (name == null) name = "*"
+
             for (i in MSG_REGISTRY.indices) {
                 if (MSG_REGISTRY[i].first.equals(clas)) {
                     MSG_REGISTRY.set(i, Triple(clas, protocol, name))
@@ -177,6 +179,8 @@ open class Message : JsonSerializable<Message> {
                 }
             }
             MSG_REGISTRY.add(Triple(clas, protocol, name))
+
+
             registerMessageClass2(clas,constructor)
         }
 
@@ -191,6 +195,7 @@ open class Message : JsonSerializable<Message> {
                 }
             }
             MSG_REGISTRY2.add(Pair(clas, constructor))
+
         }
 
         fun getProtocolAndName(clas: KClass<out Message>): Pair<String?, String?> {

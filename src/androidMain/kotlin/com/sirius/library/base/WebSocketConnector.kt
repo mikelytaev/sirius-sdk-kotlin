@@ -6,7 +6,7 @@ import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.Logger
 import com.sirius.library.utils.StringCodec
 import com.sirius.library.utils.StringUtils
-import com.sirius.library.utils.StringUtils.UTF_8
+
 import io.ktor.util.date.*
 import kotlinx.coroutines.*
 import java.security.KeyManagementException
@@ -24,7 +24,7 @@ import javax.net.ssl.X509TrustManager
 actual class WebSocketConnector actual constructor() : BaseConnector() {
      var log: Logger = Logger.getLogger(WebSocketConnector::class.simpleName)
     var defTimeout = 30
-    var encoding: String = UTF_8
+    var encoding: StringUtils.CODEC = StringUtils.CODEC.UTF_8
     lateinit var serverAddress: String
     lateinit var path: String
     var credentials: ByteArray? = null
@@ -33,7 +33,7 @@ actual class WebSocketConnector actual constructor() : BaseConnector() {
 
     actual constructor(
         defTimeout: Int,
-        encoding: String,
+        encoding: StringUtils.CODEC,
         serverAddress: String,
         path: String,
         credentials: ByteArray?
@@ -284,8 +284,8 @@ actual class WebSocketConnector actual constructor() : BaseConnector() {
     }
 
     actual override fun write(data: ByteArray?): Boolean {
-        val codec = StringCodec()
-       val payload =  codec.fromByteArrayToASCIIString(data ?: ByteArray(0))
+
+        val payload =  StringUtils.bytesToString(data ?: ByteArray(0),StringUtils.CODEC.US_ASCII)
         log.log(Logger.Level.INFO, "Sending binary data"+payload);
         webSocket!!.sendBinary(data)
         return true

@@ -5,6 +5,7 @@ object Codec {
     const  val I32_BOUND = (2 xor 31).toLong()
     val ENCODE_PREFIX: MutableMap<String, Int>  = HashMap<String, Int>()
     fun encode(raw: Any?): String {
+        /*
         if (raw == null) {
             return I32_BOUND.toString()
         }
@@ -27,6 +28,9 @@ object Codec {
                 raw.toString().encodeToByteArray()
             ).add(java.math.BigInteger.valueOf(I32_BOUND)).toString()
         )
+
+         */
+        return ""
     }
 
     init {

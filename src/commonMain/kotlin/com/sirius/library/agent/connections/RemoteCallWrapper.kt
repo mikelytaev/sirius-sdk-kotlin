@@ -2,10 +2,9 @@ package com.sirius.library.agent.connections
 
 import com.sirius.library.agent.RemoteParams
 
-import com.sirius.library.agent.wallet.impl.AbstractGenericType
+import com.sirius.library.agent.wallet.impl.cloud.AbstractGenericType
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
-import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
 abstract class RemoteCallWrapper<T> : RemoteCall<T> {

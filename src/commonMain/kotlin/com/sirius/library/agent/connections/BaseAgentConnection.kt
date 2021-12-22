@@ -8,7 +8,7 @@ import com.sirius.library.rpc.AddressedTunnel
 import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.Logger
 import com.sirius.library.utils.StringCodec
-import com.sirius.library.utils.StringUtils.UTF_8
+import com.sirius.library.utils.StringUtils
 
 
 abstract class BaseAgentConnection {
@@ -42,7 +42,7 @@ abstract class BaseAgentConnection {
         this.timeout = timeout
         connector = WebSocketConnector(
             this.timeout,
-            UTF_8,
+            StringUtils.CODEC.UTF_8,
             serverAddress,
             path() ?: "",
             credentials

@@ -27,7 +27,7 @@ abstract class AbstractCoProtocolTransport {
     @Throws(SiriusPendingOperation::class, SiriusInvalidPayloadStructure::class, SiriusInvalidMessage::class)
     abstract fun sendAndWait(message: Message): Pair<Boolean, Message?>
 
-    @get:Throws(SiriusInvalidPayloadStructure::class)
+    //@get:Throws(SiriusInvalidPayloadStructure::class)
     abstract val one: GetOneResult?
 
     @Throws(SiriusPendingOperation::class)

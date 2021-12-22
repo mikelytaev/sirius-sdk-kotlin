@@ -38,7 +38,7 @@ class TestCloudAgent {
                 val agentName = allAgentsList[i]
                 val params: AgentParams = testSuite.getAgentParams(agentName)
                 val agent = CloudAgent(
-                    params.serverAddress, StringUtils.stringToBytes(params.credentials, StringUtils.US_ASCII),
+                    params.serverAddress, StringUtils.stringToBytes(params.credentials, StringUtils.CODEC.US_ASCII),
                     params.getConnectioni(), 10
                 )
                 agent.open()
@@ -58,7 +58,7 @@ class TestCloudAgent {
             val params: AgentParams = testSuite.getAgentParams("agent1")
 
             val agent = CloudAgent(
-                params.serverAddress, StringUtils.stringToBytes(params.credentials, StringUtils.US_ASCII),
+                params.serverAddress, StringUtils.stringToBytes(params.credentials, StringUtils.CODEC.US_ASCII),
                 params.getConnectioni(), 10
             )
             agent.open()

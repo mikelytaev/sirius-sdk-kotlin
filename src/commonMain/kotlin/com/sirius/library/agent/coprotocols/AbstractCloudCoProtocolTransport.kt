@@ -173,7 +173,7 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
         return   Pair(false, null)
     }
 
-    @get:Throws(SiriusInvalidPayloadStructure::class)
+   // @get:Throws(SiriusInvalidPayloadStructure::class)
     override val one: GetOneResult
         get() {
             val event: Message? = rpc.readProtocolMessage()

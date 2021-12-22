@@ -17,7 +17,7 @@ object Custom {
      * @return bytes array
      */
     fun b64ToBytes(value: String, urlSafe: Boolean): ByteArray {
-        var valueBytes: ByteArray = StringUtils.stringToBytes(value, StringUtils.US_ASCII)
+        var valueBytes: ByteArray = StringUtils.stringToBytes(value, StringUtils.CODEC.US_ASCII)
         /*   if isinstance(value, str):
         value = value.encode('ascii')
         if urlsafe:
@@ -62,7 +62,7 @@ object Custom {
             Base64.getEncoder().encode(bytes)
         }
         println("bytesToB64 "+decodedByte)
-        return  StringUtils.bytesToString(decodedByte, StringUtils.US_ASCII)
+        return  StringUtils.bytesToString(decodedByte, StringUtils.CODEC.US_ASCII)
     }
 
     /**
@@ -93,6 +93,7 @@ object Custom {
      */
     @Throws(SiriusCryptoError::class, SodiumException::class)
     fun createKeypair(seed: ByteArray?): KeyPair {
+        println("createKeypair seed="+seed)
         //  Sodium.crypto_sign_seed_keypair()
         var seed = seed
         if (seed != null) {
@@ -100,6 +101,7 @@ object Custom {
         } else {
             seed = randomSeed()
         }
+
         return LibSodium.getInstance().cryptoSignSeedKeypair(seed)
     }
 

@@ -3,13 +3,13 @@ package com.sirius.library.base
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.Logger
-import com.sirius.library.utils.StringCodec
-import com.sirius.library.utils.StringUtils.UTF_8
+import com.sirius.library.utils.StringUtils
+
 
 class ListenerConnector : BaseConnector {
     var log: Logger = Logger.getLogger(ListenerConnector::class.simpleName)
     var defTimeout = 30
-    var encoding: String = UTF_8
+    var encoding: StringUtils.CODEC = StringUtils.CODEC.UTF_8
     var serverAddress: String
     var path: String
     var credentials: ByteArray
@@ -17,7 +17,7 @@ class ListenerConnector : BaseConnector {
     // WebSocket webSocket;
     constructor(
         defTimeout: Int,
-        encoding: String,
+        encoding: StringUtils.CODEC,
         serverAddress: String,
         path: String,
         credentials: ByteArray

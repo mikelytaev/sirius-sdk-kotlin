@@ -6,7 +6,7 @@ import com.sirius.library.errors.sirius_exceptions.SiriusConnectionClosed
 import com.sirius.library.errors.sirius_exceptions.SiriusInvalidPayloadStructure
 import com.sirius.library.messaging.Message
 import com.sirius.library.utils.*
-import com.sirius.library.utils.StringUtils.US_ASCII
+
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletableFuture
 
@@ -45,7 +45,7 @@ actual class CloudAgentEvents actual constructor(serverAddress: String, credenti
          val future = connector!!.read().thenApply { data ->
             try {
                 val payload: JSONObject =
-                    JSONObject(StringUtils.bytesToString(data?: ByteArray(0),US_ASCII))
+                    JSONObject(StringUtils.bytesToString(data?: ByteArray(0), StringUtils.CODEC.US_ASCII))
                 if (payload.has("protected")) {
                     val message = p2p!!.unpack(payload.toString())
                     //log.log(Level.INFO, "Received protected message. Unpacked: " + message);

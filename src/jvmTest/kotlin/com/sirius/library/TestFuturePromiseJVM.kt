@@ -40,7 +40,7 @@ class TestFuturePromiseJVM {
         promiseMsgObj.put("is_tuple", false)
         promiseMsgObj.put("is_bytes", false)
         promiseMsgObj.put("value", expected)
-        promiseMsgObj.put("exception", JSONObject.NULL)
+        promiseMsgObj.put("exception", JSONObject.JSONNULL)
         val threadObject: JSONObject = JSONObject()
         threadObject.put("thid", future.promise().id)
         promiseMsgObj.put("~thread", threadObject)
