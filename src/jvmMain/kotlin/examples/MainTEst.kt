@@ -43,17 +43,17 @@ object MainTEst {
 
             context = CloudContext(config)
             val endpoints: List<Endpoint> = context?.endpoints ?: listOf()
-            var myEndpoint: Endpoint? = null
+          /*  var myEndpoint: Endpoint? = null
             for (e in endpoints) {
                 if (e.routingKeys.isEmpty()) {
                     myEndpoint = e
                     break
                 }
             }
-
+*/
             val connectionKey: String? = context?.crypto?.createKey()
            // val connectionKey: String? ="ConnectionKey"
-            println("connectionKey: $connectionKey")
+   /*         println("connectionKey: $connectionKey")
             val invitation: Invitation =
                 Invitation.builder().setLabel("0160 Sample J").setRecipientKeys(listOfNotNull(connectionKey))
                     .setEndpoint(myEndpoint?.address).build()
@@ -63,7 +63,7 @@ object MainTEst {
 
             // шаг 4 - создаем QR
             val qrUrl: String? = context?.generateQrCode(qrContent)
-            println("Открой QR код и просканируй в Sirius App: $qrUrl")
+            println("Открой QR код и просканируй в Sirius App: $qrUrl")*/
 
         }
     }

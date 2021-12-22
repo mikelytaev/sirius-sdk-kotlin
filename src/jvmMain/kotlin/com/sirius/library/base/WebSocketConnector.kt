@@ -235,7 +235,7 @@ actual class WebSocketConnector actual constructor() : BaseConnector() {
                 .addExtension(WebSocketExtension.PERMESSAGE_DEFLATE)
                 .setPingInterval(60 * 3 * 1000).addHeader("origin", serverAddress)
             if (credentials != null) {
-                webSocket!!.addHeader("credentials", credentials!!.decodeToString())
+                webSocket!!.addHeader("credentials", StringUtils.bytesToString(credentials!!,StringUtils.US_ASCII))
             }
         } catch (e: java.io.IOException) {
             e.printStackTrace()

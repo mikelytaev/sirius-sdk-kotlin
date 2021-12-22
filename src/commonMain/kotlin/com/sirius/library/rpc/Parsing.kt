@@ -60,6 +60,33 @@ object Parsing {
         return Message(jsonObject.toString())
     }
 
+    /**
+     * @param msgType Aries RFCs attribute
+     * https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0020-message-types
+     * @param future  Future to check response routine is completed
+     * @param params  RPC call params
+     * @return RPC service packet
+     */
+    fun buildRequest(msgType: String, future: Future.FuturePromise, params: RemoteParams?): Message {
+        try {
+            val type: Type = Type.fromStr(msgType)
+            if (!listOf("sirius_rpc", "admin", "microledgers", "microledgers-batched")
+                    .contains(type.protocol)
+            ) {
+                throw SiriusInvalidType("Expect sirius_rpc protocol")
+            }
+        } catch (siriusInvalidType: SiriusInvalidType) {
+            siriusInvalidType.printStackTrace()
+        }
+        val jsonObject = JSONObject()
+        jsonObject.put("@type", msgType)
+        jsonObject.put("@id", UUID.randomUUID.toString())
+        jsonObject.put("@promise", future.serializeToJSONObject())
+        val paramsObject: JSONObject = incapsulateParam(params)
+        jsonObject.put("params", paramsObject)
+        return Message(jsonObject.toString())
+    }
+
     //  CLS_MAP_REVERT = {v: k for k, v in CLS_MAP.items()}
     fun incapsulateParam(params: RemoteParams?): JSONObject {
         val paramsObject = JSONObject()

@@ -122,19 +122,7 @@ open class JSONObject {
             return null
         }
         val elemnt = jsonObject.get(key)
-        if (elemnt is JsonObject) {
-            return JSONObject(elemnt)
-        } else if (elemnt is JsonArray) {
-            return JSONArray(elemnt)
-        } else if (elemnt is JsonPrimitive) {
-            if (elemnt.booleanOrNull != null) {
-                return elemnt.boolean
-            } else if (elemnt.isString) {
-                return elemnt.content
-            }
-
-        }
-        return jsonObject.get(key)
+        return JSONObject.serializeToObjects(elemnt)
     }
 
     fun optString(key: String, default: String? = null): String? {
