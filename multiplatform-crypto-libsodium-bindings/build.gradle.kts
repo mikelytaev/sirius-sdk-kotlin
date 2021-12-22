@@ -32,8 +32,8 @@ import java.io.File
 
 plugins {
     kotlin("multiplatform")
-    id("maven-publish")
-    id("signing")
+ //   id("maven-publish")
+ //   id("signing")
     id("com.github.node-gradle.node") version "1.3.0"
     id("com.dorongold.task-tree") version "1.5"
     id("com.android.library")
@@ -59,8 +59,8 @@ repositories {
     }
 
 }
-group = ReleaseInfo.group
-version = ReleaseInfo.bindingsVersion
+//group = ReleaseInfo.group
+//version = ReleaseInfo.bindingsVersion
 
 val ideaActive = isInIdea()
 println("Idea active: $ideaActive")
@@ -69,8 +69,8 @@ android {
     defaultConfig {
         minSdkVersion(AndroidPluginConfiguration.minVersion)
         targetSdkVersion(AndroidPluginConfiguration.sdkVersion)
-        versionCode = 1
-        versionName = "1.0"
+        //versionCode = 1
+     //   versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -89,6 +89,11 @@ android {
 
 
 kotlin {
+
+    /*targets {
+        android() //for an Android base module
+    }*/
+
     val hostOsName = getHostOsName()
     android() {
         publishLibraryVariants("release", "debug")
@@ -164,51 +169,51 @@ kotlin {
     }
     println("Configuring macos targets")
 
-    iosX64() {
+  /*  iosX64() {
         binaries {
             framework {
                 optimized = true
             }
         }
-    }
-    iosArm64() {
+    }*/
+ /*   iosArm64() {b ffffffffffffffffffff
         binaries {
             framework {
                 optimized = true
             }
         }
-    }
-    iosArm32() {
+    }*/
+  /*  iosArm32() {
         binaries {
             framework {
                 optimized = true
             }
         }
-    }
-    iosSimulatorArm64() {
+    }*/
+/*    iosSimulatorArm64() {
         binaries {
             framework {
                 optimized = true
             }
         }
-    }
+    }*/
 
-    macosX64() {
+ /*   macosX64() {
         binaries {
             framework {
                 optimized = true
             }
         }
-    }
-    macosArm64() {
+    }*/
+    /*macosArm64() {
         binaries {
             framework {
                 optimized = true
             }
         }
-    }
+    }*/
 
-    tvosX64() {
+/*    tvosX64() {
         binaries {
             framework {
                 optimized = true
@@ -221,14 +226,14 @@ kotlin {
                 optimized = true
             }
         }
-    }
-    tvosSimulatorArm64() {
+    }*/
+   /* tvosSimulatorArm64() {
         binaries {
             framework {
                 optimized = true
             }
         }
-    }
+    }*/
 
     watchosArm64() {
         binaries {
@@ -251,13 +256,13 @@ kotlin {
             }
         }
     }
-    watchosSimulatorArm64() {
+ /*   watchosSimulatorArm64() {
         binaries {
             framework {
                 optimized = true
             }
         }
-    }
+    }*/
 
     println("Configuring Mingw targets")
     mingwX64() {
@@ -731,11 +736,14 @@ allprojects {
 
 
 
+/*
 signing {
     isRequired = false
     sign(publishing.publications)
 }
+*/
 
+/*
 publishing {
     publications.withType(MavenPublication::class) {
         artifact(tasks["javadocJar"])
@@ -785,6 +793,7 @@ publishing {
         }
     }
 }
+*/
 
 
 
@@ -800,7 +809,7 @@ object Versions {
     val kotlinBigNumVersion = "0.2.8"
     val jna = "5.7.0"
     val kotlinPoet = "1.6.0"
-    val sampleLibsodiumBindings = "0.8.5-SNAPSHOT"
+    //val sampleLibsodiumBindings = "0.8.5-SNAPSHOT"
     val ktor = "1.3.2"
     val timber = "4.7.1"
     val kodeinVersion = "7.1.0"
@@ -813,8 +822,8 @@ object Versions {
 }
 
 object ReleaseInfo {
-    val group = "com.ionspin.kotlin"
-    val bindingsVersion = "0.8.5-SNAPSHOT"
+    //val group = "com.ionspin.kotlin"
+   // val bindingsVersion = "0.8.5-SNAPSHOT"
 }
 
 object Deps {
@@ -832,7 +841,7 @@ object Deps {
 
         val apiProject = ":multiplatform-crypto-api"
 
-        val libsodiumBindings = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings:${Versions.sampleLibsodiumBindings}"
+      //  val libsodiumBindings = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings:${Versions.sampleLibsodiumBindings}"
 
         val kodein = "org.kodein.di:kodein-di:${Versions.kodeinVersion}"
     }
