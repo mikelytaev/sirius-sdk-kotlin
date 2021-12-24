@@ -11,6 +11,7 @@ import com.sirius.library.helpers.ConfTest
 import com.sirius.library.utils.*
 import kotlin.test.*
 
+
 class TestWallet {
     lateinit var confTest: ConfTest
 
@@ -245,6 +246,7 @@ class TestWallet {
             val valueInfoNew2Object: JSONObject = JSONObject(valueInfoNew2)
             updTags.put("tag1", "val1")
             updTags.put("~tag2", "val2")
+            //TODO HERE expected:<{"[ext-tag":"val3","tag1":"val1","~tag2":"val2]"}> but was:<{"[tag1":"val1","~tag2":"val2","ext-tag":"val3]"}>
             assertEquals(updTags.toString(), valueInfoNew2Object.optJSONObject("tags").toString())
             val tagsList: MutableList<String> = ArrayList<String>()
             tagsList.add("ext-tag")
@@ -492,7 +494,7 @@ class TestWallet {
                 assertTrue(first7 == true)
                 val okNym3Json: JSONObject = JSONObject(second4)
                 val role3: Any? = okNym3Json.get("role")
-                assertEquals(role3, JSONObject.NULL)
+                assertEquals(role3, JSONObject.JSONNULL)
                 val (first8) = actor?.ledger?.writeNum(
                     confTest.defaultNetwork(),
                     first2,

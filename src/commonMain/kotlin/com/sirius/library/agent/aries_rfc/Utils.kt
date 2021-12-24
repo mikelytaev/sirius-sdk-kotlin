@@ -5,9 +5,7 @@ import com.sirius.library.utils.Base64
 import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.StringCodec
-import java.lang.Integer
-import kotlin.experimental.and
-import kotlin.experimental.or
+
 
 object Utils {
     fun utcToStr(date: Date?): String {

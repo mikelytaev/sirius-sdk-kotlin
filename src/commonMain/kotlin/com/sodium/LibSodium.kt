@@ -104,11 +104,11 @@ class LibSodium {
         nPub: ByteArray,
         k: ByteArray
     ): ByteArray {
-        println("cryptoAeadChaCha20Poly1305IetfEncryp mes="+StringUtils.bytesToString(m, StringUtils.US_ASCII))
-        println("cryptoAeadChaCha20Poly1305IetfEncryp ad"+StringUtils.bytesToString(ad, StringUtils.US_ASCII))
-        println("cryptoAeadChaCha20Poly1305IetfEncryp nonce="+StringUtils.bytesToString(nPub, StringUtils.US_ASCII))
+        println("cryptoAeadChaCha20Poly1305IetfEncryp mes="+StringUtils.bytesToString(m, StringUtils.CODEC.US_ASCII))
+        println("cryptoAeadChaCha20Poly1305IetfEncryp ad"+StringUtils.bytesToString(ad, StringUtils.CODEC.US_ASCII))
+        println("cryptoAeadChaCha20Poly1305IetfEncryp nonce="+StringUtils.bytesToString(nPub, StringUtils.CODEC.US_ASCII))
         println("cryptoAeadChaCha20Poly1305IetfEncryp nonce="+nPub.size)
-        println("cryptoAeadChaCha20Poly1305IetfEncryp Key="+StringUtils.bytesToString(k, StringUtils.US_ASCII))
+        println("cryptoAeadChaCha20Poly1305IetfEncryp Key="+StringUtils.bytesToString(k, StringUtils.CODEC.US_ASCII))
        return AuthenticatedEncryptionWithAssociatedData.chaCha20Poly1305IetfEncrypt(m.toUByteArray(),ad.toUByteArray(),nPub.toUByteArray(),k.toUByteArray()).toByteArray()
 
     }
@@ -122,6 +122,7 @@ class LibSodium {
         if (!cryptoSignSeedKeypair(publicKey, secretKey, seed)) {
             throw SodiumException("Could not generate a signing keypair with a seed.")
         }*/
+        println("cryptoSignSeedKeypair pair="+pair)
         return KeyPair(Key.fromBytes(pair.publicKey.toByteArray()), Key.fromBytes(pair.secretKey.toByteArray()))
     }
 

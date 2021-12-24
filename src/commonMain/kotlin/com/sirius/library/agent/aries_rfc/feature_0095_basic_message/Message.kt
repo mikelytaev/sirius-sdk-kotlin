@@ -23,7 +23,7 @@ class Message(msg: String) : AriesProtocolMessage(msg) {
             if (messageObjectHasKey("~attach")) {
                 val arr: JSONArray = getMessageObjec().getJSONArray("~attach") ?: JSONArray()
                 for (o in arr) {
-                    res.add(Attach(o as JsonObject))
+                    res.add(Attach(o as JSONObject))
                 }
             }
             return res

@@ -1,12 +1,12 @@
 package com.sirius.library
 
-import com.sirius.library.base.CompleteFuture
 import com.sirius.library.errors.sirius_exceptions.SiriusPendingOperation
 import com.sirius.library.helpers.ConfTest
 import com.sirius.library.messaging.Message
 import com.sirius.library.models.P2PModel
 import com.sirius.library.rpc.AddressedTunnel
 import com.sirius.library.rpc.Future
+import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.JSONObject
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -40,7 +40,7 @@ class TestFuturePromiseJVM {
         promiseMsgObj.put("is_tuple", false)
         promiseMsgObj.put("is_bytes", false)
         promiseMsgObj.put("value", expected)
-        promiseMsgObj.put("exception", JSONObject.NULL)
+        promiseMsgObj.put("exception", JSONObject.JSONNULL)
         val threadObject: JSONObject = JSONObject()
         threadObject.put("thid", future.promise().id)
         promiseMsgObj.put("~thread", threadObject)
@@ -65,24 +65,24 @@ class TestFuturePromiseJVM {
 
     @Test
     fun testCompletableFuture() {
-        var readFuture: CompletableFuture<ByteArray?> =
-            CompletableFuture()
+        var readFuture: CompletableFutureKotlin<ByteArray?> =
+            CompletableFutureKotlin()
         println("readFuture=")
         Thread(Runnable {
             Thread.sleep(10000)
             readFuture.complete(ByteArray(0))
         }).start()
-        val byteArray =  readFuture.get(15, TimeUnit.SECONDS)
+        val byteArray =  readFuture.get(15)
         println("byteArray="+byteArray)
 
     }
 
     @Test
     fun testCompletableFuture1() {
-        var readFuture: CompleteFuture<ByteArray?> =
-            CompleteFuture()
+        var readFuture: CompletableFutureKotlin<ByteArray?> =
+            CompletableFutureKotlin()
         println("readFuture=")
-        val byteArray =  readFuture.get(15, TimeUnit.SECONDS)
+        val byteArray =  readFuture.get(15)
         Thread(Runnable {
             Thread.sleep(10000)
             readFuture.complete(ByteArray(0))

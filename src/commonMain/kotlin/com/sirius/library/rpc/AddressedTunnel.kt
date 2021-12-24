@@ -9,8 +9,7 @@ import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
 import com.sirius.library.utils.StringCodec
 import com.sirius.library.utils.StringUtils
-import com.sirius.library.utils.StringUtils.US_ASCII
-import com.sirius.library.utils.StringUtils.UTF_8
+
 import kotlinx.coroutines.*
 import kotlinx.coroutines.*
 
@@ -19,7 +18,7 @@ import kotlinx.coroutines.*
  */
 class AddressedTunnel(var address: String, input: ReadOnlyChannel, output: WriteOnlyChannel, p2p: P2PConnection) {
     var log: Logger = Logger.getLogger(AddressedTunnel::class.simpleName)
-    var ENC: String = UTF_8
+    var ENC: StringUtils.CODEC = StringUtils.CODEC.UTF_8
     var input: ReadOnlyChannel
     var output: WriteOnlyChannel
     var p2p: P2PConnection
@@ -87,7 +86,7 @@ class AddressedTunnel(var address: String, input: ReadOnlyChannel, output: Write
         }
         println("post payload="+payload)
         println("message.serialize()="+message.serialize())
-        return output.write(  StringUtils.stringToBytes(payload?:"", US_ASCII))
+        return output.write(  StringUtils.stringToBytes(payload?:"", StringUtils.CODEC.US_ASCII))
     }
 
     /**

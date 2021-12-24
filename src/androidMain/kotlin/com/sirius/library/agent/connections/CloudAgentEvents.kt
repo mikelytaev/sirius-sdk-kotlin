@@ -1,13 +1,10 @@
 package com.sirius.library.agent.connections
 
-import com.sirius.library.base.CompleteFuture
+
 import com.sirius.library.encryption.P2PConnection
 import com.sirius.library.errors.sirius_exceptions.SiriusConnectionClosed
 import com.sirius.library.messaging.Message
-import com.sirius.library.utils.JSONArray
-import com.sirius.library.utils.JSONObject
-import com.sirius.library.utils.Logger
-import com.sirius.library.utils.StringUtils
+import com.sirius.library.utils.*
 
 actual class CloudAgentEvents actual constructor(serverAddress: String, credentials: ByteArray?, p2p: P2PConnection?, timeout: Int) :
     BaseAgentConnection(serverAddress, credentials, p2p, timeout), AgentEvents {
@@ -36,7 +33,7 @@ actual class CloudAgentEvents actual constructor(serverAddress: String, credenti
     }
 
 
-    actual override fun pull(): CompleteFuture<Message?>? {
+    actual override fun pull(): CompletableFutureKotlin<Message?>? {
         if (!connector!!.isOpen) {
             throw SiriusConnectionClosed("Open agent connection at first")
         }
@@ -44,7 +41,7 @@ actual class CloudAgentEvents actual constructor(serverAddress: String, credenti
         val future = connector!!.read().thenApply { data ->
             try {
                 val payload: JSONObject =
-                    JSONObject(StringUtils.bytesToString(data?: ByteArray(0), StringUtils.US_ASCII))
+                    JSONObject(StringUtils.bytesToString(data?: ByteArray(0), StringUtils.CODEC.US_ASCII))
                 if (payload.has("protected")) {
                     val message = p2p!!.unpack(payload.toString())
                     //log.log(Level.INFO, "Received protected message. Unpacked: " + message);
@@ -60,7 +57,7 @@ actual class CloudAgentEvents actual constructor(serverAddress: String, credenti
             }
         }
 
-        return future as CompleteFuture<Message?>
+        return future
     }
 
 

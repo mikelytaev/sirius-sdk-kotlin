@@ -5,8 +5,9 @@
 
  import com.google.gson.Gson;
  import com.sirius.library.mobile.models.KeyDidRecord;
- import com.sirius.library.mobile.utils.FileUtils;
 
+
+ import com.sirius.library.mobile.utils.HashUtils;
  import org.hyperledger.indy.sdk.IndyException;
  import org.hyperledger.indy.sdk.did.Did;
  import org.hyperledger.indy.sdk.did.DidResults;
@@ -417,6 +418,7 @@
 
      }
 
+     /*
     public static Wallet openWallet(String userJid,String pin) throws WalletNotFoundException, WalletAccessFailedException, IndyException, InvalidKeySpecException, NoSuchAlgorithmException, ExecutionException, InterruptedException {
 
         //TODO REFACTOR WITH LAYERS
@@ -433,6 +435,8 @@
 
      }
 
+
+      */
 /*     public static void deleteWallet() {
          try {
              //TODO REFACTOR WITH LAYERS
@@ -448,7 +452,7 @@
          }
 
      }*/
-
+/*
      public static void deleteWallet(String userJid) {
          try {
 
@@ -462,6 +466,8 @@
 
      }
 
+
+ */
 
      public static void closeWallet(Wallet wallet) throws WalletNotFoundException, WalletAccessFailedException, Exception {
          wallet.closeWallet().get();

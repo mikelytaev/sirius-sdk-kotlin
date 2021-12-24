@@ -4,7 +4,7 @@ import com.sirius.library.agent.AbstractAgent
 import com.sirius.library.agent.connections.AgentEvents
 import com.sirius.library.agent.pairwise.AbstractPairwiseList
 import com.sirius.library.agent.pairwise.Pairwise
-import java.util.concurrent.CompletableFuture
+import com.sirius.library.utils.CompletableFutureKotlin
 
 actual class Listener actual constructor(actual var source: AgentEvents, actual var agent: AbstractAgent) {
 
@@ -13,26 +13,29 @@ actual class Listener actual constructor(actual var source: AgentEvents, actual 
         set(value) {}
 
 
-    val one: CompletableFuture<Event>?
-        get() {
-            try {
-                return source.pull()?.thenApply { msg ->
-                    val theirVerkey: String? = msg?.getStringFromJSON("sender_verkey")
-                    var pairwise: Pairwise? = null
-                    if (pairwiseResolver != null && theirVerkey != null) {
-                        pairwise = pairwiseResolver?.loadForVerkey(theirVerkey)
-                    }
-                    Event(pairwise, msg?.serialize()?:"")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            return null
-        }
 
-    fun unsubscribe() {
+    actual fun unsubscribe() {
         agent.unsubscribe(this)
     }
+
+    actual val one: CompletableFutureKotlin<Event>?
+
+        get() {
+            println("source="+source)
+            return source.pull()?.thenApply { msg ->
+                val theirVerkey: String? = msg?.getStringFromJSON("sender_verkey")
+                var pairwise: Pairwise? = null
+                if (pairwiseResolver != null && theirVerkey != null) {
+                    pairwise = pairwiseResolver?.loadForVerkey(theirVerkey)
+                }
+                Event(pairwise, msg?.serialize()?:"")
+            }
+        }
+
+
+
+
+
 
 
 }

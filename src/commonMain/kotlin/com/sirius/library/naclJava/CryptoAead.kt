@@ -6,8 +6,7 @@ import com.ionspin.kotlin.crypto.util.LibsodiumUtil
 import com.sirius.library.utils.Key
 import com.sirius.library.utils.KeyPair
 import com.sirius.library.utils.StringUtils
-import com.sirius.library.utils.StringUtils.US_ASCII
-import com.sirius.library.utils.StringUtils.UTF_8
+
 import com.sodium.LibSodium
 import com.sodium.SodiumException
 
@@ -74,7 +73,7 @@ class CryptoAead {
 
     fun cryptoBoxSeal(messageString: String, publicKey: Key): ByteArray? {
         val keyBytes: ByteArray = publicKey.asBytes
-        val message: ByteArray = StringUtils.stringToBytes(messageString, US_ASCII)
+        val message: ByteArray = StringUtils.stringToBytes(messageString, StringUtils.CODEC.US_ASCII)
         // val _mlen = message.size
         // val _clen = 48 + _mlen
         //  val ciphertext = ByteArray(_clen)
@@ -100,9 +99,11 @@ class CryptoAead {
         k: Key,
         method: String
     ): ByteArray? {
-        val messageBytes: ByteArray = StringUtils.stringToBytes(m,US_ASCII)
+        val messageBytes: ByteArray = StringUtils.stringToBytes(m, StringUtils.CODEC.US_ASCII)
         val additionalDataBytes =
-            if (additionalData == null) ByteArray(0) else StringUtils.stringToBytes(additionalData,US_ASCII)
+            if (additionalData == null) ByteArray(0) else StringUtils.stringToBytes(additionalData,
+                StringUtils.CODEC.US_ASCII
+            )
         val additionalBytesLen = if (additionalData == null) 0L else additionalDataBytes.size.toLong()
         val keyBytes: ByteArray = k.asBytes
         val cipherBytes1: ByteArray
@@ -113,8 +114,8 @@ class CryptoAead {
                 messageBytes.size.toLong(), additionalDataBytes, additionalBytesLen, nSec, nPub, keyBytes
             )
             println("cipherBytes="+cipherBytes1)
-            println("cipherBytes="+StringUtils.bytesToString(cipherBytes1, US_ASCII))
-            println("cipherBytes="+StringUtils.bytesToString(cipherBytes1, UTF_8))
+            println("cipherBytes="+StringUtils.bytesToString(cipherBytes1, StringUtils.CODEC.US_ASCII))
+            println("cipherBytes="+StringUtils.bytesToString(cipherBytes1, StringUtils.CODEC.UTF_8))
             return cipherBytes1
         }
         return null
@@ -172,9 +173,13 @@ class CryptoAead {
 
 
     fun cryptoBoxSealOpen(cipherText: ByteArray, keyPair: KeyPair): ByteArray {
-        println("open cipherText="+StringUtils.bytesToString(cipherText, US_ASCII))
-        println("open getPublicKey="+StringUtils.bytesToString(keyPair.getPublicKey().asBytes, US_ASCII))
-        println("open getSecretKey="+StringUtils.bytesToString(keyPair.getSecretKey().asBytes, US_ASCII))
+        println("open cipherText="+StringUtils.bytesToString(cipherText, StringUtils.CODEC.US_ASCII))
+        println("open getPublicKey="+StringUtils.bytesToString(keyPair.getPublicKey().asBytes,
+            StringUtils.CODEC.US_ASCII
+        ))
+        println("open getSecretKey="+StringUtils.bytesToString(keyPair.getSecretKey().asBytes,
+            StringUtils.CODEC.US_ASCII
+        ))
         return Box.sealOpen(cipherText.toUByteArray(),keyPair.getPublicKey().asBytes.toUByteArray(),keyPair.getSecretKey().asBytes.toUByteArray()).toByteArray()
         // byte[] cipherText = cipherString.getBytes(StandardCharsets.US_ASCII);
         /* val _clen = cipherText.size

@@ -1,7 +1,6 @@
 package com.sirius.library.utils
 
 import kotlinx.serialization.json.*
-import kotlin.reflect.KClass
 
 open class JSONObject {
     companion object {
@@ -10,7 +9,7 @@ open class JSONObject {
 
         }
 
-        val NULL = JsonNull.content
+        val JSONNULL = JsonNull.content
 
         fun serializeToObjects(element: JsonElement?): Any? {
             if (element == null || element == JsonNull) {
@@ -38,7 +37,7 @@ open class JSONObject {
         }
 
         fun serializeToJsonElement(value: Any?): JsonElement {
-            if (value == null || value == JSONObject.NULL) {
+            if (value == null || value == JSONObject.JSONNULL) {
                 return JsonNull
             } else if (value is String) {
                 return JsonPrimitive(value)
@@ -161,7 +160,7 @@ open class JSONObject {
             val element = serializeToJsonElement(value)
             put(key, element)
         }
-        println("put=" + parentElement + " parentKey=" + parentKey)
+       // println("put=" + parentElement + " parentKey=" + parentKey)
         putToAll(parentJson, parentKey)
         return this
     }

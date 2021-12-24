@@ -38,7 +38,7 @@ object JSONUtils {
     }
 
     private fun JSONFieldToString(o: Any?): String {
-        if (o == null || o === JSONObject.NULL) {
+        if (o == null || o === JSONObject.JSONNULL) {
             return "null"
         }
         if (!(o is JSONObject || o is JSONArray)) {

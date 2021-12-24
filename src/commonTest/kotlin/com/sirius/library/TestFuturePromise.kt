@@ -7,7 +7,6 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.models.P2PModel
 import com.sirius.library.rpc.AddressedTunnel
 import com.sirius.library.rpc.Future
-import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.JSONObject
 import kotlin.test.*
 
@@ -42,7 +41,7 @@ class TestFuturePromise {
             promiseMsgObj.put("is_tuple", false)
             promiseMsgObj.put("is_bytes", false)
             promiseMsgObj.put("value", expected)
-            promiseMsgObj.put("exception", JSONObject.NULL)
+            promiseMsgObj.put("exception", JSONObject.JSONNULL)
             val threadObject: JSONObject = JSONObject()
             threadObject.put("thid", future.promise().id)
             promiseMsgObj.put("~thread", threadObject)

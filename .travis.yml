@@ -1,0 +1,19 @@
+language: java
+
+services:
+  - docker
+  
+before_install:
+  # Run TestSuite
+  - chmod +x gradlew
+  - chmod +x gradle/wrapper/gradle-wrapper.jar
+  - cd ./test_suite
+  - docker-compose up -d
+  - cd ..
+  - sleep 60  # Wait for TestSuite is ready
+  
+jdk:
+  - oraclejdk8
+
+script:
+  - ./gradlew test build

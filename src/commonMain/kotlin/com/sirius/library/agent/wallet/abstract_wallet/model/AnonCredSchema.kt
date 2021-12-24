@@ -4,11 +4,15 @@ import com.sirius.library.agent.ledger.Schema
 import com.sirius.library.base.JsonSerializable
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
+private val json2 = Json { ignoreUnknownKeys = true }
+
+@Serializable
 open class AnonCredSchema : JsonSerializable<AnonCredSchema> {
     var ver: String? = null
     var id: String? = null
@@ -24,6 +28,7 @@ open class AnonCredSchema : JsonSerializable<AnonCredSchema> {
         name = anonCreds.name
         version = anonCreds.version
         attrNames = anonCreds.attrNames
+
     }
 
     override fun equals(o: Any?): Boolean {
@@ -48,7 +53,7 @@ open class AnonCredSchema : JsonSerializable<AnonCredSchema> {
     }
 
     override fun deserialize(string: String): AnonCredSchema {
-        return Json.decodeFromString<AnonCredSchema>(string)
+        return json2.decodeFromString<AnonCredSchema>(string)
     }
 
     override fun serializeToJSONObject(): JSONObject {

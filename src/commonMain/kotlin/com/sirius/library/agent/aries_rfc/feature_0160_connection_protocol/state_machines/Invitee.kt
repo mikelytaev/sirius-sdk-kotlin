@@ -43,6 +43,7 @@ class Invitee(context: Context<*>, me: Pairwise.Me, myEndpoint: Endpoint) : Base
         val inviterEndpoint = TheirEndpoint(invitation.endpoint(), connectionKey)
 
         // Allocate transport channel between self and theirs by verkeys factor
+        println("me.verkey="+me.verkey +"inviterEndpoint= "+inviterEndpoint)
         try {
             CoProtocolP2PAnon(context, me.verkey ?:"", inviterEndpoint, protocols(), timeToLiveSec).also { cp ->
                 try {

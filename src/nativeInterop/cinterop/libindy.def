@@ -1,0 +1,6 @@
+headers = indy_core.h
+headerFilter = indy_core.h libindy/**
+package = libindy
+staticLibraries = libindy.a
+libraryPaths = /Users/igorfedorov/Documents/untitled/libindy/lib
+#compilerOpts = -I./libindy/include

@@ -1,0 +1,29 @@
+package com.sirius.library.utils
+
+import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.allocArrayOf
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.usePinned
+import platform.Foundation.*
+import platform.posix.memcpy
+
+actual class StringCodec actual constructor() {
+    actual fun fromByteArrayToASCIIString(byteArray: ByteArray): String {
+        val d = memScoped{
+            NSData.create(bytes = allocArrayOf(byteArray), length = byteArray.size.toULong())
+        }
+        val nsString = NSString.create(d, NSASCIIStringEncoding)
+        return nsString as String
+    }
+
+    actual fun fromASCIIStringToByteArray(string: String?): ByteArray {
+        val string = NSString.create(string = string ?:"")
+        val data = string.dataUsingEncoding(NSASCIIStringEncoding)!!
+        val d = memScoped{data}
+        return  ByteArray(d.length.toInt()).apply {
+            usePinned {
+                memcpy(it.addressOf(0), d.bytes,d.length)
+            }
+        }
+    }
+}

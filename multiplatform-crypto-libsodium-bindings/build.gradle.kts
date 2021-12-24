@@ -42,6 +42,7 @@ plugins {
 
 }
 
+
 val sonatypeStaging = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 val sonatypeSnapshots = "https://oss.sonatype.org/content/repositories/snapshots/"
 
@@ -54,13 +55,19 @@ val sonatypeUsernameEnv: String? = System.getenv()["SONATYPE_USERNAME"]
 
 repositories {
     mavenCentral()
+    jcenter()
+    google()
+    maven { url = uri("https://jitpack.io") }
+    maven { url  = uri("https://repo.sovrin.org/repository/maven-public")  }
     maven {
         url = uri("https://oss.sonatype.org/content/repositories/snapshots")
     }
 
 }
-//group = ReleaseInfo.group
-//version = ReleaseInfo.bindingsVersion
+
+
+group = ReleaseInfo.group
+version = ReleaseInfo.bindingsVersion
 
 val ideaActive = isInIdea()
 println("Idea active: $ideaActive")
@@ -81,6 +88,7 @@ android {
             isMinifyEnabled = false
         }
     }
+
     sourceSets.getByName("main") {
 //        jniLibs.srcDir("src/androidMain/libs")
     }
@@ -89,11 +97,6 @@ android {
 
 
 kotlin {
-
-    /*targets {
-        android() //for an Android base module
-    }*/
-
     val hostOsName = getHostOsName()
     android() {
         publishLibraryVariants("release", "debug")
@@ -126,10 +129,10 @@ kotlin {
             compilations.getByName("main") {
                 val libsodiumCinterop by cinterops.creating {
                     defFile(projectRef.file("src/nativeInterop/cinterop/libsodium.def"))
-                    compilerOpts.add("-I${projectRef.rootDir}/sodiumWrapper/static-linux-x86-64/include/")
+                    compilerOpts.add("-I${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-linux-x86-64/include/")
                 }
                 kotlinOptions.freeCompilerArgs = listOf(
-                    "-include-binary", "${projectRef.rootDir}/sodiumWrapper/static-linux-x86-64/lib/libsodium.a"
+                    "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-linux-x86-64/lib/libsodium.a"
                 )
             }
             binaries {
@@ -169,51 +172,57 @@ kotlin {
     }
     println("Configuring macos targets")
 
-  /*  iosX64() {
+    iosX64() {
         binaries {
             framework {
                 optimized = true
             }
         }
-    }*/
- /*   iosArm64() {b ffffffffffffffffffff
+    }
+    iosArm64() {
         binaries {
             framework {
                 optimized = true
             }
         }
-    }*/
-  /*  iosArm32() {
+    }
+    iosArm32() {
         binaries {
             framework {
                 optimized = true
             }
         }
-    }*/
-/*    iosSimulatorArm64() {
+    }
+    /*
+    iosSimulatorArm64() {
         binaries {
             framework {
                 optimized = true
             }
         }
-    }*/
+    }
 
- /*   macosX64() {
-        binaries {
-            framework {
-                optimized = true
-            }
-        }
-    }*/
-    /*macosArm64() {
-        binaries {
-            framework {
-                optimized = true
-            }
-        }
-    }*/
+     */
 
-/*    tvosX64() {
+    macosX64() {
+        binaries {
+            framework {
+                optimized = true
+            }
+        }
+    }
+    /*
+    macosArm64() {
+        binaries {
+            framework {
+                optimized = true
+            }
+        }
+    }
+
+     */
+/*
+    tvosX64() {
         binaries {
             framework {
                 optimized = true
@@ -226,14 +235,14 @@ kotlin {
                 optimized = true
             }
         }
-    }*/
-   /* tvosSimulatorArm64() {
+    }
+    tvosSimulatorArm64() {
         binaries {
             framework {
                 optimized = true
             }
         }
-    }*/
+    }
 
     watchosArm64() {
         binaries {
@@ -256,13 +265,17 @@ kotlin {
             }
         }
     }
- /*   watchosSimulatorArm64() {
+    watchosSimulatorArm64() {
         binaries {
             framework {
                 optimized = true
             }
         }
-    }*/
+    }
+
+
+
+ */
 
     println("Configuring Mingw targets")
     mingwX64() {
@@ -274,15 +287,13 @@ kotlin {
         compilations.getByName("main") {
             val libsodiumCinterop by cinterops.creating {
                 defFile(projectRef.file("src/nativeInterop/cinterop/libsodium.def"))
-                compilerOpts.add("-I${projectRef.rootDir}/sodiumWrapper/static-mingw-x86-64/include")
+                compilerOpts.add("-I${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-mingw-x86-64/include")
             }
             kotlinOptions.freeCompilerArgs = listOf(
-                "-include-binary", "${projectRef.rootDir}/sodiumWrapper/static-mingw-x86-64/lib/libsodium.a"
+                "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-mingw-x86-64/lib/libsodium.a"
             )
         }
     }
-
-
     println(targets.names)
 
     sourceSets {
@@ -384,10 +395,10 @@ kotlin {
                     compilations.getByName("main") {
                         val libsodiumCinterop by cinterops.creating {
                             defFile(projectRef.file("src/nativeInterop/cinterop/libsodium.def"))
-                            compilerOpts.add("-I${projectRef.rootDir}/sodiumWrapper/static-arm64/include/")
+                            compilerOpts.add("-I${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-arm64/include/")
                         }
                         kotlinOptions.freeCompilerArgs = listOf(
-                            "-include-binary", "${projectRef.rootDir}/sodiumWrapper/static-arm64/lib/libsodium.a"
+                            "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-arm64/lib/libsodium.a"
                         )
                     }
                 }
@@ -398,11 +409,15 @@ kotlin {
                     defaultSourceSet.dependsOn(createWorkaroundNativeMainSourceSet(this@withType.name, nativeDependencies))
                     println("Setting macos cinterop for $this")
                     val libsodiumCinterop by cinterops.creating {
-                        defFile(projectRef.file("src/nativeInterop/cinterop/libsodium.def"))
-                        compilerOpts.add("-I${projectRef.rootDir}/sodiumWrapper/static-macos/include")
+                        val path = projectRef.file("src/nativeInterop/cinterop/libsodium.def")
+                        println("log Setting macos cinterop for $path")
+                        val file = defFile(path)
+                        println("log Setting macos cinterop for $file")
+                        println("log Setting macos cinterop for ${projectRef.rootDir}")
+                        compilerOpts.add("-I${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-macos/include")
                     }
                     kotlinOptions.freeCompilerArgs = listOf(
-                        "-include-binary", "${projectRef.rootDir}/sodiumWrapper/static-macos/lib/libsodium.a"
+                        "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-macos/lib/libsodium.a"
                     )
                 }
                 //All ioses share the same static library
@@ -411,10 +426,10 @@ kotlin {
                     println("Setting ios cinterop for $this")
                     val libsodiumCinterop by cinterops.creating {
                         defFile(projectRef.file("src/nativeInterop/cinterop/libsodium.def"))
-                        compilerOpts.add("-I${projectRef.rootDir}/sodiumWrapper/static-ios/include")
+                        compilerOpts.add("-I${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-ios/include")
                     }
                     kotlinOptions.freeCompilerArgs = listOf(
-                        "-include-binary", "${projectRef.rootDir}/sodiumWrapper/static-ios/lib/libsodium.a"
+                        "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-ios/lib/libsodium.a"
                     )
                 }
 
@@ -423,10 +438,10 @@ kotlin {
                     println("Setting ios cinterop for $this")
                     val libsodiumCinterop by cinterops.creating {
                         defFile(projectRef.file("src/nativeInterop/cinterop/libsodium.def"))
-                        compilerOpts.add("-I${projectRef.rootDir}/sodiumWrapper/static-ios-simulators/include")
+                        compilerOpts.add("-I${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-ios-simulators/include")
                     }
                     kotlinOptions.freeCompilerArgs = listOf(
-                        "-include-binary", "${projectRef.rootDir}/sodiumWrapper/static-ios-simulators/lib/libsodium.a"
+                        "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-ios-simulators/lib/libsodium.a"
                     )
                 }
 
@@ -435,10 +450,10 @@ kotlin {
                     println("Setting ios cinterop for $this")
                     val libsodiumCinterop by cinterops.creating {
                         defFile(projectRef.file("src/nativeInterop/cinterop/libsodium.def"))
-                        compilerOpts.add("-I${projectRef.rootDir}/sodiumWrapper/static-tvos/include")
+                        compilerOpts.add("-I${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-tvos/include")
                     }
                     kotlinOptions.freeCompilerArgs = listOf(
-                        "-include-binary", "${projectRef.rootDir}/sodiumWrapper/static-tvos/lib/libsodium.a"
+                        "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-tvos/lib/libsodium.a"
                     )
                 }
 
@@ -447,10 +462,10 @@ kotlin {
                     println("Setting ios cinterop for $this")
                     val libsodiumCinterop by cinterops.creating {
                         defFile(projectRef.file("src/nativeInterop/cinterop/libsodium.def"))
-                        compilerOpts.add("-I${projectRef.rootDir}/sodiumWrapper/static-tvos-simulators/include")
+                        compilerOpts.add("-I${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-tvos-simulators/include")
                     }
                     kotlinOptions.freeCompilerArgs = listOf(
-                        "-include-binary", "${projectRef.rootDir}/sodiumWrapper/static-tvos-simulators/lib/libsodium.a"
+                        "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-tvos-simulators/lib/libsodium.a"
                     )
                 }
 
@@ -459,10 +474,10 @@ kotlin {
                     println("Setting ios cinterop for $this")
                     val libsodiumCinterop by cinterops.creating {
                         defFile(projectRef.file("src/nativeInterop/cinterop/libsodium.def"))
-                        compilerOpts.add("-I${projectRef.rootDir}/sodiumWrapper/static-watchos/include")
+                        compilerOpts.add("-I${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-watchos/include")
                     }
                     kotlinOptions.freeCompilerArgs = listOf(
-                        "-include-binary", "${projectRef.rootDir}/sodiumWrapper/static-watchos/lib/libsodium.a"
+                        "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-watchos/lib/libsodium.a"
                     )
                 }
 
@@ -471,10 +486,10 @@ kotlin {
                     println("Setting ios cinterop for $this")
                     val libsodiumCinterop by cinterops.creating {
                         defFile(projectRef.file("src/nativeInterop/cinterop/libsodium.def"))
-                        compilerOpts.add("-I${projectRef.rootDir}/sodiumWrapper/static-watchos-simulators/include")
+                        compilerOpts.add("-I${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-watchos-simulators/include")
                     }
                     kotlinOptions.freeCompilerArgs = listOf(
-                        "-include-binary", "${projectRef.rootDir}/sodiumWrapper/static-watchos-simulators/lib/libsodium.a"
+                        "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-watchos-simulators/lib/libsodium.a"
                     )
                 }
 
@@ -581,7 +596,7 @@ kotlin {
                 }
 
             }
-
+/*
             val tvosX64Main by getting {
                 dependsOn(commonMain)
             }
@@ -602,6 +617,8 @@ kotlin {
                 dependsOn(commonMain)
             }
 
+
+ */
         }
 
 
@@ -735,15 +752,12 @@ allprojects {
 }
 
 
-
 /*
 signing {
     isRequired = false
     sign(publishing.publications)
 }
-*/
 
-/*
 publishing {
     publications.withType(MavenPublication::class) {
         artifact(tasks["javadocJar"])
@@ -773,6 +787,8 @@ publishing {
 
         }
     }
+    
+
     repositories {
         maven {
 
@@ -793,8 +809,9 @@ publishing {
         }
     }
 }
-*/
 
+
+ */
 
 
 object Versions {
@@ -809,7 +826,7 @@ object Versions {
     val kotlinBigNumVersion = "0.2.8"
     val jna = "5.7.0"
     val kotlinPoet = "1.6.0"
-    //val sampleLibsodiumBindings = "0.8.5-SNAPSHOT"
+    val sampleLibsodiumBindings = "0.8.5-SNAPSHOT"
     val ktor = "1.3.2"
     val timber = "4.7.1"
     val kodeinVersion = "7.1.0"
@@ -822,8 +839,8 @@ object Versions {
 }
 
 object ReleaseInfo {
-    //val group = "com.ionspin.kotlin"
-   // val bindingsVersion = "0.8.5-SNAPSHOT"
+    val group = "com.ionspin.kotlin"
+    val bindingsVersion = "0.8.5-SNAPSHOT"
 }
 
 object Deps {
@@ -841,7 +858,7 @@ object Deps {
 
         val apiProject = ":multiplatform-crypto-api"
 
-      //  val libsodiumBindings = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings:${Versions.sampleLibsodiumBindings}"
+        val libsodiumBindings = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings:${Versions.sampleLibsodiumBindings}"
 
         val kodein = "org.kodein.di:kodein-di:${Versions.kodeinVersion}"
     }
@@ -899,7 +916,7 @@ object Deps {
     }
 
     object Native {
-        val serialization = "org.jetbrains.kotli    nx:kotlinx-serialization-runtime-native:${Versions.kotlinSerialization}"
+        val serialization = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:${Versions.kotlinSerialization}"
         val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-native:${Versions.kotlinCoroutines}"
 
     }
@@ -911,7 +928,7 @@ object Deps {
         val ktorClientSerialization = "io.ktor:ktor-client-serialization-jvm:${Versions.ktor}"
         val serialization = "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.kotlinSerialization}"
         val timber = "com.jakewharton.timber:timber:${Versions.timber}"
-        val jna = "net.java.dev.jna:jna:${Versions.jna}@aar"
+        val jna = "net.java.dev.jna:jna:${Versions.jna}"
     }
 
     object Desktop {

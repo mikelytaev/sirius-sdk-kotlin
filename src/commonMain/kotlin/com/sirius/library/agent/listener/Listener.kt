@@ -11,6 +11,8 @@ expect class Listener(source: AgentEvents, agent: AbstractAgent) {
     var pairwiseResolver: AbstractPairwiseList?
     var agent: AbstractAgent
 
+    fun unsubscribe()
+    val one: CompletableFutureKotlin<Event>?
 /*
     val one: CompletableFutureKotlin<Event>?
         get() {

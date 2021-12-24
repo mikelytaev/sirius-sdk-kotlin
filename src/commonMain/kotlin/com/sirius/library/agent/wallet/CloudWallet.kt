@@ -3,7 +3,7 @@ package com.sirius.library.agent.wallet
 import com.sirius.library.agent.RemoteParams
 import com.sirius.library.agent.connections.AgentRPC
 import com.sirius.library.agent.wallet.abstract_wallet.*
-import com.sirius.library.agent.wallet.impl.*
+import com.sirius.library.agent.wallet.impl.cloud.*
 
 class CloudWallet(agentRPC: AgentRPC) : AbstractWallet {
     override val did: AbstractDID

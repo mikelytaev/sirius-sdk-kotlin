@@ -27,14 +27,12 @@ abstract class AbstractCoProtocolTransport {
     @Throws(SiriusPendingOperation::class, SiriusInvalidPayloadStructure::class, SiriusInvalidMessage::class)
     abstract fun sendAndWait(message: Message): Pair<Boolean, Message?>
 
-    @get:Throws(SiriusInvalidPayloadStructure::class)
+    //@get:Throws(SiriusInvalidPayloadStructure::class)
     abstract val one: GetOneResult?
 
     @Throws(SiriusPendingOperation::class)
     abstract fun send(message: Message)
     @Throws(SiriusPendingOperation::class)
     abstract fun sendMany(message: Message, to: List<Pairwise>): List<Pair<Boolean, String?>>
-    fun setTimeToLiveSeci(timeToLiveSec: Int) {
-        this.timeToLiveSec = timeToLiveSec
-    }
+
 }

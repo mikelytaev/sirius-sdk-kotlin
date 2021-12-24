@@ -14,13 +14,11 @@ import com.sirius.library.utils.JSONObject
 class CoProtocolP2PAnon(
     context: Context<*>,
     var myVerkey: String,
-    endpoint: TheirEndpoint,
-    protocols: List<String>,
+    var endpoint: TheirEndpoint,
+    var protocols: List<String>,
     timeToLiveSec: Int
 ) :
     AbstractP2PCoProtocol(context) {
-    var endpoint: TheirEndpoint
-    var protocols: List<String>
     var threadId = ""
 
     @Throws(SiriusPendingOperation::class)
@@ -33,6 +31,7 @@ class CoProtocolP2PAnon(
     override fun sendAndWait(message: Message): Pair<Boolean, Message?> {
         setup(message)
         val res: Pair<Boolean, Message?> = transportLazy?.sendAndWait(message) ?: Pair<Boolean, Message?>(false, null)
+        println("sendAndWait res="+res)
         val response: Message? = res.second
         if (res.first) {
             if (response?.messageObjectHasKey(PLEASE_ACK_DECORATOR) == true) {
@@ -69,10 +68,12 @@ class CoProtocolP2PAnon(
     private val transportLazy: AbstractCoProtocolTransport?
         private get() {
             if (transport == null) {
-                println("transportLazy endpoint="+endpoint)
+                println("transportLazy endpoint="+endpoint.endpointAddress)
+                println("transportLazy verke="+endpoint.verkey)
+                println("transportLazy myVerkey="+myVerkey)
                 transport = context.currentHub?.agentConnectionLazy?.spawn(myVerkey, endpoint)
                 transport?.protocols = protocols
-                transport?.setTimeToLiveSeci(timeToLiveSec)
+                transport?.timeToLiveSec = timeToLiveSec
                 transport?.start()
                 started = true
             }
@@ -80,8 +81,6 @@ class CoProtocolP2PAnon(
         }
 
     init {
-        this.endpoint = endpoint
-        this.protocols = protocols
         this.timeToLiveSec = timeToLiveSec
     }
 }

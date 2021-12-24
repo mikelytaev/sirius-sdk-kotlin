@@ -132,7 +132,7 @@ class CoProtocolThreadedTheirs(
                 } else {
                     context.currentHub?.agentConnectionLazy?.spawn(thid, pthid!!)
                 }
-                transport?.setTimeToLiveSeci(timeToLiveSec)
+                transport?.timeToLiveSec=timeToLiveSec
                 transport?.start()
                 started = true
             }

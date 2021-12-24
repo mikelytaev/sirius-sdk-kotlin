@@ -47,7 +47,7 @@ class CoProtocolP2P(context: Context<*>, pairwise: Pairwise, propocols: List<Str
             if (transport == null) {
                 transport = context.currentHub?.agentConnectionLazy?.spawn(pairwise)
                 transport?.protocols = protocols
-                transport?.setTimeToLiveSeci(timeToLiveSec)
+                transport?.timeToLiveSec = timeToLiveSec
                 transport?.start()
                 started = true
             }

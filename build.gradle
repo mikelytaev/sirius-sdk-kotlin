@@ -1,12 +1,24 @@
+buildscript {
+    ext.kotlin_version = '1.6.0'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
 plugins {
     id 'org.jetbrains.kotlin.multiplatform'
     id 'com.android.library'
     id 'kotlin-android-extensions'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.5.31'
+
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.0'
 }
+
 
 group = 'com.sirius'
 version = '1.0-SNAPSHOT'
+//cocoapodVersion = '1.0'
 
 repositories {
     google()
@@ -16,29 +28,56 @@ repositories {
     maven { url  "https://repo.sovrin.org/repository/maven-public"  }
 }
 
+
+
 kotlin {
+    iosX64{
+        String pathTo = project.file('src/nativeInterop/cinterop/libindy.def')
+        String pathToWrapper = project.file('src/nativeInterop/cinterop/Indy.def')
+        System.out.println('log Setting macos cinterop for pathTo' +pathTo)
+        String proke3 = project.rootDir.absolutePath + '/libindy/include'
+        String proke4 = project.rootDir.absolutePath + '/libindy/lib'
+        String pathToWrapper2 = project.rootDir.absolutePath+'/'
+
+        System.out.println('log Setting macos cinterop for pathTo proke3='+pathToWrapper2)
+        compilations.main {
+            cinterops {
+                libindy{
+                    defFile(pathTo)
+                    includeDirs(proke3,proke4)
+                }
+                Indy {
+                    // Path to .def file
+                    defFile(pathToWrapper)
+                    compilerOpts('-framework', 'Indy', '-F'+pathToWrapper2)
+                }
+            }
+        }
+
+        binaries.all {
+            String proke = project.file('libindy/lib')
+            String proke2 = project.file('libindy/lib/libindy.a')
+            // String path = project.path
+            System.out.println(' binaries.all string='+ 'proke='+proke +'proke2='+proke2)
+            // linkerOpts('-L'+proke,'-llibindy.a')
+            linkerOpts('-framework', 'Indy', '-F'+pathToWrapper2)
+        }
+
+        binaries {
+            framework {
+                baseName = 'SiriusSdk'
+                transitiveExport = true
+
+            }
+        }
+    }
+
     android()
-    iosX64('ios') {
-        binaries {
-            framework {
-                baseName = 'library'
-            }
-        }
-    }
-    iosX64 {
-        binaries {
-            framework {
-                baseName = 'library'
-            }
-        }
-    }
-    iosArm32 {
-        binaries {
-            framework {
-                baseName = 'library'
-            }
-        }
-    }
+
+
+
+
+
     jvm {
         compilations.all {
             kotlinOptions.jvmTarget = '1.8'
@@ -49,13 +88,14 @@ kotlin {
     }
 
     sourceSets {
+
         commonMain {
             dependencies {
                // implementation 'com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings:0.8.4'
                 implementation project (':sirius-sdk-kotlin:multiplatform-crypto-libsodium-bindings')
                 implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0'
                 implementation 'org.jetbrains.kotlinx:kotlinx-datetime:0.3.0'
-                implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
+                implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-RC2'
                 implementation 'io.ktor:ktor-client-core:1.6.4'
              //   testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1'
                // implementation 'com.github.hadilq:log4k-metadata:2.3.1'
@@ -91,24 +131,23 @@ kotlin {
                 implementation 'junit:junit:4.13'
             }
         }
-        iosMain {
-         //  implementation 'io.ktor:ktor-client-ios:1.6.4'
-        }
-        iosTest {
 
+        iosX64Main{
+            dependencies {
+             //  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.5.2'
+                //  implementation 'junit:junit:4.13'
+            }
         }
-        iosX64Main {
 
+        iosX64Test{
+            dependencies {
+             //   implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.5.2'
+                //  implementation 'junit:junit:4.13'
+            }
         }
-        iosX64Test {
 
-        }
-        iosArm32Main {
 
-        }
-        iosArm32Test {
 
-        }
         jvmMain {
             dependencies {
                   implementation 'com.neovisionaries:nv-websocket-client:2.10'
@@ -119,7 +158,6 @@ kotlin {
 
         }
         jvmTest {
-
         }
         jsMain {
 
@@ -130,15 +168,20 @@ kotlin {
     }
 }
 
+
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     sourceSets.main.manifest.srcFile('src/androidMain/AndroidManifest.xml')
     defaultConfig {
         minSdkVersion 24
-        targetSdkVersion 30
+        targetSdkVersion 31
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+}
+dependencies {
+    implementation "androidx.core:core-ktx:1.6.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

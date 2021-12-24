@@ -47,7 +47,7 @@ class CoProtocolThreadedP2P : AbstractP2PCoProtocol {
                 } else {
                     context.currentHub?.agentConnectionLazy?.spawn(thid, to, pthid!!)
                 }
-                transport?.setTimeToLiveSeci(timeToLiveSec)
+                transport?.timeToLiveSec = timeToLiveSec
                 transport?.start()
                 started = true
             }

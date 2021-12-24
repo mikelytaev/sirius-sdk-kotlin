@@ -113,7 +113,7 @@ object Main {
                 // Слушаем запросы
                 println("Слушаем запросы")
                 val listener: Listener? = context.subscribe()
-                val event: Event? = listener?.one?.get()
+                val event: Event? = listener?.one?.get(60)
                 println("Получено событие")
                 // В рамках Samples интересны только запросы 0160 на установку соединения для connection_key нашего QR
                 if (event?.recipientVerkey.equals(connectionKey) && event?.message() is ConnRequest) {

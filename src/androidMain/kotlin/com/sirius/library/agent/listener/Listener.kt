@@ -4,6 +4,7 @@ import com.sirius.library.agent.AbstractAgent
 import com.sirius.library.agent.connections.AgentEvents
 import com.sirius.library.agent.pairwise.AbstractPairwiseList
 import com.sirius.library.agent.pairwise.Pairwise
+import com.sirius.library.utils.CompletableFutureKotlin
 import java.util.concurrent.CompletableFuture
 
 actual class Listener actual constructor(actual var source: AgentEvents, actual var agent: AbstractAgent) {
@@ -13,7 +14,7 @@ actual class Listener actual constructor(actual var source: AgentEvents, actual 
         set(value) {}
 
 
-    val one: CompletableFuture<Event>?
+    actual val one: CompletableFutureKotlin<Event>?
         get() {
             try {
                 return source.pull()?.thenApply { msg ->
@@ -30,7 +31,7 @@ actual class Listener actual constructor(actual var source: AgentEvents, actual 
             return null
         }
 
-    fun unsubscribe() {
+    actual fun unsubscribe() {
         agent.unsubscribe(this)
     }
 
