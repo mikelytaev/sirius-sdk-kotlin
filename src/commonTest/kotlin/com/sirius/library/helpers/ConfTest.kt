@@ -130,11 +130,7 @@ class ConfTest {
     }
 
     fun ledgerName(): String {
-      /*  val codec = StringCodec()
-        return "Ledger-" + LazySodium.toHex(
-            codec.fromASCIIStringToByteArray(UUID.randomUUID.toString())
-        )*/
-        return ""
+        return "Ledger-" +UUID.randomUUID.toString()
     }
 
     fun defaultNetwork(): String {

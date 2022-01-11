@@ -1,6 +1,6 @@
-/*
 package com.sirius.library
 
+import com.ionspin.kotlin.crypto.LibsodiumInitializer
 import com.sirius.library.agent.CloudAgent
 import com.sirius.library.agent.consensus.simple.messages.*
 import com.sirius.library.agent.consensus.simple.state_machines.MicroLedgerSimpleConsensus
@@ -15,7 +15,9 @@ import com.sirius.library.errors.sirius_exceptions.SiriusValidationError
 import com.sirius.library.helpers.ConfTest
 import com.sirius.library.helpers.ServerTestSuite
 import com.sirius.library.hub.CloudContext
+import com.sirius.library.messaging.MessageFabric
 import com.sirius.library.models.AgentParams
+import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.JSONObject
 import kotlin.test.*
 
@@ -23,12 +25,19 @@ class TestSimpleConsensus {
     lateinit var confTest: ConfTest
     @BeforeTest
     fun configureTest() {
+        MessageFabric.registerAllMessagesClass()
         confTest = ConfTest.newInstance()
+        val future = CompletableFutureKotlin<Boolean>()
+        LibsodiumInitializer.initializeWithCallback {
+            future.complete(true)
+        }
+        future.get(60)
     }
 
     @Test
     @Throws(SiriusContextError::class, SiriusValidationError::class)
     fun testInitLedgerMessaging() {
+
         val agentA: CloudAgent = confTest.getAgent("agent1")
         val agentB: CloudAgent = confTest.getAgent("agent2")
         val ledgerName: String = confTest.ledgerName()
@@ -49,15 +58,15 @@ class TestSimpleConsensus {
             val request: InitRequestLedgerMessage = InitRequestLedgerMessage.builder()
                 .setParticipants(listOfNotNull(a2b.me.did, b2a.me.did))
                 .setLedgerName(ledgerName).setGenesis(genesisTxns).setRootHash("xxx").build()
-            request.addSignature(agentA.getWalleti().crypto, a2b.me)
-            request.addSignature(agentB.getWalleti().crypto, b2a.me)
+            request.addSignature(agentA.getWalleti()?.crypto, a2b.me)
+            request.addSignature(agentB.getWalleti()?.crypto, b2a.me)
             assertEquals(2, request.signatures().length())
-            request.checkSignatures(agentA.getWalleti().crypto, a2b.me.did)
-            request.checkSignatures(agentA.getWalleti().crypto, b2a.me.did)
-            request.checkSignatures(agentA.getWalleti().crypto)
-            request.checkSignatures(agentB.getWalleti().crypto, a2b.me.did)
-            request.checkSignatures(agentB.getWalleti().crypto, b2a.me.did)
-            request.checkSignatures(agentB.getWalleti().crypto)
+            request.checkSignatures(agentA.getWalleti()?.crypto, a2b.me.did!!)
+            request.checkSignatures(agentA.getWalleti()?.crypto, b2a.me.did!!)
+            request.checkSignatures(agentA.getWalleti()?.crypto)
+            request.checkSignatures(agentB.getWalleti()?.crypto, a2b.me.did!!)
+            request.checkSignatures(agentB.getWalleti()?.crypto, b2a.me.did!!)
+            request.checkSignatures(agentB.getWalleti()?.crypto)
             val response: InitResponseLedgerMessage = InitResponseLedgerMessage.builder().build()
             response.assignFrom(request)
             val payload1: JSONObject = request.getMessageObjec()
@@ -94,8 +103,10 @@ class TestSimpleConsensus {
                         .put("identifier", "5rArie7XKukPCaEwq5XGQJnM9Fc5aZE3M9HAPVfMU2xC").put("op", "op1")
                 )
             )
-            val (ledgerForA) = agentA.getMicroledgersi().create(ledgerName, genesisTxns)
-            val (ledgerForB) = agentB.getMicroledgersi().create(ledgerName, genesisTxns)
+            val ledgerForAPair = agentA.getMicroledgersi()?.create(ledgerName, genesisTxns)
+            val ledgerForA = ledgerForAPair?.first
+            val ledgerForBPair = agentB.getMicroledgersi()?.create(ledgerName, genesisTxns)
+            val ledgerForB = ledgerForBPair?.first
             val newTransactions: List<Transaction> = listOf(
                 Transaction(
                     JSONObject().put("reqId", 2)
@@ -106,13 +117,18 @@ class TestSimpleConsensus {
                         .put("identifier", "5rArie7XKukPCaEwq5XGQJnM9Fc5aZE3M9HAPVfMU2xC").put("op", "op3")
                 )
             )
+            assertNotNull(ledgerForA)
+            assertNotNull(ledgerForB)
             val (_, _, newTxns) = ledgerForA.append(newTransactions)
 
             // A->B
+
             val stateA = MicroLedgerState(ConfTest.getState(ledgerForA))
             val x: MicroLedgerState = MicroLedgerState.fromLedger(ledgerForA)
+            println("stateA=$stateA x=$x")
+            println("stateA.hash=$stateA.hash x=$x")
             assertTrue(stateA.similar(x))
-            assertEquals(stateA.getHash(), x.getHash())
+            assertEquals(stateA.hash, x.hash)
             val propose: ProposeTransactionsMessage =
                 ProposeTransactionsMessage.builder().setTransactions(newTxns).setState(stateA).build()
             propose.validate()
@@ -121,29 +137,34 @@ class TestSimpleConsensus {
             ledgerForB.append(propose.transactions())
             val preCommit: PreCommitTransactionsMessage =
                 PreCommitTransactionsMessage.builder().setState(MicroLedgerState(ConfTest.getState(ledgerForA))).build()
-            preCommit.signState(agentB.getWalleti().crypto, b2a.me)
+            val cryptoB = agentB.getWalleti()?.crypto
+            val cryptoA = agentA.getWalleti()?.crypto
+            assertNotNull(cryptoB)
+            assertNotNull(cryptoA)
+            preCommit.signState(cryptoB, b2a.me)
             preCommit.validate()
-            val (first, second) = preCommit.verifyState(agentA.getWalleti().crypto, a2b.their.verkey)
+            val (first, second) = preCommit.verifyState(cryptoA, a2b.their.verkey ?: "")
             assertTrue(first)
-            assertEquals(second, stateA.hash)
+            println("second=$second stateA.hash=${stateA.hash}")
+            assertEquals(second as? String, stateA.hash as? String)
 
             // A -> B
             val commit: CommitTransactionsMessage = CommitTransactionsMessage.builder().build()
-            commit.addPreCommit(a2b.their.did, preCommit)
+            commit.addPreCommit(a2b.their.did ?: "", preCommit)
             commit.validate()
-            val states: JSONObject = commit.verifyPreCommits(agentA.getWalleti().crypto, stateA)
-            assertTrue(states.toString().contains(a2b.their.did))
-            assertTrue(states.toString().contains(a2b.their.verkey))
+            val states: JSONObject = commit.verifyPreCommits(cryptoA, stateA)
+            assertTrue(states.toString().contains(a2b.their.did ?:""))
+            assertTrue(states.toString().contains(a2b.their.verkey?:""))
 
             // B -> A (post commit)
             val postCommit: PostCommitTransactionsMessage = PostCommitTransactionsMessage.builder().build()
-            postCommit.addCommitSign(agentB.getWalleti().crypto, commit, b2a.me)
+            postCommit.addCommitSign(cryptoB, commit, b2a.me)
             postCommit.validate()
             assertTrue(
                 postCommit.verifyCommits(
-                    agentA.getWalleti().crypto,
+                    cryptoA,
                     commit,
-                    listOf(a2b.their.verkey)
+                    listOf(a2b.their.verkey ?:"")
                 )
             )
         } finally {
@@ -152,6 +173,7 @@ class TestSimpleConsensus {
         }
     }
 
+    /*
     private fun routineOfLedgerCreator(
         uri: String, credentials: ByteArray, p2p: P2PConnection, me: Pairwise.Me,
         participants: List<String>, ledgerName: String, genesis: List<Transaction>
@@ -190,8 +212,11 @@ class TestSimpleConsensus {
         }
     }
 
+     */
+
     @Test
     fun testSimpleConsensusInitLedger() {
+        /*
         val agentA: CloudAgent = confTest.getAgent("agent1")
         val agentB: CloudAgent = confTest.getAgent("agent2")
         val agentC: CloudAgent = confTest.getAgent("agent3")
@@ -278,8 +303,11 @@ class TestSimpleConsensus {
             agentB.close()
             agentC.close()
         }
+
+         */
     }
 
+    /*
     private fun routineOfTxnCommitter(
         uri: String, credentials: ByteArray, p2p: P2PConnection,
         me: Pairwise.Me, participants: List<String>,
@@ -321,8 +349,11 @@ class TestSimpleConsensus {
         }
     }
 
+
+     */
     @Test
     fun testSimpleConsensusCommit() {
+        /*
         val agentA: CloudAgent = confTest.getAgent("agent1")
         val agentB: CloudAgent = confTest.getAgent("agent2")
         val agentC: CloudAgent = confTest.getAgent("agent3")
@@ -433,6 +464,10 @@ class TestSimpleConsensus {
             agentB.close()
             agentC.close()
         }
+
+         */
     }
+
+
 }
-*/
+

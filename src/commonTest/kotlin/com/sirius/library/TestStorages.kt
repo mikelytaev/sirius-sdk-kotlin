@@ -51,7 +51,7 @@ class TestStorages {
     @Test
     fun testInWalletImmutableCollection() {
         //TODO test
-
+        LibsodiumInitializer.initializeWithCallback {
             val confTest: ConfTest = ConfTest.newInstance()
             val agent1: CloudAgent = confTest.agent1()
             agent1.open()
@@ -91,6 +91,8 @@ class TestStorages {
             val (_, second3) = collection.fetch(query4.toString())
             assertEquals(0, second3)
             agent1.close()
+        }
+
 
     }
 }

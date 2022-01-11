@@ -7,6 +7,7 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.models.P2PModel
 import com.sirius.library.rpc.AddressedTunnel
 import com.sirius.library.rpc.Future
+import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.JSONObject
 import kotlin.test.*
 
@@ -17,12 +18,16 @@ class TestFuturePromise {
     @BeforeTest
     fun configureTest() {
         confTest = ConfTest.newInstance()
-
+        val future = CompletableFutureKotlin<Boolean>()
+        LibsodiumInitializer.initializeWithCallback {
+            future.complete(true)
+        }
+        future.get(60)
     }
 
     @Test
     fun testSane() {
-        LibsodiumInitializer.initializeWithCallback {
+
             p2pPair = confTest.createP2P()
             val agent_to_sdk: AddressedTunnel = p2pPair!!.first.getTunneli()
             val sdk_to_agent: AddressedTunnel = p2pPair!!.second.getTunneli()
@@ -61,7 +66,7 @@ class TestFuturePromise {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-        }
+
     }
 
 

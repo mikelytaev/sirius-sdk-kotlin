@@ -78,7 +78,11 @@ open class InitRequestLedgerMessage(msg: String) : BaseInitLedgerMessage(msg) {
         }
 
        open fun build(): InitRequestLedgerMessage {
-            return InitRequestLedgerMessage(generateJSON().toString())
+           val json = generateJSON()
+          val string =  json.toString()
+           println("json=$json")
+           println("string=$string")
+            return InitRequestLedgerMessage(string)
         }
     }
 

@@ -121,9 +121,26 @@ class Microledger : AbstractMicroledger {
             for (s in appendedTxnsStr) {
                 appendedTxns.add(Transaction(JSONObject(s)))
             }
-            return Triple(appendTxnsRes[1] as Int, appendTxnsRes[2] as Int, appendedTxns)
+            var firstInt = getIntFromNumber(appendTxnsRes[1])
+            var secondInt = getIntFromNumber(appendTxnsRes[2])
+            return Triple(firstInt, secondInt, appendedTxns)
         }
         return Triple(0, 0, listOf())
+    }
+
+    private fun getIntFromNumber(first : Any?) : Int{
+        var firstInt = 0
+        if(first is Float){
+            firstInt =  first.toInt()
+        }
+
+        if(first is Double){
+            firstInt =  first.toInt()
+        }
+        if(first is Int){
+            firstInt =  first
+        }
+        return  firstInt
     }
 
     override fun commit(count: Int): Triple<Int, Int, List<Transaction>> {
@@ -137,7 +154,9 @@ class Microledger : AbstractMicroledger {
         for (s in committedTxnsStr) {
             committedTxns.add(Transaction(JSONObject(s)))
         }
-        return Triple(commitTxns[1] as Int, commitTxns[2] as Int, committedTxns)
+        var firstInt = getIntFromNumber(commitTxns[1])
+        var secondInt = getIntFromNumber(commitTxns[2])
+        return Triple(firstInt, secondInt, committedTxns)
     }
 
     override fun discard(count: Int) {

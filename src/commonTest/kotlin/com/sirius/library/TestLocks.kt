@@ -5,6 +5,8 @@ import com.sirius.library.helpers.ConfTest
 import com.sirius.library.helpers.ServerTestSuite
 import com.sirius.library.models.AgentParams
 import com.sirius.library.utils.UUID
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import kotlin.test.*
 
 class TestLocks {
@@ -62,6 +64,9 @@ class TestLocks {
             okBusy = session2.acquire(resources, timeoutSec)
             assertFalse(okBusy.first)
            // java.lang.Thread.sleep((timeoutSec + 1).toLong() * 1000)
+            runBlocking {
+                delay((timeoutSec + 1).toLong() * 1000)
+            }
             okBusy = session2.acquire(resources, timeoutSec)
             assertTrue(okBusy.first)
         } finally {

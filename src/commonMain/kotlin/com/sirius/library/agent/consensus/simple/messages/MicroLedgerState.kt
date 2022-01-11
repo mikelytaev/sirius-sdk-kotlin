@@ -1,8 +1,11 @@
 package com.sirius.library.agent.consensus.simple.messages
 
+import com.ionspin.kotlin.crypto.util.LibsodiumUtil
 import com.sirius.library.agent.microledgers.AbstractMicroledger
+import com.sirius.library.mobile.utils.HashUtils
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.JSONUtils
+import com.sirius.library.utils.StringUtils
 
 class MicroLedgerState(obj: JSONObject) : JSONObject(obj.toString()) {
     val isFilled: Boolean
@@ -48,14 +51,14 @@ class MicroLedgerState(obj: JSONObject) : JSONObject(obj.toString()) {
         }
     val hash: String?
         get() {
-           /* try {
-                val md: java.security.MessageDigest = java.security.MessageDigest.getInstance("MD5")
-                md.update(JSONUtils.JSONObjectToString(this, true).getBytes())
-                val digest: ByteArray = md.digest()
-                return LazySodium.toHex(digest)
-            } catch (e: java.security.NoSuchAlgorithmException) {
+           try {
+               val json = JSONUtils.JSONObjectToString(this, true)
+                val bytes = StringUtils.stringToBytes(json, StringUtils.CODEC.UTF_8)
+                val digest: ByteArray = HashUtils.hashMD5(bytes)
+                return LibsodiumUtil.toHex(digest.toUByteArray())
+            } catch (e: Exception) {
                 e.printStackTrace()
-            }*/
+            }
             return null
         }
 

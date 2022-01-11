@@ -71,7 +71,7 @@ class Smartphone {
         val listener: Listener? = context?.subscribe()
         try {
             while (loop) {
-                val event: Event? = listener?.one?.get()
+                val event: Event? = listener?.one?.get(60)
                 if (event?.message() is OfferCredentialMessage && event?.pairwise != null) {
                     val offer: OfferCredentialMessage = event.message() as OfferCredentialMessage
                     val holder = Holder(context!!, event.pairwise!!, masterSecret)

@@ -30,6 +30,7 @@ class PreCommitTransactionsMessage(msg: String) : BaseTransactionsMessage(msg) {
         if (hashSigned != null) {
             if (hashSigned.optString("signer") == expectedVerkey) {
                 val (first, second) = Utils.verifySigned(api, hashSigned)
+                println("verifyState first=$first second=$second")
                 return Pair(second, first)
             }
         }

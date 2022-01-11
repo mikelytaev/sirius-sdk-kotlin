@@ -52,10 +52,13 @@ object Utils {
         excludeSigData: Boolean
     ): JSONObject {
         val codec = StringCodec()
+        val timestampBytesFinal = ByteArray(8)
+
         val timestampBytes: ByteArray = longToBytes(Date().time / 1000)
+        timestampBytes.copyInto(timestampBytesFinal,0,0,timestampBytes.size)
            // java.nio.ByteBuffer.allocate(8).putLong(Date().time / 1000).array()
         val sigDataBytes: ByteArray =
-            timestampBytes.plus(codec.fromASCIIStringToByteArray(value.toString()))
+            timestampBytesFinal.plus(codec.fromASCIIStringToByteArray(value.toString()))
         val sigSata = codec.fromByteArrayToASCIIString(Base64.getUrlEncoder().encode(sigDataBytes))
         val signatureBytes: ByteArray? = crypto.cryptoSign(verkey, sigDataBytes)
         val signature =

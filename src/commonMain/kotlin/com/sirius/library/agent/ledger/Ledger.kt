@@ -7,6 +7,7 @@ import com.sirius.library.agent.wallet.abstract_wallet.model.AnonCredSchema
 import com.sirius.library.agent.wallet.abstract_wallet.model.CacheOptions
 import com.sirius.library.storage.abstract_storage.AbstractImmutableCollection
 import com.sirius.library.utils.JSONObject
+import com.sirius.library.utils.Logger
 
 class Ledger(
     var name: String, api: AbstractLedger, issuer: AbstractAnonCreds,
@@ -26,7 +27,7 @@ class Ledger(
         val credDef: String = cache.getCredDef(name, submitterDid, id, CacheOptions()) ?:""
         val credentialDefinition = CredentialDefinition().deserialize(credDef)
         val tag: String? = credentialDefinition.tag
-        return null
+        return credentialDefinition
     }
 
     /*   async def load_cred_def(self, id_: str, submitter_did: str) -> CredentialDefinition:
@@ -69,65 +70,62 @@ class Ledger(
 
    */
     fun registerSchema(schema: AnonCredSchema?, submitterDid: String?): Pair<Boolean, Schema?> {
-      /*  val (first, second) = api.registerSchema(name, submitterDid, schema)
-        val txnResponse: JsonObject = GsonUtils.toJsonObject(second)
-        if (first && "REPLY" == txnResponse.get("op").getAsString()) {
-            val body: String = schema.serialize()
+        val pair = api.registerSchema(name, submitterDid, schema)
+        val txnResponse: JSONObject = JSONObject(pair?.second)
+        if (pair?.first == true && "REPLY" == txnResponse.getString("op")) {
+            val body: String = schema?.serialize() ?:""
             val seqNo: Int =
-                txnResponse.getAsJsonObject("result").getAsJsonObject("txnMetadata").get("seqNo").getAsInt()
+                txnResponse.getJSONObject("result")?.getJSONObject("txnMetadata")?.getInt("seqNo") ?: 0
             val schemaInLedger = Schema(body)
-            schemaInLedger.setSeqNo(seqNo)
+            schemaInLedger.seqNo = seqNo
             ensureExistInStorage(schemaInLedger, submitterDid)
             return Pair(true, schemaInLedger)
         } else {
-            val reason: JsonElement = txnResponse.get("reason")
+            val reason: String? = txnResponse.getString("reason")
             if (reason != null) {
-                if (!reason.isJsonNull()) {
-                    val reasonStr: String = reason.getAsString()
-                    java.util.logging.Logger.getGlobal().log(java.util.logging.Level.WARNING, reasonStr)
-                }
+                    val reasonStr: String = reason
+                Logger.getLogger("reasonStr=$reasonStr")
             }
-        }*/
+        }
         return Pair(false, null)
     }
 
     fun ensureExistInStorage(entity: Schema, submitter_did: String?) {
         //   await self._storage.select_db(self.__db)
-      /*  storage.selectDb(db)
-        val tagObject = JsonObject()
-        tagObject.addProperty("id", entity.getId())
-        tagObject.addProperty("category", "schema")
+        storage.selectDb(db)
+        val tagObject = JSONObject().put("id", entity.id).put("category", "schema")
         val (_, second) = storage.fetch(tagObject.toString())
         if (second === 0) {
-            val tagUpdate = JsonObject()
-            tagUpdate.addProperty("id", entity.getId())
-            tagUpdate.addProperty("name", entity.getName())
-            tagUpdate.addProperty("version", entity.getVersion())
-            tagUpdate.addProperty("submitter_did", submitter_did)
-            GsonUtils.updateJsonObject(tagObject, tagUpdate)
-            storage.add(entity.serializeToJsonObject().toString(), tagObject.toString())
-        }*/
+            val tagUpdate = JSONObject()
+            tagUpdate.put("id", entity.id)
+            tagUpdate.put("name", entity.name)
+            tagUpdate.put("version", entity.version)
+            tagUpdate.put("submitter_did", submitter_did)
+            tagObject.updateWith(tagUpdate)
+            storage.add(entity.serializeToJSONObject().toString(), tagObject.toString())
+        }
     }
 
     fun ensureExistInStorage(entity: CredentialDefinition, searchTags: JSONObject?) {
-      /*  storage.selectDb(db)
-        val tagObject = JsonObject()
-        tagObject.addProperty("id", entity.getId())
-        tagObject.addProperty("seq_no", java.lang.String.valueOf(entity.getSeqNo()))
-        tagObject.addProperty("category", "cred_def")
+       storage.selectDb(db)
+        val tagObject = JSONObject()
+       .put("id", entity.id)
+            .put("seq_no", entity.seqNo.toString())
+        .put("category", "cred_def")
         val (_, second) = storage.fetch(tagObject.toString())
         if (second === 0) {
-            val tagUpdate = JsonObject()
-            tagUpdate.addProperty("id", entity.getId())
-            tagUpdate.addProperty("tag", entity.getTag())
-            tagUpdate.addProperty("schema_id", entity.getSchema().getId())
-            tagUpdate.addProperty("submitter_did", entity.getSubmitterDid())
-            GsonUtils.updateJsonObject(tagObject, tagUpdate)
+            val tagUpdate = JSONObject()
+            .put("id", entity.id)
+            .put("tag", entity.tag)
+            .put("schema_id", entity.schema?.id)
+            .put("submitter_did", entity.submitterDid)
+
+            tagObject.updateWith(tagUpdate)
             if (searchTags != null) {
-                GsonUtils.updateJsonObject(tagObject, searchTags)
+                tagObject.updateWith(searchTags)
             }
             storage.add(entity.serialize(), tagObject.toString())
-        }*/
+        }
     }
 
     fun ensureExistInStorage(entity: CredentialDefinition) {
@@ -135,30 +133,30 @@ class Ledger(
     }
 
     fun ensureSchemaExists(schema: AnonCredSchema, submitterDid: String?): Schema? {
-     /*   try {
-            val schemaString: String = cache.getSchema(name, submitterDid, schema.getId(), CacheOptions())
-            val ledgerSchema = Schema(schemaString)
+       try {
+            val schemaString: String? = cache.getSchema(name, submitterDid, schema.id, CacheOptions())
+            val ledgerSchema = Schema(schemaString ?:"")
             ensureExistInStorage(ledgerSchema, submitterDid)
             return ledgerSchema
-        } catch (e: java.lang.Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
             val (first, second) = registerSchema(schema, submitterDid)
             if (first) {
                 return second
             }
-        }*/
+        }
         return null
     }
 
     fun fetchSchemas(id: String?, name: String?, version: String?, submitterDid: String?): List<Schema> {
-     /*   val filters = SchemaFilters()
-        filters.setId(id)
-        filters.setName(name)
-        filters.setVersion(version)
-        filters.setSubmitterDid(submitterDid)*/
-       // val results: Pair<List<Any>, Int> = storage.fetch(filters.getTags().serialize())
-        val schemaList: MutableList<Schema> = ArrayList<Schema>()
-      /*  if (results != null) {
+        val filters = SchemaFilters()
+        filters.id = id
+        filters.name = name
+        filters.version = version
+        filters.submitterDid = submitterDid
+        val results: Pair<List<Any>, Int> = storage.fetch(filters.tags.serialize())
+       val schemaList: MutableList<Schema> = ArrayList<Schema>()
+       if (results != null) {
             val objects = results.first
             for (i in objects.indices) {
                 val ob = objects[i]
@@ -167,7 +165,7 @@ class Ledger(
                     schemaList.add(schema)
                 }
             }
-        }*/
+        }
         return schemaList
     }
 
@@ -192,29 +190,29 @@ class Ledger(
         submitterDid: String?,
         tags: JSONObject?
     ): Pair<Boolean, CredentialDefinition?> {
-       /* val (_, body) = issuer.issuerCreateAndStoreCredentialDef(
+       val (_, body) = issuer.issuerCreateAndStoreCredentialDef(
             submitterDid,
-            credDef.getSchema().serializeToJSONObject(),
-            credDef.getTag(),
+            credDef.schema?.serializeToJSONObject(),
+            credDef.tag,
             null,
-            credDef.getConfig().serializeToJSONObject()
+            credDef.config?.serializeToJSONObject()
         )
-        val buildRequest: String = api.buildCredDefRequest(submitterDid, JSONObject(body))
-        val signedRequest: String = api.signRequest(submitterDid, JSONObject(buildRequest))
-        val resp: String = api.submitRequest(name, JSONObject(signedRequest))
+        val buildRequest: String? = api.buildCredDefRequest(submitterDid, JSONObject(body))
+        val signedRequest: String? = api.signRequest(submitterDid, JSONObject(buildRequest))
+        val resp: String? = api.submitRequest(name, JSONObject(signedRequest))
         val respJson: JSONObject = JSONObject(resp)
         if (!(respJson.has("op") && respJson.getString("op") == "REPLY")) {
             return Pair(false, null)
         }
         val legderCredDef = CredentialDefinition(
-            credDef.getTag(),
-            credDef.getSchema(),
-            credDef.getConfig(),
-            Gson().fromJson(body, JsonObject::class.java),
-            respJson.getJSONObject("result").getJSONObject("txnMetadata").getInt("seqNo")
+            credDef.tag,
+            credDef.schema,
+            credDef.config,
+            JSONObject(body),
+            respJson.getJSONObject("result")?.getJSONObject("txnMetadata")?.getInt("seqNo")
         )
-        ensureExistInStorage(legderCredDef, tags)*/
-        return Pair(true, null)
+        ensureExistInStorage(legderCredDef, tags)
+        return Pair(true, legderCredDef)
     }
 
     fun registerCredDef(credDef: CredentialDefinition, submitterDid: String?): Pair<Boolean, CredentialDefinition?> {

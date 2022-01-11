@@ -93,6 +93,7 @@ open class JSONObject {
         this.jsonObject = jsonObject?.jsonObject ?: buildJsonObject { }
     }
 
+
     fun serialize() {
         // Json.encodeToJsonElement()
     }
@@ -150,6 +151,18 @@ open class JSONObject {
                 // putToAll(parentJson.parentJson!!, parentJson.parentKey!!)
             }
         }
+    }
+
+    fun updateWith(updateObject: JSONObject?): JSONObject {
+        jsonObject = buildJsonObject {
+            jsonObject.entries.forEach {
+                put(it.key, it.value)
+            }
+            updateObject?.jsonObject?.entries?.forEach {
+                put(it.key, it.value)
+            }
+        }
+        return this
     }
 
     fun put(key: String, value: Any?): JSONObject {
@@ -257,7 +270,7 @@ open class JSONObject {
     }
 
     fun similar(cleanedExpect: JSONObject): Boolean {
-        return false
+       return jsonObject?.equals(cleanedExpect?.jsonObject)
     }
 
     fun length(): Int {

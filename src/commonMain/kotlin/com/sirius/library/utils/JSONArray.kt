@@ -7,6 +7,14 @@ open class JSONArray : Iterable<Any?> {
     var jsonArray : JsonArray = buildJsonArray {  }
     var parentObject : JSONObject? = null
     var parentKey : String? = null
+
+    fun toListOfString() : List<String>{
+        val mutablList : MutableList<String> = mutableListOf()
+        jsonArray.forEach {
+            mutablList.add(it.toString())
+        }
+        return mutablList
+    }
     constructor(list: List<String?>?) : this(){
         if(list==null){
             jsonArray  = buildJsonArray {  }

@@ -2,10 +2,13 @@ package com.sirius.library.agent.consensus.simple.messages
 
 import com.sirius.library.agent.aries_rfc.Utils.verifySigned
 import com.sirius.library.agent.microledgers.Transaction
+import com.sirius.library.agent.microledgers.Utils
 import com.sirius.library.agent.wallet.abstract_wallet.AbstractCrypto
 import com.sirius.library.errors.sirius_exceptions.SiriusContextError
 import com.sirius.library.errors.sirius_exceptions.SiriusValidationError
 import com.sirius.library.messaging.Message
+import com.sirius.library.mobile.utils.HashUtils
+import com.sirius.library.utils.Base58
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 
@@ -104,13 +107,9 @@ open class BaseInitLedgerMessage(msg: String) : SimpleConsensusMessage(msg) {
             }
             if (!ledger.isEmpty()) {
                 jsonObject.put("ledger", ledger)
-               /* try {
-                    val digest: java.security.MessageDigest = java.security.MessageDigest.getInstance("SHA-256")
-                    val base58: String = Base58.encode(digest.digest(Utils.serializeOrdering(ledger)))
-                    jsonObject.put("ledger~hash", JSONObject().put("func", "sha256").put("base58", base58))
-                } catch (e: java.security.NoSuchAlgorithmException) {
-                    e.printStackTrace()
-                }*/
+                val digest = HashUtils.hash256(Utils.serializeOrdering(ledger))
+                val base58: String = Base58.encode(digest)
+                jsonObject.put("ledger~hash", JSONObject().put("func", "sha256").put("base58", base58))
             }
             return jsonObject
         }

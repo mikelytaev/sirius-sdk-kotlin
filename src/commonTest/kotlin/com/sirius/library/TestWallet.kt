@@ -18,11 +18,16 @@ class TestWallet {
     @BeforeTest
     fun configureTest() {
         confTest = ConfTest.newInstance()
+        val future = CompletableFutureKotlin<Boolean>()
+        LibsodiumInitializer.initializeWithCallback {
+            future.complete(true)
+        }
+        future.get(60)
     }
 
     @Test
     fun testCryptoPackMessage() {
-        LibsodiumInitializer.initializeWithCallback {
+
             val agent1: CloudAgent = confTest.agent1()
             val agent2: CloudAgent = confTest.agent2()
             agent1.open()
@@ -52,12 +57,11 @@ class TestWallet {
             assertNotEquals(messageWired2, messageWired)
             agent1.close()
             agent2.close()
-        }
+
     }
 
     @Test
     fun testCryptoSign() {
-        LibsodiumInitializer.initializeWithCallback {
 
             val agent1: CloudAgent = confTest.agent1()
             val agent2: CloudAgent = confTest.agent2()
@@ -80,13 +84,11 @@ class TestWallet {
             assertFalse(isOk2)
             agent1.close()
             agent2.close()
-        }
+
     }
 
     @Test
     fun testDidMaintenance() {
-        LibsodiumInitializer.initializeWithCallback {
-
 
             val agent1: CloudAgent = confTest.agent1()
             agent1.open()
@@ -146,13 +148,11 @@ class TestWallet {
             val actualVerkey: String? = agent1.getWalleti()?.did?.keyForLocalDid(fully)
             assertEquals(verkeyNew, actualVerkey)
             agent1.close()
-        }
+
     }
 
     @Test
     fun testTheirDidMaintenance() {
-        LibsodiumInitializer.initializeWithCallback {
-
 
             val agent1: CloudAgent = confTest.agent1()
             val agent2: CloudAgent = confTest.agent2()
@@ -179,13 +179,11 @@ class TestWallet {
             assertEquals(verkeyTheirNew, verkeyNew)
             agent1.close()
             agent2.close()
-        }
+
     }
 
     @Test
     fun testRecordValue() {
-        LibsodiumInitializer.initializeWithCallback {
-
 
             val agent1: CloudAgent = confTest.agent1()
             agent1.open()
@@ -211,13 +209,11 @@ class TestWallet {
             assertEquals(valueNew, valueInfoObjectNew.getString("value"))
             agent1.getWalleti()?.nonSecrets?.deleteWalletRecord("type", myId)
             agent1.close()
-        }
+
     }
 
     @Test
     fun testRecordValueWithTags() {
-        LibsodiumInitializer.initializeWithCallback {
-
 
             val agent1: CloudAgent = confTest.agent1()
             agent1.open()
@@ -255,13 +251,11 @@ class TestWallet {
             val valueInfoNew3Object: JSONObject = JSONObject(valueInfoNew3)
             assertEquals(tags.toString(), valueInfoNew3Object.optJSONObject("tags").toString())
             agent1.close()
-        }
+
     }
 
     @Test
     fun testRecordValueWithTagsThenUpdate() {
-        LibsodiumInitializer.initializeWithCallback {
-
 
             val agent1: CloudAgent = confTest.agent1()
             agent1.open()
@@ -293,13 +287,11 @@ class TestWallet {
             val valueInfo2Object: JSONObject = JSONObject(valueInfo2)
             assertEquals(tags2.toString(), valueInfo2Object.optJSONObject("tags").toString())
             agent1.close()
-        }
+
     }
 
     @Test
     fun testRecordSearch() {
-        LibsodiumInitializer.initializeWithCallback {
-
 
             val agent1: CloudAgent = confTest.agent1()
             agent1.open()
@@ -374,12 +366,11 @@ class TestWallet {
                 )
             assertEquals(second3, 2)
             agent1.close()
-        }
+
     }
 
     @Test
     fun testRegisterSchemaInNetwork() {
-        LibsodiumInitializer.initializeWithCallback {
 
 
             val agent2: CloudAgent = confTest.agent2()
@@ -402,13 +393,11 @@ class TestWallet {
             println("response=$response")
             assertTrue(response.first == true)
             agent2.close()
-        }
+
     }
 
     @Test
     fun testRegisterCredDefInNetwork() {
-        LibsodiumInitializer.initializeWithCallback {
-
 
             val agent2: CloudAgent = confTest.agent2()
             val defaultNetwork: String = confTest.defaultNetwork()
@@ -438,13 +427,11 @@ class TestWallet {
             ) ?: Pair(null, null)
             assertTrue(first3 == true)
             agent2.close()
-        }
+
     }
 
     @Test
     fun testNymOperationsInNetwork() {
-        LibsodiumInitializer.initializeWithCallback {
-
 
             val agent1: CloudAgent = confTest.agent1()
             val agent2: CloudAgent = confTest.agent2()
@@ -511,13 +498,12 @@ class TestWallet {
             } finally {
                 agent1.close()
                 agent2.close()
-            }
+
         }
     }
 
     @Test
     fun testAttributeOperationsInNetwork() {
-        LibsodiumInitializer.initializeWithCallback {
 
 
             val agent1: CloudAgent = confTest.agent1()
@@ -552,7 +538,7 @@ class TestWallet {
             assertEquals(okResponse4.second, "value")
             agent1.close()
             agent2.close()
-        }
+
     }
 }
 

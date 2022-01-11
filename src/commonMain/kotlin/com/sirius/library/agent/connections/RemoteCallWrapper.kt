@@ -29,26 +29,27 @@ abstract class RemoteCallWrapper<T> : RemoteCall<T> {
      //   this.objectClass = objectClass
     }
 
-    fun serializeResponse(`object`: Any): T {
-        if (`object` is JSONObject) {
-            return `object`.toString() as T
-     //   } else if (`object` is JSONArray) {
-            val objectList: MutableList<Any> = ArrayList<Any>()
-            for (i in 0 until (`object` as JSONArray).length()) {
-              // objectList.add(serializeResponse((`object` as JSONArray).get(i)))
+    fun serializeResponse(objecti: Any?): T {
+        if (objecti is JSONObject) {
+            return objecti.toString() as T
+        } else if (objecti is JSONArray) {
+            val objectList: MutableList<Any?> = ArrayList<Any?>()
+            for (i in 0 until (objecti).length()) {
+               val serREsp =  serializeResponse(objecti.get(i)!!) as Any?
+                objectList.add(serREsp )
             }
             return objectList as T
-     //   } else if (`object` is Pair<*,*>) {
-           // val firstObject: Any = serializeResponse(`object`.first!!)
-          //  val secondObject: Any = serializeResponse(`object`.second!!)
-         //   return Pair(firstObject, secondObject) as T
-      //  } else if (`object` is Triple) {
-         //   val firstObject: Any = serializeResponse(`object`.first!!)
-         //   val secondObject: Any = serializeResponse(`object`.second!!)
-        //    val thirdObject: Any = serializeResponse(`object`.third!!)
-        //    return Triple(firstObject, secondObject, thirdObject) as T
+        } else if (objecti is Pair<*,*>) {
+            val firstObject: Any? = serializeResponse(objecti.first) as Any?
+            val secondObject: Any? = serializeResponse(objecti.second) as Any?
+            return Pair(firstObject, secondObject) as T
+        } else if (objecti is Triple<*,*,*>) {
+            val firstObject: Any? = serializeResponse(objecti.first) as Any?
+            val secondObject: Any? = serializeResponse(objecti.second) as Any?
+            val thirdObject: Any? = serializeResponse(objecti.third) as Any?
+            return Triple(firstObject, secondObject, thirdObject) as T
         }
-        return `object` as T
+        return objecti as T
     }
 
 

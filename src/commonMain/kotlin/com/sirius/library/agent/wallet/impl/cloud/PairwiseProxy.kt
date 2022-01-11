@@ -4,6 +4,7 @@ import com.sirius.library.agent.RemoteParams
 import com.sirius.library.agent.connections.AgentRPC
 import com.sirius.library.agent.connections.RemoteCallWrapper
 import com.sirius.library.agent.wallet.abstract_wallet.AbstractPairwise
+import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
 
 class PairwiseProxy(rpc: AgentRPC) : AbstractPairwise() {

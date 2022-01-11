@@ -5,6 +5,7 @@ import com.sirius.library.agent.connections.RoutingBatch
 import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.errors.sirius_exceptions.*
 import com.sirius.library.messaging.Message
+import com.sirius.library.messaging.Type
 import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONObject
 
@@ -86,14 +87,16 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
 
     private fun cleanupContext(message: Message) {
         if (message.messageObjectHasKey(PLEASE_ACK_DECORATOR)) {
-          /*  val ackMessageId: String
+            val ackMessageId: String
             ackMessageId =
-                if (message.getJSONOBJECTFromJSON(PLEASE_ACK_DECORATOR)?.has("message_id")
-                ) message.getJSONOBJECTFromJSON(
+                if (message?.getJSONOBJECTFromJSON(PLEASE_ACK_DECORATOR)?.has("message_id") == true)
+                    message?.getJSONOBJECTFromJSON(
                     PLEASE_ACK_DECORATOR
-                ).getString("message_id") else message.getId()
+                )?.getString("message_id") ?:"" else message.getId() ?:""
             rpc.stopProtocolWithThreads(pleaseAckIds, true)
-            pleaseAckIds.removeIf(java.android.util.function.Predicate<String> { ackId: String -> ackId == ackMessageId })*/
+            pleaseAckIds.removeAll {ackId: String ->
+                ackId == ackMessageId
+            }
         }
     }
 
@@ -104,16 +107,16 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
 
     private fun setupContext(message: Message) {
         if (message.messageObjectHasKey(PLEASE_ACK_DECORATOR)) {
-          /*  val ackMessageId: String
+            val ackMessageId: String
             ackMessageId =
                 if (message.getJSONOBJECTFromJSON(PLEASE_ACK_DECORATOR)
-                        .has("message_id")
-                ) message.getJSONOBJECTFromJSON(
+                        ?.has("message_id") == true)
+                    message?.getJSONOBJECTFromJSON(
                     PLEASE_ACK_DECORATOR
-                ).getString("message_id") else message.getId()
+                )?.getString("message_id") ?:"" else message.getId() ?:""
             val ttl: Int = this.timeToLiveSec
             rpc.startProtocolWithThreads(listOf(ackMessageId), ttl)
-            pleaseAckIds.add(ackMessageId)*/
+            pleaseAckIds.add(ackMessageId)
         }
     }
 
@@ -145,7 +148,7 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
             }
         }
         val payload: JSONObject? = event?.getJSONOBJECTFromJSON("message")
-      /*  return if (payload != null) {
+        return if (payload != null) {
             var okMsg: Pair<Boolean, Message?> = Pair(false, null)
             try {
                 okMsg = Message.restoreMessageInstance(payload.toString())
@@ -157,9 +160,9 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
             }
             if (checkProtocols) {
                 try {
-                    if (!protocols.contains(Type.fromStr(message.getType()).protocol)) {
+                    if (!protocols.contains(Type.fromStr(message.getType()?:"").protocol)) {
                         throw SiriusInvalidMessage(
-                            "@type has unexpected protocol " + Type.fromStr(message.getType()).protocol
+                            "@type has unexpected protocol " + Type.fromStr(message.getType()?:"").protocol
                         )
                     }
                 } catch (siriusInvalidType: SiriusInvalidType) {
@@ -169,7 +172,7 @@ abstract class AbstractCloudCoProtocolTransport(rpc: AgentRPC) : AbstractCoProto
             okMsg
         } else {
             Pair(false, null)
-        }*/
+        }
         return   Pair(false, null)
     }
 

@@ -2,6 +2,7 @@ package com.sirius.library
 
 import com.ionspin.kotlin.crypto.LibsodiumInitializer
 import com.sirius.library.agent.CloudAgent
+import com.sirius.library.agent.listener.Event
 import com.sirius.library.agent.listener.Listener
 import com.sirius.library.agent.model.Entity
 import com.sirius.library.helpers.ConfTest
@@ -9,10 +10,7 @@ import com.sirius.library.helpers.ServerTestSuite
 import com.sirius.library.messaging.Message
 import com.sirius.library.models.AgentParams
 import com.sirius.library.models.TrustPingMessageUnderTest
-import com.sirius.library.utils.JSONObject
-import com.sirius.library.utils.StringCodec
-import com.sirius.library.utils.StringUtils
-import com.sirius.library.utils.UUID
+import com.sirius.library.utils.*
 import kotlin.test.*
 
 class TestCloudAgent {
@@ -21,12 +19,17 @@ class TestCloudAgent {
     @BeforeTest
     fun configureTest() {
         confTest = ConfTest.newInstance()
+        val future = CompletableFutureKotlin<Boolean>()
+        LibsodiumInitializer.initializeWithCallback {
+            future.complete(true)
+        }
+        future.get(60)
     }
 
     //TODO do all tests
     @Test
     fun testAllAgentsPing() {
-        LibsodiumInitializer.initializeWithCallback {
+
             val testSuite: ServerTestSuite = confTest.suiteSingleton
             println("get suiteSingleton testSuite=" + testSuite)
             val allAgentsList: MutableList<String> = ArrayList<String>()
@@ -46,12 +49,12 @@ class TestCloudAgent {
                 assertTrue(isPinged)
                 agent.close()
             }
-        }
+
     }
 
     @Test
     fun testAgentsWallet() {
-        LibsodiumInitializer.initializeWithCallback {
+
 
 
             val testSuite: ServerTestSuite = confTest.suiteSingleton
@@ -68,13 +71,13 @@ class TestCloudAgent {
             assertNotNull(didVerkey.first)
             assertNotNull(didVerkey.second)
             agent.close()
-        }
+
     }
 
     @Test
 
     fun testAgentsCommunications() {
-        LibsodiumInitializer.initializeWithCallback {
+
 
 
             val testSuite: ServerTestSuite = confTest.suiteSingleton
@@ -125,30 +128,29 @@ class TestCloudAgent {
                     .put("@id", "trust-ping-message" + UUID.randomUUID.hashCode())
                     .put("comment", "Hi. Are you listening?").put("response_requested", true)
             )
-            /*  val thierVerkeys: MutableList<String> = ArrayList<String>()
-              thierVerkeys.add(entity2.verkey)
-              val finalAgent2Endpoint = agent2Endpoint
-              val agent2Listener: Listener = agent2.subscribe()
-              val eventFeat: java.util.concurrent.CompletableFuture<Event> = agent2Listener.one
-              println("sendMess1=")
-              agent1.sendMessage(trustPing, thierVerkeys, finalAgent2Endpoint, entity1.verkey, listOf())
-              val event: Event = eventFeat.get(10, java.util.concurrent.TimeUnit.SECONDS)
-              println("event=" + event.getMessageObjec())
-              val message: JSONObject? = event.getJSONOBJECTFromJSON("message")
-              assertNotNull(message)
-              val type: String? = message.getString("@type")
-              assertEquals("did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/trust_ping/1.0/ping", type)
-              val id: String? = message.getString("@id")
-              assertEquals(trustPing.getId(), id)*/
+            val thierVerkeys: MutableList<String> = ArrayList<String>()
+            thierVerkeys.add(entity2.verkey)
+            val finalAgent2Endpoint = agent2Endpoint
+            val agent2Listener: Listener = agent2.subscribe()
+            val eventFeat = agent2Listener.one
+            println("sendMess1=")
+            agent1.sendMessage(trustPing, thierVerkeys, finalAgent2Endpoint, entity1.verkey, listOf())
+            val event: Event? = eventFeat?.get(10)
+            println("event=" + event?.getMessageObjec())
+            val message: JSONObject? = event?.getJSONOBJECTFromJSON("message")
+            assertNotNull(message)
+            val type: String? = message.getString("@type")
+            assertEquals("did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/trust_ping/1.0/ping", type)
+            val id: String? = message.getString("@id")
+            assertEquals(trustPing.getId(), id)
             agent1.close()
             agent2.close()
-        }
+
     }
 
     @Test
 
     fun testListenerRestoreMessage() {
-        LibsodiumInitializer.initializeWithCallback {
 
 
             val agent1Params: AgentParams = confTest.suiteSingleton.getAgentParams("agent1")
@@ -208,14 +210,16 @@ class TestCloudAgent {
             )
             val verkeyList: MutableList<String> = ArrayList<String>()
             verkeyList.add(entity2.verkey)
-            /*   val eventFeat: java.util.concurrent.CompletableFuture<Event> = agent2Listener.one
-               agent1.sendMessage(trust_ping, verkeyList, agent2Endpoint, entity1.verkey, listOf())
-               val event: Event = eventFeat.get(10, java.util.concurrent.TimeUnit.SECONDS)
-               val message: JSONObject? = event.getJSONOBJECTFromJSON("message")
-               println("message=$message")*/
+            val eventFeat = agent2Listener.one
+            agent1.sendMessage(trust_ping, verkeyList, agent2Endpoint ?: "", entity1.verkey, listOf())
+            val event: Event? = eventFeat?.get(10)
+            val message: JSONObject? = event?.getJSONOBJECTFromJSON("message")
+            println("message=$message")
+            // msg
+            // assertTrue()
             // assert isinstance(msg, TrustPingMessageUnderTest), 'Unexpected msg type: ' + str(type(msg))
             agent1.close()
             agent2.close()
-        }
+
     }
 }

@@ -1,5 +1,6 @@
 package com.sirius.library
 
+import com.ionspin.kotlin.crypto.LibsodiumInitializer
 import com.sirius.library.agent.CloudAgent
 import com.sirius.library.agent.aries_rfc.feature_0048_trust_ping.Ping
 import com.sirius.library.agent.listener.Event
@@ -8,6 +9,7 @@ import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.helpers.ConfTest
 import com.sirius.library.helpers.ServerTestSuite
 import com.sirius.library.messaging.Message
+import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.JSONObject
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -19,11 +21,16 @@ class TestAriesFeature0048 {
     @BeforeTest
     fun configureTest() {
         confTest = ConfTest.newInstance()
+      val future = CompletableFutureKotlin<Boolean>()
+      LibsodiumInitializer.initializeWithCallback {
+        future.complete(true)
+      }
+      future.get(60)
     }
 
     @Test
     fun testEstablishConnection() {
-   /*     val agent1: CloudAgent = confTest.getAgent("agent1")
+       val agent1: CloudAgent = confTest.getAgent("agent1")
         val agent2: CloudAgent = confTest.getAgent("agent2")
         val agent3: CloudAgent = confTest.getAgent("agent3")
         agent1.open()
@@ -43,12 +50,12 @@ class TestAriesFeature0048 {
         )
         val listener2: Listener = agent2.subscribe()
         val ping: Ping = Ping.builder().setComment("testMsg").setResponseRequested(false).build()
-        val feature2: java.util.concurrent.Future<Event> = listener2.one
+        val feature2= listener2.one
         agent1.sendTo(ping, to)
 
         // Check OK
-        val event: Event = feature2.get(10, java.util.concurrent.TimeUnit.SECONDS)
-        val recv: JSONObject? = event.getJSONOBJECTFromJSON("message")
+        val event: Event? = feature2?.get(10)
+        val recv: JSONObject? = event?.getJSONOBJECTFromJSON("message")
         val (first2, second2) = Message.restoreMessageInstance(recv.toString())
         assertTrue(first2)
         assertTrue(second2 is Ping)
@@ -60,6 +67,6 @@ class TestAriesFeature0048 {
             Pairwise.Me(first, second),
             Pairwise.Their(first1, "Agent3", endpointAddress3, second1)
         )
-        agent1.sendTo(ping, to)*/
+        agent1.sendTo(ping, to)
     }
 }

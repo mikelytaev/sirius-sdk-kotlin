@@ -2,10 +2,12 @@ package com.sirius.library.agent.ledger
 
 import com.sirius.library.agent.wallet.abstract_wallet.model.AnonCredSchema
 import com.sirius.library.utils.JSONObject
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+@Serializable
 class Schema : AnonCredSchema {
     var seqNo = 0
     val issuerDid: String?

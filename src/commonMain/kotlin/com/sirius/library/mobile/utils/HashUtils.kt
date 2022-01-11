@@ -5,6 +5,14 @@ import com.ionspin.kotlin.crypto.util.LibsodiumUtil
 import com.sirius.library.utils.StringUtils
 
 object HashUtils {
+    fun hash256(byteArray: ByteArray) : ByteArray{
+        return Hash.sha256(byteArray.asUByteArray()).asByteArray()
+    }
+
+    fun hashMD5(byteArray: ByteArray) : ByteArray{
+        return Hash.sha256(byteArray.asUByteArray()).asByteArray()
+    }
+
     /*
     @Throws(NoSuchAlgorithmException::class, InvalidKeySpecException::class)
     fun generateStorngPasswordHash(password: String): String {

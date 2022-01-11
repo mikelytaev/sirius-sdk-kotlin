@@ -1,5 +1,6 @@
 package com.sirius.library
 
+import com.ionspin.kotlin.crypto.LibsodiumInitializer
 import com.sirius.library.agent.CloudAgent
 import com.sirius.library.agent.Codec
 import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages.RequestPresentationMessage
@@ -14,9 +15,14 @@ import com.sirius.library.helpers.ConfTest
 import com.sirius.library.helpers.ServerTestSuite
 import com.sirius.library.hub.CloudContext
 import com.sirius.library.models.AgentParams
+import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.Logger
 import com.sirius.library.utils.UUID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -30,12 +36,17 @@ class TestAriesFeature0037 {
     @BeforeTest
     fun configureTest() {
         confTest = ConfTest.newInstance()
+        val future = CompletableFutureKotlin<Boolean>()
+        LibsodiumInitializer.initializeWithCallback {
+            future.complete(true)
+        }
+        future.get(60)
     }
 
     @Test
 
     fun testSane() {
-      /*  val issuer: CloudAgent = confTest.getAgent("agent1")
+       val issuer: CloudAgent = confTest.getAgent("agent1")
         val prover: CloudAgent = confTest.getAgent("agent2")
         val verifier: CloudAgent = confTest.getAgent("agent3")
         issuer.open()
@@ -99,7 +110,7 @@ class TestAriesFeature0037 {
         var proofRequest: JSONObject? = null
         CloudContext.builder().setServerUri(verifierParams.serverAddress)
             .setCredentials(verifierParams.credentials.encodeToByteArray())
-            .setP2p(verifierParams.getConnection()).build().also { context ->
+            .setP2p(verifierParams.connection).build().also { context ->
                 proofRequest = JSONObject().put("nonce", context.getAnonCredsi().generateNonce())
                     .put("name", "Test ProofRequest").put("version", "0.1").put(
                         "requested_attributes",
@@ -119,55 +130,47 @@ class TestAriesFeature0037 {
             }
         //run_verifier
         val finalProofRequest: JSONObject? = proofRequest
-        val runVerifier: java.util.concurrent.CompletableFuture<Boolean> =
-            java.util.concurrent.CompletableFuture.supplyAsync(
-                java.util.function.Supplier<U> {
-                    CloudContext.builder().setServerUri(verifierParams.serverAddress)
-                        .setCredentials(
-                            verifierParams.credentials.encodeToByteArray()
-                        )
-                        .setP2p(verifierParams.getConnection()).setTimeoutSec(60).build().also { context ->
-                            val verLedger: Ledger? = context.ledgers?.get("default")
-                            val machine = Verifier(context, v2p, verLedger)
-                            return@supplyAsync machine.verify(
-                                Verifier.VerifyParams().setProofRequest(finalProofRequest).setComment("I am Verifier")
-                                    .setProtocolVersion("1.0")
-                            )
-                        }
-                },
-                java.util.concurrent.Executor { r: java.lang.Runnable? -> java.lang.Thread(r).start() })
 
-        //run prover
-        val runProver: java.util.concurrent.CompletableFuture<Boolean> =
-            java.util.concurrent.CompletableFuture.supplyAsync(
-                java.util.function.Supplier<U> {
-                    CloudContext.builder().setServerUri(proverParams.serverAddress)
-                        .setCredentials(proverParams.credentials.encodeToByteArray())
-                        .setP2p(proverParams.getConnection()).setTimeoutSec(60).build().also { context ->
-                            var event: Event? = null
-                            event = try {
-                                context.subscribe()?.one.get(30, java.util.concurrent.TimeUnit.SECONDS)
-                            } catch (e: java.lang.InterruptedException) {
-                                e.printStackTrace()
-                                return@supplyAsync false
-                            } catch (e: java.util.concurrent.ExecutionException) {
-                                e.printStackTrace()
-                                return@supplyAsync false
-                            } catch (e: java.util.concurrent.TimeoutException) {
-                                e.printStackTrace()
-                                return@supplyAsync false
-                            }
-                            assertTrue(event.message() is RequestPresentationMessage)
-                            val requestPresentationMessage: RequestPresentationMessage =
-                                event.message() as RequestPresentationMessage
-                            val ttl = 60
-                            val proverLedger: Ledger? = context.ledgers?.get("default")
-                            val machine = Prover(context, p2v, proverSecretId, proverLedger?.name)
-                            return@supplyAsync machine.prove(requestPresentationMessage)
-                        }
-                },
-                java.util.concurrent.Executor { r: java.lang.Runnable? -> java.lang.Thread(r).start() })
-        assertTrue(runProver.get(60, java.util.concurrent.TimeUnit.SECONDS))
-        assertTrue(runVerifier.get(60, java.util.concurrent.TimeUnit.SECONDS))*/
+        val runVerifier =  GlobalScope.launch (Dispatchers.Default){
+            CloudContext.builder().setServerUri(verifierParams.serverAddress)
+                .setCredentials(
+                    verifierParams.credentials.encodeToByteArray()
+                )
+                .setP2p(verifierParams.connection).setTimeoutSec(60).build().also { context ->
+                    val verLedger: Ledger? = context.ledgers?.get("default")
+                    val machine = Verifier(context, v2p, verLedger)
+                     machine.verify(
+                        Verifier.VerifyParams().setProofRequest(finalProofRequest).setComment("I am Verifier")
+                            .setProtocolVersion("1.0")
+                    )
+                }
+
+        }
+
+        val runProver =  GlobalScope.launch (Dispatchers.Default){
+            CloudContext.builder().setServerUri(proverParams.serverAddress)
+                .setCredentials(proverParams.credentials.encodeToByteArray())
+                .setP2p(proverParams.connection).setTimeoutSec(60).build().also { context ->
+                    var event: Event? = null
+                    event = context.subscribe()?.one?.get(30)
+
+                    assertTrue(event?.message() is RequestPresentationMessage)
+                    val requestPresentationMessage: RequestPresentationMessage =
+                        event?.message() as RequestPresentationMessage
+                    val ttl = 60
+                    val proverLedger: Ledger? = context.ledgers?.get("default")
+                    val machine = Prover(context, p2v, proverSecretId, proverLedger?.name)
+                    machine.prove(requestPresentationMessage)
+                }
+        }
+
+        runBlocking {
+            runProver.join()
+            runVerifier.join()
+        }
+
+
+       // assertTrue(runProver.get(60)
+      //  assertTrue(runVerifier.get(60)
     }
 }

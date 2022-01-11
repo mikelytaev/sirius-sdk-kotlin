@@ -1,5 +1,6 @@
 package com.sirius.library
 
+import com.ionspin.kotlin.crypto.LibsodiumInitializer
 import com.sirius.library.agent.CloudAgent
 import com.sirius.library.agent.aries_rfc.feature_0113_question_answer.messages.AnswerMessage
 import com.sirius.library.agent.aries_rfc.feature_0113_question_answer.messages.QuestionMessage
@@ -10,6 +11,11 @@ import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.helpers.ConfTest
 import com.sirius.library.hub.CloudContext
 import com.sirius.library.models.AgentParams
+import com.sirius.library.utils.CompletableFutureKotlin
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -20,22 +26,27 @@ class TestAriesFeature0113 {
     @BeforeTest
     fun configureTest() {
         confTest = ConfTest.newInstance()
+        val future = CompletableFutureKotlin<Boolean>()
+        LibsodiumInitializer.initializeWithCallback {
+            future.complete(true)
+        }
+        future.get(60)
     }
 
     @Test
     @Throws(Exception::class)
     fun testSane() {
-      /*  val requesterAgent: CloudAgent = confTest.getAgent("agent1")
+       val requesterAgent: CloudAgent = confTest.getAgent("agent1")
         val responderAgent: CloudAgent = confTest.getAgent("agent2")
         requesterAgent.open()
         responderAgent.open()
         val requester2responder: Pairwise = confTest.getPairwise(requesterAgent, responderAgent)
         val responder2requester: Pairwise = confTest.getPairwise(responderAgent, requesterAgent)
         val requesterParams: AgentParams = confTest.suiteSingleton.getAgentParams("agent1")
-        val requesterThread: java.lang.Thread = java.lang.Thread(java.lang.Runnable {
+        val requesterThread =   GlobalScope.launch (Dispatchers.Default){
             CloudContext.builder().setServerUri(requesterParams.serverAddress)
                 .setCredentials(requesterParams.credentials.encodeToByteArray())
-                .setP2p(requesterParams.getConnection()).build().also { context ->
+                .setP2p(requesterParams.connection).build().also { context ->
                     val question: QuestionMessage =
                         QuestionMessage.builder().setValidResponses(listOf("Yes", "No"))
                             .setQuestionText("Test question").setQuestionDetail("Question detail").setTtl(40).build()
@@ -43,33 +54,45 @@ class TestAriesFeature0113 {
                     assertNotNull(answer)
                     assertEquals(answer.response, "Yes")
                 }
-        })
-        requesterThread.start()
-        java.lang.Thread.sleep(100)
+        }
+
+      //  requesterThread.start()
+      //  java.lang.Thread.sleep(100)
+
+
+
         val responderParams: AgentParams = confTest.suiteSingleton.getAgentParams("agent2")
-        val responderThread: java.lang.Thread = java.lang.Thread(label@ java.lang.Runnable {
+
+       val  responderThread = GlobalScope.launch(Dispatchers.Default) {
+
             try {
                 CloudContext.builder().setServerUri(responderParams.serverAddress).setCredentials(
                     responderParams.credentials.encodeToByteArray()
-                ).setP2p(responderParams.getConnection()).build().also { context ->
+                ).setP2p(responderParams.connection).build().also { context ->
                     val listener: Listener? = context.subscribe()
                     while (true) {
-                        val e: Event = listener?.one.get(60, java.util.concurrent.TimeUnit.SECONDS)
-                        if (e.message() is QuestionMessage) {
+                        val e: Event? = listener?.one?.get(60)
+                        if (e?.message() is QuestionMessage) {
                             val question: QuestionMessage = e.message() as QuestionMessage
                             e.getPairwisei()?.let {
                                 Recipes.makeAnswer(context, "Yes", question, it)
                             }
-                            return@label
+                            break
+                            //return@label
                         }
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-        })
-        responderThread.start()
-        requesterThread.join(60000)
-        responderThread.join(60000)*/
+        }
+
+        runBlocking {
+            requesterThread.join()
+            responderThread.join()
+        }
+      //  responderThread.start()
+       // requesterThread.join(60000)
+      //  responderThread.join(60000)
     }
 }

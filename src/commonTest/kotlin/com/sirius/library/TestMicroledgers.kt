@@ -1,10 +1,14 @@
-/*
+
 package com.sirius.library
 
+import com.ionspin.kotlin.crypto.LibsodiumInitializer
+import com.ionspin.kotlin.crypto.util.LibsodiumUtil
 import com.sirius.library.agent.CloudAgent
 import com.sirius.library.agent.microledgers.*
 import com.sirius.library.helpers.ConfTest
 import com.sirius.library.helpers.ConfTest.Companion.getState
+import com.sirius.library.messaging.MessageFabric
+import com.sirius.library.utils.CompletableFutureKotlin
 import com.sirius.library.utils.Date
 import com.sirius.library.utils.JSONObject
 import com.sirius.library.utils.UUID
@@ -14,7 +18,13 @@ class TestMicroledgers {
     lateinit var confTest: ConfTest
     @BeforeTest
     fun configureTest() {
+        MessageFabric.registerAllMessagesClass()
         confTest = ConfTest.newInstance()
+        val future = CompletableFutureKotlin<Boolean>()
+        LibsodiumInitializer.initializeWithCallback {
+            future.complete(true)
+        }
+        future.get(60)
     }
 
     @Test
@@ -134,7 +144,7 @@ class TestMicroledgers {
                         .put("identifier", "5rArie7XKukPCaEwq5XGQJnM9Fc5aZE3M9HAPVfMU2xC").put("op", "op1")
                 )
             )
-            val (ledger) = agent4.getMicroledgersi().create(ledgerName, genesisTxns)
+            val ledger = agent4.getMicroledgersi()?.create(ledgerName, genesisTxns)
             val txns: List<Transaction> = listOf(
                 Transaction(
                     Transaction(
@@ -147,28 +157,28 @@ class TestMicroledgers {
                         .put("identifier", "CECeGXDi6EHuhpwz19uyjjEnsRGNXodFYqCRgdLmLRkt").put("op", "op3")
                 )
             )
-            val df: java.text.DateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-            val txnTime: String = df.format(java.util.Date(java.lang.System.currentTimeMillis()))
-            assertEquals(ledger.uncommittedRootHash(), ledger.rootHash())
-            ledger.append(txns, txnTime)
-            assertNotEquals(ledger.uncommittedRootHash(), ledger.rootHash())
-            assertEquals(1, ledger.size())
-            assertEquals(3, ledger.uncommittedSize())
+            val txnTime: String = Date().formatTo("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+            assertEquals(ledger?.first?.uncommittedRootHash(), ledger?.first?.rootHash())
+            ledger?.first?.append(txns, txnTime)
+            assertNotEquals(ledger?.first?.uncommittedRootHash(), ledger?.first?.rootHash())
+            assertEquals(1, ledger?.first?.size())
+            assertEquals(3, ledger?.first?.uncommittedSize())
 
             //commit
-            ledger.commit(1)
-            assertEquals(2, ledger.size())
-            assertEquals(3, ledger.uncommittedSize())
-            assertNotEquals(ledger.uncommittedRootHash(), ledger.rootHash())
+            ledger?.first?.commit(1)
+            assertEquals(2, ledger?.first?.size())
+            assertEquals(3, ledger?.first?.uncommittedSize())
+            assertNotEquals(ledger?.first?.uncommittedRootHash(), ledger?.first?.rootHash())
 
             // discard
-            ledger.discard(1)
-            assertEquals(2, ledger.size())
-            assertEquals(2, ledger.uncommittedSize())
-            assertEquals(ledger.uncommittedRootHash(), ledger.rootHash())
+            ledger?.first?.discard(1)
+            assertEquals(2, ledger?.first?.size())
+            assertEquals(2, ledger?.first?.uncommittedSize())
+            assertEquals(ledger?.first?.uncommittedRootHash(), ledger?.first?.rootHash())
         } finally {
             agent4.close()
         }
+
     }
 
     @Test
@@ -183,7 +193,8 @@ class TestMicroledgers {
                         .put("identifier", "5rArie7XKukPCaEwq5XGQJnM9Fc5aZE3M9HAPVfMU2xC").put("op", "op1")
                 )
             )
-            val (ledger) = agent4.getMicroledgersi().create(ledgerName, genesisTxns)
+            val ledgerPair= agent4.getMicroledgersi()?.create(ledgerName, genesisTxns)
+            val ledger = ledgerPair?.first
             val txns: List<Transaction> = listOf(
                 Transaction(
                     Transaction(
@@ -196,10 +207,10 @@ class TestMicroledgers {
                         .put("identifier", "CECeGXDi6EHuhpwz19uyjjEnsRGNXodFYqCRgdLmLRkt").put("op", "op3")
                 )
             )
-            ledger.append(txns)
-            val uncommittedSizeBefore: Int = ledger.uncommittedSize()
-            ledger.resetUncommitted()
-            val uncommittedSizeAfter: Int = ledger.uncommittedSize()
+            ledger?.append(txns)
+            val uncommittedSizeBefore: Int = ledger?.uncommittedSize() ?: 0
+            ledger?.resetUncommitted()
+            val uncommittedSizeAfter: Int = ledger?.uncommittedSize() ?: 0
             assertNotEquals(uncommittedSizeAfter.toLong(), uncommittedSizeBefore.toLong())
             assertEquals(1, uncommittedSizeAfter.toLong())
         } finally {
@@ -209,6 +220,7 @@ class TestMicroledgers {
 
     @Test
     fun testGetOperations() {
+
         val agent4: CloudAgent = confTest.getAgent("agent4")
         val ledgerName: String = confTest.ledgerName()
         agent4.open()
@@ -227,7 +239,8 @@ class TestMicroledgers {
                         .put("identifier", "CECeGXDi6EHuhpwz19uyjjEnsRGNXodFYqCRgdLmLRkt").put("op", "op3")
                 )
             )
-            val (ledger) = agent4.getMicroledgersi().create(ledgerName, genesisTxns)
+            val ledgerPair = agent4.getMicroledgersi()?.create(ledgerName, genesisTxns)
+            val ledger = ledgerPair?.first
             var txns: List<Transaction?> = listOf(
                 Transaction(
                     JSONObject().put("reqId", 4)
@@ -238,32 +251,33 @@ class TestMicroledgers {
                         .put("identifier", "CECeGXDi6EHuhpwz19uyjjEnsRGNXodFYqCRgdLmLRkt").put("op", "op5")
                 )
             )
-            ledger.append(txns)
+            ledger?.append(txns)
 
             // 1 get_last_committed_txn
-            var txn: Transaction = ledger.getLastCommittedTransaction()
-            assertEquals(txn.optString("op"), "op3")
+            var txn: Transaction? = ledger?.lastCommittedTransaction
+            assertEquals(txn?.optString("op"), "op3")
 
             // 2 get_last_txn
-            txn = ledger.getLastTransaction()
-            assertEquals(txn.optString("op"), "op5")
+            txn = ledger?.lastTransaction
+            assertEquals(txn?.optString("op"), "op5")
 
             //3 get_uncommitted_txns
-            txns = ledger.getUncommittedTransactions()
+            txns = ledger?.uncommittedTransactions as List<Transaction?>
             assertEquals(2, txns.size.toLong())
             //assert all(op in str(txns) for op in ['op4', 'op5']) is True
             //assert any(op in str(txns) for op in ['op1', 'op2', 'op3']) is False
 
             // 4 get_by_seq_no
             txn = ledger.getTransaction(1)
-            assertEquals(txn.optString("op"), "op1")
+            assertEquals(txn?.optString("op"), "op1")
 
             // 5 get_by_seq_no_uncommitted
             txn = ledger.getUncommittedTransaction(4)
-            assertEquals(txn.optString("op"), "op4")
+            assertEquals(txn?.optString("op"), "op4")
         } finally {
             agent4.close()
         }
+
     }
 
     @Test
@@ -294,18 +308,21 @@ class TestMicroledgers {
                         .put("identifier", "CECeGXDi6EHuhpwz19uyjjEnsRGNXodFYqCRgdLmLRkt").put("op", "op5")
                 )
             )
-            val (ledger) = agent4.getMicroledgersi().create(ledgerName, genesisTxns)
-            assertEquals(5, ledger.size())
-            assertTrue(agent4.getMicroledgersi().isExists(ledgerName))
-            agent4.getMicroledgersi().reset(ledgerName)
-            assertFalse(agent4.getMicroledgersi().isExists(ledgerName))
+            val ledgerPair = agent4.getMicroledgersi()?.create(ledgerName, genesisTxns)
+            val ledger = ledgerPair?.first
+            assertEquals(5, ledger?.size())
+            assertTrue(agent4.getMicroledgersi()?.isExists(ledgerName) ?: false)
+            agent4.getMicroledgersi()?.reset(ledgerName)
+            assertFalse(agent4.getMicroledgersi()?.isExists(ledgerName) ?: false)
         } finally {
             agent4.close()
         }
+
     }
 
     @Test
     fun testList() {
+
         val agent4: CloudAgent = confTest.getAgent("agent4")
         val ledgerName: String = confTest.ledgerName()
         agent4.open()
@@ -324,8 +341,9 @@ class TestMicroledgers {
                         .put("identifier", "CECeGXDi6EHuhpwz19uyjjEnsRGNXodFYqCRgdLmLRkt").put("op", "op3")
                 )
             )
-            val (ledger) = agent4.getMicroledgersi().create(ledgerName, genesisTxns)
-            var collection: List<LedgerMeta> = agent4.getMicroledgersi().list
+            val ledgerPair = agent4.getMicroledgersi()?.create(ledgerName, genesisTxns)
+            val ledger = ledgerPair?.first
+            var collection: List<LedgerMeta> = agent4.getMicroledgersi()?.list as? List<LedgerMeta> ?: listOf()
             var contains = false
             for (meta in collection) {
                 if (meta.name.equals(ledgerName)) {
@@ -334,9 +352,9 @@ class TestMicroledgers {
                 }
             }
             assertTrue(contains)
-            assertTrue(agent4.getMicroledgersi().isExists(ledgerName))
-            agent4.getMicroledgersi().reset(ledgerName)
-            collection = agent4.getMicroledgersi().list
+            assertTrue(agent4.getMicroledgersi()?.isExists(ledgerName) ?: false)
+            agent4.getMicroledgersi()?.reset(ledgerName)
+            collection = agent4.getMicroledgersi()?.list as? List<LedgerMeta> ?: listOf()
             contains = false
             for (meta in collection) {
                 if (meta.name.equals(ledgerName)) {
@@ -348,6 +366,7 @@ class TestMicroledgers {
         } finally {
             agent4.close()
         }
+
     }
 
     @Test
@@ -370,7 +389,8 @@ class TestMicroledgers {
                         .put("identifier", "CECeGXDi6EHuhpwz19uyjjEnsRGNXodFYqCRgdLmLRkt").put("op", "op3")
                 )
             )
-            val (ledger) = agent4.getMicroledgersi().create(ledgerName, genesisTxns)
+            val ledgerPair = agent4.getMicroledgersi()?.create(ledgerName, genesisTxns)
+            val ledger=ledgerPair?.first
             var txns: List<Transaction?> = listOf(
                 Transaction(
                     JSONObject().put("reqId", 4)
@@ -381,8 +401,8 @@ class TestMicroledgers {
                         .put("identifier", "CECeGXDi6EHuhpwz19uyjjEnsRGNXodFYqCRgdLmLRkt").put("op", "op5")
                 )
             )
-            ledger.append(txns)
-            txns = ledger.getAllTransactions()
+            ledger?.append(txns)
+            txns = ledger?.allTransactions as? List<Transaction?> ?: listOf()
             assertEquals(3, txns.size.toLong())
         } finally {
             agent4.close()
@@ -421,7 +441,8 @@ class TestMicroledgers {
                         .put("identifier", "CECeGXDi6EHuhpwz19uyjjEnsRGNXodFYqCRgdLmLRkt").put("op", "op6")
                 )
             )
-            val (ledger) = agent4.getMicroledgersi().create(ledgerName, genesisTxns)
+            val ledgerPair = agent4.getMicroledgersi()?.create(ledgerName, genesisTxns)
+            val ledger = ledgerPair?.first
             val txns: List<Transaction> = listOf(
                 Transaction(
                     JSONObject().put("reqId", 7)
@@ -436,22 +457,22 @@ class TestMicroledgers {
                         .put("identifier", "CECeGXDi6EHuhpwz19uyjjEnsRGNXodFYqCRgdLmLRkt").put("op", "op9")
                 )
             )
-            ledger.append(txns)
+            ledger?.append(txns)
             val auditPaths: MutableList<List<String>> = ArrayList<List<String>>()
             for (seqNo in listOf<Int>(1, 2, 3, 4, 5, 6)) {
-                val auditProof: AuditProof = ledger.getAuditProof(seqNo)
-                assertEquals("3eDS4j8HgpAyRnuvfFG624KKvQBuNXKBenhqHmHtUgeq", auditProof.rootHash)
-                assertEquals(6, auditProof.ledgerSize)
-                assertFalse(auditPaths.contains(auditProof.auditPath))
-                auditPaths.add(auditProof.auditPath)
+                val auditProof: AuditProof? = ledger?.getAuditProof(seqNo)
+                assertEquals("3eDS4j8HgpAyRnuvfFG624KKvQBuNXKBenhqHmHtUgeq", auditProof?.rootHash)
+                assertEquals(6, auditProof?.ledgerSize)
+                assertFalse(auditPaths.contains(auditProof?.auditPath))
+                auditProof?.auditPath?.let { auditPaths.add(it) }
             }
             for (seqNo in listOf<Int>(7, 8, 9)) {
-                val auditProof: AuditProof = ledger.getAuditProof(seqNo)
-                assertEquals("3eDS4j8HgpAyRnuvfFG624KKvQBuNXKBenhqHmHtUgeq", auditProof.rootHash)
-                assertEquals(6, auditProof.ledgerSize)
-                auditPaths.add(auditProof.auditPath)
+                val auditProof: AuditProof? = ledger?.getAuditProof(seqNo)
+                assertEquals("3eDS4j8HgpAyRnuvfFG624KKvQBuNXKBenhqHmHtUgeq", auditProof?.rootHash)
+                assertEquals(6, auditProof?.ledgerSize)
+                auditProof?.auditPath?.let { auditPaths.add(it) }
             }
-            assertEquals("Dkoca8Af15uMLBHAqbddwqmpiqsaDEtKDoFVfNRXt44g", ledger.uncommittedRootHash())
+            assertEquals("Dkoca8Af15uMLBHAqbddwqmpiqsaDEtKDoFVfNRXt44g", ledger?.uncommittedRootHash())
         } finally {
             agent4.close()
         }
@@ -469,10 +490,13 @@ class TestMicroledgers {
                         .put("identifier", "5rArie7XKukPCaEwq5XGQJnM9Fc5aZE3M9HAPVfMU2xC").put("op", "op1")
                 )
             )
-            val (ledger, second) = agent4.getMicroledgersi().create(ledgerName, genesisTxns)
-            val txn: Transaction = second[0]
-            val leafHash: ByteArray = agent4.getMicroledgersi().leafHash(txn)
-            val leafHashHex: String = LazySodium.toHex(leafHash)
+            val ledgerPair = agent4.getMicroledgersi()?.create(ledgerName, genesisTxns)
+            val ledger  = ledgerPair?.first
+            val second =  ledgerPair?.second
+            val txn: Transaction? = second?.get(0)
+            val leafHash: ByteArray = agent4.getMicroledgersi()?.leafHash(txn) ?: ByteArray(0)
+            val leafHashHex: String =  LibsodiumUtil.toHex(leafHash.toUByteArray())
+         //   val leafHashHex: String = LazySodium.toHex(leafHash)
             assertEquals(
                 "79D9929FD1E7F16F099C26B6F44850DA044AD0FE51E92E582D9CA372F2B8B930",
                 leafHashHex
@@ -494,11 +518,12 @@ class TestMicroledgers {
                         .put("identifier", "5rArie7XKukPCaEwq5XGQJnM9Fc5aZE3M9HAPVfMU2xC").put("op", "op1")
                 )
             )
-            val (ledger) = agent4.getMicroledgersi().create(ledgerName, genesisTxns)
+            val ledgerPair = agent4.getMicroledgersi()?.create(ledgerName, genesisTxns)
+            val ledger = ledgerPair?.first
             val newName = "new_name_" + UUID.randomUUID
-            ledger.rename(newName)
-            assertFalse(agent4.getMicroledgersi().isExists(ledgerName))
-            assertTrue(agent4.getMicroledgersi().isExists(newName))
+            ledger?.rename(newName)
+            assertFalse(agent4.getMicroledgersi()?.isExists(ledgerName) ?: true)
+            assertTrue(agent4.getMicroledgersi()?.isExists(newName) ?: false)
         } finally {
             agent4.close()
         }
@@ -531,81 +556,83 @@ class TestMicroledgers {
                         .put("identifier", "5rArie7XKukPCaEwq5XGQJnM9Fc5aZE3M9HAPVfMU2xC").put("op", "op3")
                 )
             )
-            val df: java.text.DateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-            val txnTime: String = df.format(java.util.Date(java.lang.System.currentTimeMillis()))
+
+            val txnTime: String = Date().formatTo("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
             for (ledgerName in ledgerNames) {
-                agent4.getMicroledgersi().create(ledgerName, genesisTxns)
+                agent4.getMicroledgersi()?.create(ledgerName, genesisTxns)
             }
-            val batched: AbstractBatchedAPI = agent4.getMicroledgersi().batched
-            var ledgers: List<AbstractMicroledger> = batched.openByLedgerNames(ledgerNames)
+            val batched: AbstractBatchedAPI? = agent4.getMicroledgersi()?.batched
+            var ledgers: List<AbstractMicroledger> = batched?.openByLedgerNames(ledgerNames) ?: listOf()
             try {
                 val s1: MutableSet<String> = HashSet<String>()
                 for (l in ledgers) {
-                    s1.add(l.name())
+                    l.name()?.let { s1.add(it) }
                 }
                 assertEquals(s1, HashSet<String>(ledgerNames))
 
                 // Fetch states
-                ledgers = batched.states
+                ledgers = batched?.states as? List<AbstractMicroledger> ?: listOf()
                 val statesBefore: MutableMap<String, JSONObject> =
                     HashMap<String, JSONObject>()
                 for (ledger in ledgers) {
-                    statesBefore[ledger.name()] = getState(ledger)
+                    statesBefore[ledger.name() ?: ""] = getState(ledger)
                 }
                 assertEquals(statesBefore.keys, HashSet<String>(ledgerNames))
 
                 // Append
-                ledgers = batched.append(resetTxns)
+                ledgers = batched?.append(resetTxns) ?: listOf()
                 val statesAfterAppend: MutableMap<String, JSONObject> =
                     HashMap<String, JSONObject>()
                 for (ledger in ledgers) {
-                    statesAfterAppend[ledger.name()] = getState(ledger)
+                    statesAfterAppend[ledger.name() ?: ""] = getState(ledger)
                 }
                 assertEquals(statesAfterAppend.keys, HashSet<String>(ledgerNames))
-                for ((_, value): Map.Entry<String, JSONObject> in statesAfterAppend) {
-                    assertEquals(2, value.optInt("uncommitted_size").toLong())
+                for ((_, value) in statesAfterAppend) {
+                    assertEquals(2, value.optInt("uncommitted_size")?.toLong())
                 }
 
                 // Reset uncommitted
-                ledgers = batched.resetUncommitted()
+                ledgers = batched?.resetUncommitted() as? List<AbstractMicroledger> ?: listOf()
                 val statesAfterResetUncommitted: MutableMap<String, JSONObject> =
                     HashMap<String, JSONObject>()
                 for (ledger in ledgers) {
-                    statesAfterResetUncommitted[ledger.name()] = getState(ledger)
+                    statesAfterResetUncommitted[ledger.name() ?: ""] = getState(ledger)
                 }
                 assertEquals(statesAfterResetUncommitted.keys, HashSet<String>(ledgerNames))
-                for ((_, value): Map.Entry<String, JSONObject> in statesAfterResetUncommitted) {
-                    assertEquals(1, value.optInt("uncommitted_size").toLong())
+                for ((_, value) in statesAfterResetUncommitted) {
+                    assertEquals(1, value.optInt("uncommitted_size")?.toLong())
                 }
 
                 // Append + Commit
-                batched.append(commitTxns, txnTime)
-                ledgers = batched.commit()
+                batched?.append(commitTxns, txnTime)
+                ledgers = batched?.commit() as? List<AbstractMicroledger> ?: listOf()
                 val statesAfterCommit: MutableMap<String, JSONObject> =
                     HashMap<String, JSONObject>()
                 for (ledger in ledgers) {
-                    statesAfterCommit[ledger.name()] = getState(ledger)
+                    statesAfterCommit[ledger.name() ?: ""] = getState(ledger)
                 }
-                for ((_, value): Map.Entry<String, JSONObject> in statesAfterCommit) {
-                    assertEquals(2, value.optInt("uncommitted_size").toLong())
-                    assertEquals(2, value.optInt("size").toLong())
+                for ((_, value)   in statesAfterCommit) {
+                    assertEquals(2, value.optInt("uncommitted_size")?.toLong())
+                    assertEquals(2, value.optInt("size")?.toLong())
                 }
 
                 // Check all txns
                 for (ledgerName in ledgerNames) {
-                    val ledger: AbstractMicroledger? = agent4.getMicroledgersi().getLedger(ledgerName)
-                    val txns: List<Transaction> = ledger.allTransactions
+                    val ledger: AbstractMicroledger? = agent4.getMicroledgersi()?.getLedger(ledgerName)
+                    val txns: List<Transaction> = ledger?.allTransactions as? List<Transaction> ?: listOf()
                     assertEquals(2, txns.size.toLong())
                     assertEquals("op1", txns[0].optString("op"))
                     assertEquals("op3", txns[1].optString("op"))
                     assertEquals(txnTime, txns[1].time)
                 }
             } finally {
-                batched.close()
+                batched?.close()
             }
         } finally {
             agent4.close()
         }
     }
+
+
 }
-*/
+

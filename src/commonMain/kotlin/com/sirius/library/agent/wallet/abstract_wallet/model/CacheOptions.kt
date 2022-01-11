@@ -2,11 +2,13 @@ package com.sirius.library.agent.wallet.abstract_wallet.model
 
 import com.sirius.library.base.JsonSerializable
 import com.sirius.library.utils.JSONObject
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
+@Serializable
 class CacheOptions : JsonSerializable<CacheOptions> {
     var noCache = false
     var noUpdate = false
