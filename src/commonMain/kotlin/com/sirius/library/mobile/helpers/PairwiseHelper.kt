@@ -27,6 +27,9 @@ class PairwiseHelper {
             }
             return pairwiseHelper!!
         }
+        fun cleanInstance(){
+            pairwiseHelper = null
+        }
     }
 
 

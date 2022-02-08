@@ -2,6 +2,7 @@ package com.sirius.library.mobile.helpers
 
 
 import com.sirius.library.hub.MobileContext
+import com.sirius.library.mobile.SiriusSDK
 import com.sirius.library.mobile.scenario.BaseScenario
 import com.sirius.library.mobile.scenario.EventAction
 import com.sirius.library.mobile.scenario.EventActionAbstract
@@ -21,6 +22,9 @@ class ScenarioHelper {
                 scenarioHelper = ScenarioHelper()
             }
             return scenarioHelper!!
+        }
+        fun cleanInstance(){
+            scenarioHelper = null
         }
     }
 

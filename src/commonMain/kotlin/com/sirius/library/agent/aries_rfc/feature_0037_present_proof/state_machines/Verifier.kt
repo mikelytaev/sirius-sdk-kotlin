@@ -2,10 +2,7 @@ package com.sirius.library.agent.aries_rfc.feature_0037_present_proof.state_mach
 
 import com.sirius.library.agent.aries_rfc.feature_0015_ack.Ack
 import com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.messages.AttribTranslation
-import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages.BasePresentProofMessage
-import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages.PresentProofProblemReport
-import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages.PresentationMessage
-import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages.RequestPresentationMessage
+import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages.*
 import com.sirius.library.agent.ledger.Ledger
 import com.sirius.library.agent.pairwise.Pairwise
 import com.sirius.library.agent.wallet.abstract_wallet.model.CacheOptions
@@ -27,6 +24,8 @@ class Verifier : BaseVerifyStateMachine {
     var log: Logger = Logger.getLogger(Verifier::class.simpleName)
     var poolname: String
     var requestedProof: JSONObject? = null
+    var revealedAttrs: JSONObject? = null
+
 
     constructor(context: Context<*>, prover: Pairwise, ledger: Ledger?, timeToLive: Int) : super(context) {
         this.context = context
@@ -148,7 +147,10 @@ class Verifier : BaseVerifyStateMachine {
                     )
                     return if (success) {
                         requestedProof = presentationMessage.proof().getJSONObject("requested_proof")
-                        val ack: Ack = Ack.builder().setStatus(Ack.Status.OK).build()
+
+                        revealedAttrs = revealAttrs(requestedProof, params.proofRequest)
+                        val ack: PresentationAck = PresentationAck.builder().setStatus(Ack.Status.OK).build()
+
                         ack.setThreadId(if (presentationMessage.hasPleaseAck()) presentationMessage.getAckMessageId() else presentationMessage.getId())
                         log.log(Logger.Level.INFO, "100% - Verifying terminated successfully")
                         coprotocol.send(ack)
@@ -167,6 +169,45 @@ class Verifier : BaseVerifyStateMachine {
             e.printStackTrace()
         }
         return false
+    }
+
+    private fun revealAttrs(
+        requestedProof: JSONObject?,
+        proofRequest:JSONObject?
+    ): JSONObject {
+        val revAttrs: JSONObject = JSONObject()
+        val selfAttestedAttrs: JSONObject? = requestedProof?.getJSONObject("self_attested_attrs")
+        selfAttestedAttrs?.let {
+            for (refId in selfAttestedAttrs.keySet()) {
+                if (proofRequest?.getJSONObject("requested_attributes")?.has(refId)==true) {
+                    if (proofRequest.getJSONObject("requested_attributes")?.getJSONObject(refId)?.has("name")==true) {
+                        val attrName: String? =
+                            proofRequest.getJSONObject("requested_attributes")?.getJSONObject(refId)?.optString("name")
+                        attrName?.let {
+                            revAttrs.put(attrName, selfAttestedAttrs?.get(refId))
+                        }
+
+                    }
+                }
+            }
+        }
+
+        val revealedAttrs: JSONObject? = requestedProof?.getJSONObject("revealed_attrs")
+        revealedAttrs?.let {
+            for (refId in revealedAttrs.keySet()) {
+                if (proofRequest?.getJSONObject("requested_attributes")?.has(refId)==true) {
+                    if (proofRequest.getJSONObject("requested_attributes")?.getJSONObject(refId)?.has("name")==true) {
+                        val attrName: String? =
+                            proofRequest.getJSONObject("requested_attributes")?.getJSONObject(refId)?.optString("name")
+                        attrName?.let {
+                            revAttrs.put(attrName, revealedAttrs?.getJSONObject(refId)?.optString("raw"))
+                        }
+
+                    }
+                }
+            }
+        }
+        return revAttrs
     }
 
 

@@ -2,10 +2,7 @@ package com.sirius.library.messaging
 
 import com.sirius.library.agent.aries_rfc.feature_0015_ack.Ack
 import com.sirius.library.agent.aries_rfc.feature_0036_issue_credential.messages.*
-import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages.BasePresentProofMessage
-import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages.PresentProofProblemReport
-import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages.PresentationMessage
-import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages.RequestPresentationMessage
+import com.sirius.library.agent.aries_rfc.feature_0037_present_proof.messages.*
 import com.sirius.library.agent.aries_rfc.feature_0048_trust_ping.Ping
 import com.sirius.library.agent.aries_rfc.feature_0048_trust_ping.Pong
 import com.sirius.library.agent.aries_rfc.feature_0113_question_answer.messages.AnswerMessage
@@ -194,6 +191,14 @@ class MessageFabric {
                 "problem_report"
             ){
                 SimpleConsensusProblemReport(it)
+            }
+
+            Message.registerMessageClass(
+                PresentationAck::class,
+                BasePresentProofMessage.PROTOCOL,
+                "ack"
+            ){
+                PresentationAck(it)
             }
         }
     }

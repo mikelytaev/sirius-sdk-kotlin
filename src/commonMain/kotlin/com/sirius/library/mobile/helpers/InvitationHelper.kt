@@ -18,6 +18,9 @@ class InvitationHelper {
             }
             return invitationHelper!!
         }
+        fun cleanInstance(){
+            invitationHelper = null
+        }
     }
 
 

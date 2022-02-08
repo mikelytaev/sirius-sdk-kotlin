@@ -218,10 +218,10 @@ class MobileContext(config: MobileHub.Config) : Context<MobileHub>(MobileHub(con
 
     companion object {
         const val MEDIATOR_ENDPOINTS = "MEDIATOR_ENDPOINTS"
-
+        const val PROTOCOL_VERSION = 2
         fun addPool(name: String?, txnPath: String?) {
-
-            PoolMobile.registerPool(name, txnPath)
+            PoolMobile.setProtocolVersion(PROTOCOL_VERSION)
+            PoolMobile.registerPool(name, txnPath )
         }
 
         fun builder(): MobileContextBuilder {

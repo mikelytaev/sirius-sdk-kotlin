@@ -17,6 +17,7 @@ actual class CacheMobile actual constructor(val wallet: LocalWallet) : AbstractC
         try {
             val pool: Pool? = poolMobile.getPoolHandle(poolName?:"")
             val optionsStr: String? = options?.serialize()
+            println("getSchema submitter_did"+submitter_did +" id="+id+" optionsStr="+optionsStr +" pool="+pool)
             return Cache.getSchema(pool, wallet, submitter_did, id, optionsStr)
                 .get(timeoutSec.toLong(), java.util.concurrent.TimeUnit.SECONDS)
         } catch (e: java.lang.Exception) {
@@ -29,6 +30,7 @@ actual class CacheMobile actual constructor(val wallet: LocalWallet) : AbstractC
         try {
             val pool: Pool? = poolMobile.getPoolHandle(poolName?:"")
             val optionsStr: String? = options?.serialize()
+            println("getCredDef submitter_did"+submitter_did +" id="+id+" optionsStr="+optionsStr  + "pool="+pool)
             return Cache.getCredDef(pool, wallet, submitter_did, id, optionsStr)
                 .get(timeoutSec.toLong(), java.util.concurrent.TimeUnit.SECONDS)
         } catch (e: java.lang.Exception) {

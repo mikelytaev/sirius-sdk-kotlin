@@ -26,6 +26,10 @@ class ChanelHelper {
             }
             return chanelHelper!!
         }
+
+        fun cleanInstance(){
+            chanelHelper = null
+        }
     }
 
     fun initListener() {

@@ -13,13 +13,22 @@ plugins {
     id 'kotlin-android-extensions'
 
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.0'
+    id 'maven-publish'
 }
 
 
-group = 'com.sirius'
+group = 'com.sirius.sdk'
 version = '1.0-SNAPSHOT'
 //cocoapodVersion = '1.0'
 
+publishing {
+    repositories {
+        maven {
+
+        }
+    }
+
+}
 repositories {
     google()
     jcenter()
@@ -72,8 +81,9 @@ kotlin {
         }
     }
 
-    android()
-
+    android{
+        publishLibraryVariants("release")
+    }
 
 
 

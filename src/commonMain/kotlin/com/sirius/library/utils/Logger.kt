@@ -23,8 +23,33 @@ class Logger {
         println(string)
     }
 
+
+    fun logLongText(sb: String) {
+        if (sb == null) {
+            info(sb)
+            return
+        }
+        if (sb.length > 2900) {
+            info("sb.length = " + sb.length)
+            val chunkCount = sb.length / 2900 // integer division
+            for (i in 0..chunkCount) {
+                val max = 2900 * (i + 1)
+                if (max >= sb.length) {
+                    info( "chunk " + i + " of " + chunkCount + ":" + sb.substring(2900 * i))
+                } else {
+                    info("chunk " + i + " of " + chunkCount + ":" + sb.substring(2900 * i, max))
+                }
+            }
+        } else {
+            info(sb)
+        }
+    }
+
     fun info(string: String){
         log(Level.INFO,string)
     }
 
+    fun verbose(string: String){
+        log(Level.DEBUG,string)
+    }
 }

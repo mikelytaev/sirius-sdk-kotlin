@@ -13,5 +13,5 @@ pluginManagement {
         }
     }
 }
-rootProject.name = 'SiriusSdkKotlin2'
+rootProject.name = 'sdkkotlin'
 include (':multiplatform-crypto-libsodium-bindings')

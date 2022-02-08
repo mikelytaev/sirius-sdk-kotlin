@@ -24,6 +24,10 @@ class WalletHelper constructor(
             }
             return instanceWalletHelper!!
         }
+
+        fun cleanInstance(){
+            instanceWalletHelper = null
+        }
     }
 
 
@@ -435,6 +439,10 @@ class WalletHelper constructor(
     fun open(){
         context.currentHub.agent?.open()
     }
+
+
+
+
     fun closeWallet() {
         context.close()
        /* try {

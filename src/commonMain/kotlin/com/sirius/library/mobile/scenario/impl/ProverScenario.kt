@@ -44,7 +44,7 @@ abstract class ProverScenario(val eventStorage : EventStorageAbstract) : BaseSce
         }
     }
 
-    fun accept(id: String, comment: String?,actionListener: EventActionListener?) {
+    fun accept(id: String, comment: String?,actionListener: EventActionListener?, poolName : String? =null) {
         actionListener?.onActionStart(EventAction.accept, id, comment)
         val event = eventStorage.getEvent(id)
         val requestPresentation = event?.second as? RequestPresentationMessage
@@ -52,11 +52,12 @@ abstract class ProverScenario(val eventStorage : EventStorageAbstract) : BaseSce
         val pairwise = PairwiseHelper.getInstance().getPairwise(event?.first)
         val masterSecretId: String =
             HashUtils.generateHash(SiriusSDK.getInstance().label?:"")
+        println("prover masterSecretId="+masterSecretId)
         // val proverLedger: Ledger? = SiriusSDK.getInstance().context.getLedgers().get("default")
         // proverLedger?.let {
         var machine :Prover? =null
             if(pairwise!=null){
-            machine = Prover(SiriusSDK.getInstance().context, pairwise, masterSecretId)
+            machine = Prover(SiriusSDK.getInstance().context, pairwise, masterSecretId,poolName)
         }
         var isProved = false
         try{

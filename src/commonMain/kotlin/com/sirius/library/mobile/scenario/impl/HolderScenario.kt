@@ -72,6 +72,7 @@ abstract class HolderScenario(val eventStorage: EventStorageAbstract) : BaseScen
         val pairwise  : Pairwise?= PairwiseHelper.getInstance().getPairwise(event?.first)
         val masterSecretId: String =
             HashUtils.generateHash(SiriusSDK.getInstance().label?:"")
+        println("holder masterSecretId="+masterSecretId)
         if(pairwise!=null){
             holderMachine = Holder(SiriusSDK.getInstance().context, pairwise, masterSecretId)
         }

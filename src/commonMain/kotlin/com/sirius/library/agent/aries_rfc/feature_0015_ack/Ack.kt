@@ -5,7 +5,7 @@ import com.sirius.library.messaging.Message
 import com.sirius.library.utils.JSONObject
 import kotlin.reflect.KClass
 
-class Ack(message: String) : AriesProtocolMessage(message) {
+open class Ack(message: String) : AriesProtocolMessage(message) {
     companion object {
         const val PROTOCOL = "notification"
         fun builder(): Builder<*> {
@@ -34,7 +34,7 @@ class Ack(message: String) : AriesProtocolMessage(message) {
             return jsonObject
         }
 
-        fun build(): Ack {
+        open fun build(): Ack {
             return Ack(generateJSON().toString())
         }
     }

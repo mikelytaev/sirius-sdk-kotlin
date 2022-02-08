@@ -5,6 +5,7 @@ import com.sirius.library.agent.wallet.abstract_wallet.AbstractAnonCreds
 import com.sirius.library.agent.wallet.abstract_wallet.model.AnonCredSchema
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
+import com.sirius.library.utils.Logger
 import org.hyperledger.indy.sdk.anoncreds.Anoncreds
 import org.hyperledger.indy.sdk.anoncreds.AnoncredsResults
 import org.hyperledger.indy.sdk.anoncreds.CredentialsSearchForProofReq
@@ -318,6 +319,14 @@ override fun proverSearchCredentialsForProofReq(
         revStates: JSONObject?
     ): JSONObject? {
         try {
+            val logger = Logger.getLogger("PROVER")
+            logger.logLongText("--proverCreateProof START--")
+            logger.logLongText("proofReq.toString()="+proofReq.toString())
+            logger.logLongText(" requestedCredentials.toString()="+ requestedCredentials.toString())
+            logger.logLongText("   masterSEcret.toString()"+   masterSecretName)
+            logger.logLongText("   schemas.toString()"+   schemas.toString())
+            logger.logLongText(" credentialDefs.toString()"+   credentialDefs.toString())
+            logger.logLongText(" revStates.toString()"+   revStates.toString())
             val resStr: String = Anoncreds.proverCreateProof(
                 wallet,
                 proofReq.toString(),
@@ -327,6 +336,8 @@ override fun proverSearchCredentialsForProofReq(
                 credentialDefs.toString(),
                 revStates.toString()
             ).get(timeoutSec, java.util.concurrent.TimeUnit.SECONDS)
+            logger.logLongText("resStr"+   resStr)
+            logger.logLongText("--proverCreateProof END--")
             return JSONObject(resStr)
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
