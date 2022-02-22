@@ -478,7 +478,7 @@ class TestMicroledgers {
         }
     }
 
-   /* @Test
+    @Test
     fun testLeafHash() {
         val agent4: CloudAgent = confTest.getAgent("agent4")
         val ledgerName: String = confTest.ledgerName()
@@ -504,7 +504,7 @@ class TestMicroledgers {
         } finally {
             agent4.close()
         }
-    }*/
+    }
 
     @Test
     fun testRename() {

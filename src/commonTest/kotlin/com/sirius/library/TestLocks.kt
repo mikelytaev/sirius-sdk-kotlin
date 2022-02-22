@@ -112,7 +112,7 @@ class TestLocks {
         }
     }
 
-   /* @Test
+    @Test
     fun testDifferentAccounts() {
         val testSuite: ServerTestSuite = confTest.suiteSingleton
         val params1: AgentParams = testSuite.getAgentParams("agent1")
@@ -141,7 +141,7 @@ class TestLocks {
             session1.close()
             session2.close()
         }
-    }*/
+    }
 
     companion object {
         fun generateRandomResources(size: Int): List<String> {

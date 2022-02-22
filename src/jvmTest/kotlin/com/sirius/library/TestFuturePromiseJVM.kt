@@ -21,7 +21,7 @@ class TestFuturePromiseJVM {
         p2pPair = confTest.createP2P()*/
     }
 
-  /*  @Test
+    @Test
     fun testSane() {
         val agent_to_sdk: AddressedTunnel = p2pPair!!.first.getTunneli()
         val sdk_to_agent: AddressedTunnel = p2pPair!!.second.getTunneli()
@@ -60,7 +60,7 @@ class TestFuturePromiseJVM {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-    }*/
+    }
 
 
     @Test
@@ -77,7 +77,6 @@ class TestFuturePromiseJVM {
 
     }
 
-/*
     @Test
     fun testCompletableFuture1() {
         var readFuture: CompletableFutureKotlin<ByteArray?> =
@@ -91,6 +90,5 @@ class TestFuturePromiseJVM {
         println("byteArray="+byteArray)
 
     }
-*/
 
 }

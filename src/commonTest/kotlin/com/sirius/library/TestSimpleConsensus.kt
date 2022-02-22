@@ -34,7 +34,7 @@ class TestSimpleConsensus {
         future.get(60)
     }
 
-   /* @Test
+    @Test
     @Throws(SiriusContextError::class, SiriusValidationError::class)
     fun testInitLedgerMessaging() {
 
@@ -81,7 +81,7 @@ class TestSimpleConsensus {
             agentA.close()
             agentB.close()
         }
-    }*/
+    }
 
     @Test
     @Throws(SiriusValidationError::class)

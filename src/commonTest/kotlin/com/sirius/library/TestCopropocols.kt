@@ -336,7 +336,7 @@ class TestCopropocols {
         checkMsgLog()
     }
 
-   /* @Test
+    @Test
     fun testCoprotocolThreadedTheirsSend() {
        val agent1: CloudAgent = confTest.getAgent("agent1")
         val agent2: CloudAgent = confTest.getAgent("agent2")
@@ -402,7 +402,7 @@ class TestCopropocols {
         }
         assertEquals(2, rcvMessages.size.toLong())
     }
-*/
+
     @Test
     fun testCoprotocolThreadedTheirsSwitch() {
         val agent1: CloudAgent = confTest.getAgent("agent1")
