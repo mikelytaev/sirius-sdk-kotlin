@@ -22,7 +22,7 @@ import com.sirius.library.utils.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -43,8 +43,7 @@ class TestAriesFeature0037 {
         future.get(60)
     }
 
-    @Test
-
+    /*@Test
     fun testSane() {
        val issuer: CloudAgent = confTest.getAgent("agent1")
         val prover: CloudAgent = confTest.getAgent("agent2")
@@ -172,5 +171,5 @@ class TestAriesFeature0037 {
 
        // assertTrue(runProver.get(60)
       //  assertTrue(runVerifier.get(60)
-    }
+    }*/
 }

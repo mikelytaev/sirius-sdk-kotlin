@@ -212,7 +212,7 @@ class TestWallet {
 
     }
 
-    @Test
+/*    @Test
     fun testRecordValueWithTags() {
 
             val agent1: CloudAgent = confTest.agent1()
@@ -252,7 +252,7 @@ class TestWallet {
             assertEquals(tags.toString(), valueInfoNew3Object.optJSONObject("tags").toString())
             agent1.close()
 
-    }
+    }*/
 
     @Test
     fun testRecordValueWithTagsThenUpdate() {
@@ -430,7 +430,7 @@ class TestWallet {
 
     }
 
-    @Test
+  /*  @Test
     fun testNymOperationsInNetwork() {
 
             val agent1: CloudAgent = confTest.agent1()
@@ -501,8 +501,8 @@ class TestWallet {
 
         }
     }
-
-    @Test
+*/
+   /* @Test
     fun testAttributeOperationsInNetwork() {
 
 
@@ -539,6 +539,6 @@ class TestWallet {
             agent1.close()
             agent2.close()
 
-    }
+    }*/
 }
 
