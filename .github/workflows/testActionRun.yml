@@ -20,13 +20,13 @@ jobs:
         run: docker-compose up -d
 
       - name: Start tests
-        run: ./gradlew test build
+        run: ./gradlew test
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v1
         if: always()
         with:
-          files: build/test-results/testReleaseUnitTest/TEST-com.sirius.library.TestCloudAgent.xml
+          files: build/test-results/testDebugUnitTest/TEST-com.sirius.library.TestCloudAgent.xml
 
 
 
