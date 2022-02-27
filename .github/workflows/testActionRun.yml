@@ -22,5 +22,11 @@ jobs:
       - name: Start tests
         run: ./gradlew test build
 
+      - name: Publish Unit Test Results
+          uses: EnricoMi/publish-unit-test-result-action/composite@v1
+          if: always()
+          with:
+            files: build/test-results/testDebugUnitTest/TEST-com.sirius.library.TestCloudAgent.xml
+
 
 
