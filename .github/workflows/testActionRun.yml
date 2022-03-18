@@ -18,6 +18,8 @@ jobs:
       - name: Start containers
         working-directory: ./test_suite
         run: docker-compose up -d
+        
+      - run: sleep 30
 
       - name: Start tests
         run: ./gradlew jvmtest
