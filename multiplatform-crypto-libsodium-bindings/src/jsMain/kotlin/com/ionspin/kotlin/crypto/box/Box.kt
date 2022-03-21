@@ -196,5 +196,42 @@ actual object Box {
         }
     }
 
+    /**
+     * The crypto_box() function encrypts a message m whose length is mlen bytes, with a recipient's public key pk, a sender's secret key sk and a nonce n.
+     * n should be crypto_box_NONCEBYTES bytes.
+     * c should be at least crypto_box_MACBYTES + mlen bytes long.
+     * This function writes the authentication tag, whose length is crypto_box_MACBYTES bytes, in c,
+     * immediately followed by the encrypted message, whose length is the same as the plaintext: mlen.
+     */
+    actual fun box(
+        ciphertext: UByteArray,
+        message: UByteArray,
+        nonce: UByteArray,
+        recipientsPublicKey: UByteArray,
+        sendersSecretKey: UByteArray
+    ): UByteArray {
+        //TODO("Not yet implemented")
+        return UByteArray(0)
+
+    }
+
+    /**
+     * The crypto_box_open() function verifies and decrypts a ciphertext produced by crypto_box_easy().
+     * c is a pointer to an authentication tag + encrypted message combination, as produced by crypto_box_easy(). clen is the length of this authentication tag + encrypted message combination. Put differently, clen is the number of bytes written by crypto_box_easy(), which is crypto_box_MACBYTES + the length of the message.
+     * The nonce n has to match the nonce used to encrypt and authenticate the message.
+     * pk is the public key of the sender that encrypted the message. sk is the secret key of the recipient that is willing to verify and decrypt it.
+     * The function throws [BoxCorruptedOrTamperedDataException] if the verification fails.
+     */
+    actual fun openBox(
+        message: UByteArray,
+        ciphertext: UByteArray,
+        nonce: UByteArray,
+        sendersPublicKey: UByteArray,
+        recipientsSecretKey: UByteArray
+    ): UByteArray {
+        //TODO("Not yet implemented")
+        return UByteArray(0)
+    }
+
 
 }
