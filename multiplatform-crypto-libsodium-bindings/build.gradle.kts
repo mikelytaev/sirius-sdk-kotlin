@@ -125,6 +125,7 @@ kotlin {
             }
 
         }
+
         linuxX64() {
             compilations.getByName("main") {
                 val libsodiumCinterop by cinterops.creating {
@@ -278,7 +279,8 @@ kotlin {
  */
 
     println("Configuring Mingw targets")
-    mingwX64() {
+   // mingwX64() {
+        /*
         binaries {
             staticLib {
                 optimized = true
@@ -293,7 +295,11 @@ kotlin {
                 "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-mingw-x86-64/lib/libsodium.a"
             )
         }
-    }
+
+         */
+  //  }
+    
+
     println(targets.names)
 
     sourceSets {
@@ -359,10 +365,13 @@ kotlin {
         val iosSimulator = setOf(
             "iosX64", "iosSimulatorArm64"
         )
+        /*
         val mingw64Bit = setOf(
             "mingwX64"
         )
 
+
+         */
         val tvosArm = setOf(
             "tvosArm64"
         )
@@ -621,7 +630,7 @@ kotlin {
  */
         }
 
-
+/*
         if (hostOsName == "windows") {
             val mingwX64Main by getting {
                 dependsOn(nativeMain)
@@ -638,6 +647,8 @@ kotlin {
             }
         }
 
+
+ */
 
         all {
             languageSettings.enableLanguageFeature("InlineClasses")
@@ -732,6 +743,7 @@ tasks {
 //        }
     }
 
+    /*
     if (getHostOsName() == "windows") {
         val mingwX64Test by getting(KotlinNativeTest::class) {
 
@@ -742,6 +754,8 @@ tasks {
         }
     }
 
+
+     */
 }
 
 allprojects {
