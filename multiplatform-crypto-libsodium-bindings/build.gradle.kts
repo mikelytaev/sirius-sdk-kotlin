@@ -404,10 +404,10 @@ kotlin {
                     compilations.getByName("main") {
                         val libsodiumCinterop by cinterops.creating {
                             defFile(projectRef.file("src/nativeInterop/cinterop/libsodium.def"))
-                            compilerOpts.add("-I${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-arm64/include/")
+                            compilerOpts.add("-I${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-arm32/include/")
                         }
                         kotlinOptions.freeCompilerArgs = listOf(
-                            "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-arm64/lib/libsodium.a"
+                            "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-arm32/lib/libsodium.a"
                         )
                     }
                 }
