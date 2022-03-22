@@ -1,4 +1,4 @@
-/*
+*
  *    Copyright 2019 Ugljesa Jovanovic
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -104,73 +104,8 @@ kotlin {
 
     jvm()
     val projectRef = project
-    runningOnLinuxx86_64 {
-        println("Configuring Linux X86-64 targets")
 
 
-        js(IR) {
-            browser {
-                testTask {
-                    useKarma {
-                        useChromeHeadless()
-                    }
-                }
-            }
-            nodejs {
-                testTask {
-                    useMocha() {
-                        timeout = "10s"
-                    }
-                }
-            }
-
-        }
-
-        linuxX64() {
-            compilations.getByName("main") {
-                val libsodiumCinterop by cinterops.creating {
-                    defFile(projectRef.file("src/nativeInterop/cinterop/libsodium.def"))
-                    compilerOpts.add("-I${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-linux-x86-64/include/")
-                }
-                kotlinOptions.freeCompilerArgs = listOf(
-                    "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-linux-x86-64/lib/libsodium.a"
-                )
-            }
-            binaries {
-                staticLib {
-                }
-            }
-        }
-
-        if (ideaActive.not()) {
-            linuxArm64() {
-                binaries {
-                    staticLib {
-                    }
-                }
-            }
-            // Linux 32 is using target-sysroot-2-raspberrypi which is missing getrandom and explicit_bzero in stdlib
-            // so konanc can't build klib because getrandom missing will cause sodium_misuse()
-            //     ld.lld: error: undefined symbol: explicit_bzero
-            //     >>> referenced by utils.c
-            //     >>>               libsodium_la-utils.o:(sodium_memzero) in archive /tmp/included11051337748775083797/libsodium.a
-            //
-            //     ld.lld: error: undefined symbol: getrandom
-            //     >>> referenced by randombytes_sysrandom.c
-            //     >>>               libsodium_la-randombytes_sysrandom.o:(_randombytes_linux_getrandom) in archive /tmp/included11051337748775083797/libsodium.a
-        }
-
-    }
-
-    runningOnLinuxArm64 {
-        println("Configuring Linux Arm 64 targets")
-
-    }
-
-    runningOnLinuxArm32 {
-        println("Configuring Linux Arm 32 targets")
-
-    }
     println("Configuring macos targets")
 
     iosX64() {
@@ -339,21 +274,7 @@ kotlin {
             }
         }
 
-        //Set up shared source sets
-        //linux, linuxArm32Hfp, linuxArm64
-        val linux64Bit = setOf(
-            "linuxX64"
-        )
-        val linuxArm64Bit = setOf(
-            if (ideaActive.not()) {
-                "linuxArm64"
-            } else {
-                ""
-            }
-        )
-        val linux32Bit = setOf(
-            "" // "linuxArm32Hfp"
-        )
+
 
         //iosArm32, iosArm64, iosX64, macosX64, metadata, tvosArm64, tvosX64, watchosArm32, watchosArm64, watchosX86
         val macos64Bit = setOf(
@@ -390,30 +311,7 @@ kotlin {
             println("Target $name")
 
             compilations.getByName("main") {
-                if (linux64Bit.contains(this@withType.name)) {
-                    defaultSourceSet.dependsOn(nativeMain)
-                }
-                if (linuxArm64Bit.contains(this@withType.name)) {
-                    defaultSourceSet.dependsOn(
-                        createWorkaroundNativeMainSourceSet(
-                            this@withType.name,
-                            nativeDependencies
-                        )
-                    )
 
-                    compilations.getByName("main") {
-                        val libsodiumCinterop by cinterops.creating {
-                            defFile(projectRef.file("src/nativeInterop/cinterop/libsodium.def"))
-                            compilerOpts.add("-I${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-arm32/include/")
-                        }
-                        kotlinOptions.freeCompilerArgs = listOf(
-                            "-include-binary", "${projectRef.rootDir}/multiplatform-crypto-libsodium-bindings/sodiumWrapper/static-arm32/lib/libsodium.a"
-                        )
-                    }
-                }
-                if (linux32Bit.contains(this@withType.name)) {
-                    defaultSourceSet.dependsOn(createWorkaroundNativeMainSourceSet(this@withType.name, nativeDependencies))
-                }
                 if (macos64Bit.contains(this@withType.name)) {
                     defaultSourceSet.dependsOn(createWorkaroundNativeMainSourceSet(this@withType.name, nativeDependencies))
                     println("Setting macos cinterop for $this")
@@ -558,36 +456,7 @@ kotlin {
                 implementation(kotlin(Deps.Jvm.reflection))
             }
         }
-        runningOnLinuxx86_64 {
-            println("Configuring Linux 64 Bit source sets")
 
-
-
-            val jsMain by getting {
-                dependencies {
-                    implementation(kotlin(Deps.Js.stdLib))
-                    implementation(npm(Deps.Js.Npm.libsodiumWrappers.first, Deps.Js.Npm.libsodiumWrappers.second))
-                }
-            }
-            val jsTest by getting {
-                dependencies {
-                    implementation(kotlin(Deps.Js.test))
-                    implementation(npm(Deps.Js.Npm.libsodiumWrappers.first, Deps.Js.Npm.libsodiumWrappers.second))
-                }
-            }
-            val linuxX64Main by getting {
-                isRunningInIdea {
-                    kotlin.srcDir("src/nativeMain/kotlin")
-                }
-            }
-            val linuxX64Test by getting {
-                dependsOn(nativeTest)
-                isRunningInIdea {
-                    kotlin.srcDir("src/nativeTest/kotlin")
-                }
-            }
-
-        }
 
         runningOnMacos {
             println("Configuring Macos source sets")
@@ -683,65 +552,7 @@ tasks {
         }
     }
 
-    if (getHostOsName() == "linux" && getHostArchitecture() == "x86-64") {
-        val jvmTest by getting(Test::class) {
-            testLogging {
-                events("PASSED", "FAILED", "SKIPPED")
-                exceptionFormat = TestExceptionFormat.FULL
-                showStandardStreams = true
-                showStackTraces = true
-            }
-        }
 
-        val linuxX64Test by getting(KotlinNativeTest::class) {
-
-            testLogging {
-                events("PASSED", "FAILED", "SKIPPED")
-                exceptionFormat = TestExceptionFormat.FULL
-                showStandardStreams = true
-                showStackTraces = true
-            }
-        }
-        val jsNodeTest by getting(KotlinJsTest::class) {
-            testLogging {
-                events("PASSED", "FAILED", "SKIPPED")
-                exceptionFormat = TestExceptionFormat.FULL
-                showStandardStreams = true
-                showStackTraces = true
-            }
-        }
-
-
-
-//        val legacyjsNodeTest by getting(KotlinJsTest::class) {
-//
-//            testLogging {
-//                events("PASSED", "FAILED", "SKIPPED")
-//                showStandardStreams = true
-//            }
-//        }
-
-        val jsBrowserTest by getting(KotlinJsTest::class) {
-            testLogging {
-                events("PASSED", "FAILED", "SKIPPED")
-                showStandardStreams = true
-            }
-        }
-
-//        val jsLegacyBrowserTest by getting(KotlinJsTest::class) {
-//            testLogging {
-//                events("PASSED", "FAILED", "SKIPPED")
-//                showStandardStreams = true
-//            }
-//        }
-//
-//        val jsIrBrowserTest by getting(KotlinJsTest::class) {
-//            testLogging {
-//                events("PASSED", "FAILED", "SKIPPED")
-//                showStandardStreams = true
-//            }
-//        }
-    }
 
     /*
     if (getHostOsName() == "windows") {
@@ -1020,23 +831,8 @@ fun KotlinMultiplatformExtension.isRunningInGitlabCi(block: KotlinMultiplatformE
     }
 }
 
-fun KotlinMultiplatformExtension.runningOnLinuxx86_64(block: KotlinMultiplatformExtension.() -> Unit) {
-    if (getHostOsName() == "linux" && getHostArchitecture() == "x86-64") {
-        block(this)
-    }
-}
 
-fun KotlinMultiplatformExtension.runningOnLinuxArm64(block: KotlinMultiplatformExtension.() -> Unit) {
-    if (getHostOsName() == "linux" && getHostArchitecture() == "aarch64") {
-        block(this)
-    }
-}
 
-fun KotlinMultiplatformExtension.runningOnLinuxArm32(block: KotlinMultiplatformExtension.() -> Unit) {
-    if (getHostOsName() == "linux" && getHostArchitecture() == "arm-v7") {
-        block(this)
-    }
-}
 
 fun KotlinMultiplatformExtension.runningOnMacos(block: KotlinMultiplatformExtension.() -> Unit) {
     if (getHostOsName() == "macos") {
@@ -1075,5 +871,4 @@ fun NamedDomainObjectContainer<KotlinSourceSet>.createWorkaroundNativeMainSource
     }
 
 }
-
 
