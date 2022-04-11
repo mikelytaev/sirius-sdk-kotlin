@@ -17,17 +17,24 @@ plugins {
 }
 
 
-group = 'com.sirius.sdk'
-version = '1.0-SNAPSHOT'
+group = 'com.sirius.library'
+version = '0.9.0-SNAPSHOT'
 //cocoapodVersion = '1.0'
 
-publishing {
-    repositories {
-        maven {
 
+publishing {
+
+    publications {
+        release(MavenPublication) {
+            groupId = 'com.sirius'
+            artifactId = 'library'
+            version = '0.9.0'
+
+            afterEvaluate {
+                from components.release
+            }
         }
     }
-
 }
 repositories {
     google()
@@ -83,6 +90,12 @@ kotlin {
 
     android{
         publishLibraryVariants("release")
+        publishing {
+            singleVariant('release') {
+                withSourcesJar()
+            }
+
+        }
     }
 
 
@@ -190,6 +203,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    namespace = 'com.sirius.library'
 }
 dependencies {
     implementation "androidx.core:core-ktx:1.6.0"
