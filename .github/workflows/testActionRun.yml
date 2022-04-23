@@ -28,7 +28,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action/composite@v1
         if: always()
         with:
-          files: build/test-results/testDebugUnitTest/*.xml
+          files: build/test-results/jvmTest/*.xml
 
 
 
