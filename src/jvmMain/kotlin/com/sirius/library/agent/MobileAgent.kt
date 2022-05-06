@@ -186,7 +186,7 @@ actual  class MobileAgent actual constructor(walletConfig: JSONObject?, walletCr
            println("  StringUtils.stringToBytes(msg.messageObj.toString(), UTF_8)=" + msg.messageObj.toString())
             return Crypto.packMessage(
                 indyWallet, receivers.toString(),
-                myVk, StringUtils.stringToBytes(msg.messageObj.toString(), StringUtils.CODEC.US_ASCII)
+                myVk, StringUtils.stringToBytes(msg.messageObj.toString(), StringUtils.CODEC.UTF_8)
             ).get(timeoutSec.toLong(), java.util.concurrent.TimeUnit.SECONDS)
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
