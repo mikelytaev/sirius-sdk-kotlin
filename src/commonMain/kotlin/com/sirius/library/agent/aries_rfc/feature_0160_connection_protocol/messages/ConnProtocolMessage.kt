@@ -1,7 +1,6 @@
 package com.sirius.library.agent.aries_rfc.feature_0160_connection_protocol.messages
 
 import com.sirius.library.agent.aries_rfc.AriesProtocolMessage
-import com.sirius.library.agent.aries_rfc.DidDoc
 import com.sirius.library.errors.sirius_exceptions.SiriusInvalidMessage
 import com.sirius.library.utils.JSONArray
 import com.sirius.library.utils.JSONObject
