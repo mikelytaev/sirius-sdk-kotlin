@@ -45,6 +45,9 @@ repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
     maven { url  "https://repo.sovrin.org/repository/maven-public"  }
+    maven {
+        url "https://repo.danubetech.com/repository/maven-public"
+    }
 }
 
 
@@ -117,6 +120,8 @@ kotlin {
                 implementation 'org.jetbrains.kotlinx:kotlinx-datetime:0.3.0'
                 implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-RC2'
                 implementation 'io.ktor:ktor-client-core:1.6.4'
+                implementation 'info.weboftrust:ld-signatures-java:1.1-SNAPSHOT'
+                implementation 'com.danubetech:key-formats-java:1.2.0'
              //   testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1'
                // implementation 'com.github.hadilq:log4k-metadata:2.3.1'
                // implementation 'com.benasher44:uuid:0.3.1'
